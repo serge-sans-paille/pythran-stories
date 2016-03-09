@@ -10,7 +10,7 @@ channels:&lt;/p&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;As usual, here is a (new) code sample, once again adapted from a
-stackoverflow question[0] that showcases pythran capability:&lt;/p&gt;
+stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;[0]&lt;/a&gt; that showcases pythran capability:&lt;/p&gt;
 &lt;pre class="code python literal-block"&gt;
 &lt;span class="c"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
 &lt;span class="c"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
@@ -59,9 +59,19 @@ stackoverflow question[0] that showcases pythran capability:&lt;/p&gt;
     * Better testing (gcc + clang)
 &lt;/pre&gt;
 &lt;p&gt;Again, thanks a lot to Pierrick for his continuous top-quality work, and
-to the OpenDreamKit[1] project that funded (most of) the recent developments!&lt;/p&gt;
+to the OpenDreamKit &lt;a class="footnote-reference" href="#id4" id="id2"&gt;[1]&lt;/a&gt; project that funded (most of) the recent developments!&lt;/p&gt;
 &lt;p&gt;Special thanks to &amp;#64;hainm, &amp;#64;nbecker, &amp;#64;pkoch, &amp;#64;fsteinmetz, &amp;#64;Suor for their
 feedbacks. &lt;em&gt;You&lt;/em&gt; give us the motivation to go on!&lt;/p&gt;
-&lt;p&gt;[0] &lt;a class="reference external" href="http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays"&gt;http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays&lt;/a&gt;
-[1] &lt;a class="reference external" href="http://opendreamkit.org/"&gt;http://opendreamkit.org/&lt;/a&gt;&lt;/p&gt;
+&lt;table class="docutils footnote" frame="void" id="id3" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a class="reference external" href="http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays"&gt;http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;table class="docutils footnote" frame="void" id="id4" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id2"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a class="reference external" href="http://opendreamkit.org/"&gt;http://opendreamkit.org/&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 </summary></entry></feed>
