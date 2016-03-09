@@ -1,0 +1,89 @@
+Pythran 0.7.4 is out!
+#########################
+
+:date: 2016-01-07
+:category: release
+:lang: en
+:authors: serge-sans-paille
+:summary: Pythran version bump, new pypi packages and conda release!
+
+
+The pythran team (a great total of 2 active developers) is delighted to
+announce the release of Pythran 0.7.4, available on the traditional
+channels:
+
+    - pypi: https://pypi.python.org/pypi/pythran
+    - conda: https://anaconda.org/serge-sans-paille/pythran
+    - github: https://github.com/serge-sans-paille/pythran
+
+As usual, here is a (new) code sample, once again adapted from a
+stackoverflow question[0] that showcases pythran capability:
+
+.. code:: python
+
+
+    #pythran export check_mask(bool[][], bool[])
+    #  ^~~~~~~ non intrusive top-level annotation
+
+    import numpy as np
+    #      ^~~~~~ numpy support (partial)
+    def check_mask(db, out, mask=[1, 0, 1]):
+        for idx, line in enumerate(db):
+            target, vector = line[0], line[1:]
+            # ^~~~~ type destructuring, array view
+            if (mask == np.bitwise_and(mask, vector)).all():
+            # ^~~~~~~ optimization of high level construct
+                if target == 1:
+                    out[idx] = 1
+        return out
+
+
+Compiled with:
+
+.. code:: sh
+
+    % pythran check_mask.py
+
+And benchmarked with:
+
+.. code:: sh
+
+    % python -m timeit -s 'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask' 'check_mask(db, out)'
+
+On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)
+
+
+Here is an extract of the changelog:
+
+.. code::
+
+    2016-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+        * IPython's magic for pythran now supports extra compile flags
+
+        * Pythran's C++ output is compatible with Python3 and pythran3 can compile it!
+
+        * More syntax checks (and less template traceback)
+
+        * Improved UI (multiline pythran exports, better setup.py...)
+
+        * Pythonic leaning / bugfixing (this tends to be a permanent item)
+
+        * More generic support for numpy's dtype
+
+        * Simpler install (no more boost.python deps, nor nt2 configuration)
+
+        * Faster compilation (no more boost.python deps, smarter pass manager)
+
+        * Better testing (gcc + clang)
+
+Again, thanks a lot to Pierrick for his continuous top-quality work, and
+to the OpenDreamKit[1] project that funded (most of) the recent developments!
+
+Special thanks to @hainm, @nbecker, @pkoch, @fsteinmetz, @Suor for their
+feedbacks. *You* give us the motivation to go on!
+
+
+[0] http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays
+[1] http://opendreamkit.org/
+
