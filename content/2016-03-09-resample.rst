@@ -1,0 +1,167 @@
+Pythran Case: Resampling
+########################
+
+:date: 2016-03-09
+:category: optimisation
+:lang: en
+:authors: serge-sans-paille
+:summary: Optimizing an algorithm found on Stack Overflow with Pythran, getting a x2 speedup with a single line, a x4 speedup with two lines and much more while switching our brain on!
+
+While hanging on `Stackoverflow <http://stackoverflow.com>`_ (everybody does
+this, no?) I found this `Numpy code snippet
+<http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python>`_:
+
+.. code:: python
+
+    import numpy as np
+    def resample(qs, xs, rands):
+        results = np.empty_like(qs)
+        lookup = np.cumsum(qs)
+        for j, key in enumerate(rands):
+            i = np.argmax(lookup > key)
+            results[j] = xs[i]
+        return results
+
+When running it through `timeit <https://docs.python.org/2/library/timeit.html>`_, we get:
+
+.. code:: sh
+
+    % python -m timeit -s 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(xs, qs, rands)'
+    100 loops, best of 3: 3.02 msec per loop
+
+The initialization code, after the ``-s`` switch, is run only once, and includes a call to ``np.random.seed`` so that further comparisons hold.
+
+First step: Pythran
+===================
+
+What kind of optimisations could improve this code? ``np.cumsum``,
+``np.argmax`` and ``lookup > key`` all are Numpy functions, so they run as native
+code and there should not be much to gain there.
+
+**But** if we look carefully, ``lookup > key`` is building an intermediate
+array, which is then passed as argument to ``np.argmax``. This temporary array
+is not needed, as ``np.argmax`` could work on a stream. That's a typical
+shortcoming of Numpy `eager evaluation
+<https://en.wikipedia.org/wiki/Eager_evaluation>_`, a pedantic word to state
+that expressions are evaluated when they are called, and not when their result
+is needed (which is `lazy evaluation
+<https://en.wikipedia.org/wiki/Lazy_evaluation>`_).
+
+Pythran automatically computes when an expression can be lazily evaluated,
+(even when it's bound to a variable, which is not the case here). So maybe we
+could get some speedup?
+
+To use Pythran, we just add a comment line that states the expected types of
+the top-level functions:
+
+.. code:: python
+
+    #pythran export resample(float[], float[], float[])
+    import numpy as np
+    def resample(qs, xs, rands):
+        results = np.empty_like(qs)
+        lookup = np.cumsum(qs)
+        for j, key in enumerate(rands):
+            i = np.argmax(lookup > key)
+            results[j] = xs[i]
+        return results
+
+And then call the ``pythran`` compiler:
+
+.. code:: sh
+
+    % pythran resample.py
+
+This turns the Python file into a native extension, namely ``resample.so`` on Linux. Running it yields a nice speedup:
+
+.. code:: sh
+
+    % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(xs, qs, rands)'
+    1000 loops, best of 3: 1.23 msec per loop
+
+Second step: Pythran + OpenMP
+=============================
+
+But could we do better? An astute reader would note that the for loop can be
+run in parallel (iterations are independent). There's a famous standard for C,
+C++ and Fortran to parallelize this kind of trivial loops (and do many non
+trivial stuff also, but that's not the point here) called `OpenMP
+<http://openmp.org/>`_. It turns out Pythran supports OpenMP :-). By adding an extra comment (that should look pretty familiar to anyone accustomed to OpenMP) on the parallel loop:
+
+.. code:: python
+
+    #pythran export resample(float[], float[], float[])
+    import numpy as np
+    def resample(qs, xs, rands):
+        results = np.empty_like(qs)
+        lookup = np.cumsum(qs)
+        #omp parallel for
+        for j, key in enumerate(rands):
+            i = np.argmax(lookup > key)
+            results[j] = xs[i]
+        return results
+
+And adding the ``-fopenmp`` flag to the ``pythran`` call:
+
+.. code:: sh
+
+    % pythran resample.py -fopenmp
+
+We get an extra speedup (only two cores there, sorry about this :-/):
+
+.. code:: sh
+
+    % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(xs, qs, rands)'
+    1000 loops, best of 3: 693 usec per loop
+
+
+Third step: Pythran + Brain
+===========================
+
+Now wait… calling ``np.argmax`` on an array of ``bool`` is indeed a nice trick to get the index of the first value where ``lookup > key``, but it evaluates the whole array. There's no early exit, while there could be (there's only ``0`` and ``1`` after all). As pointed out on the `SO thread
+<http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python>`_, one could write a ``np_index(array_expr)`` function that behaves like the ``list.index`` one:
+
+.. code:: python
+
+    #pythran export resample(float[], float[], float[])
+    import numpy as np
+
+    def np_index(haystack, needle):
+        for i, v in enumerate(haystack):
+            if v == needle:
+                return i
+        raise ValueError("Value not found")
+
+    def resample(qs, xs, rands):
+        results = np.empty_like(qs)
+        lookup = np.cumsum(qs)
+        for j, key in enumerate(rands):
+            i = np_index(lookup > key, True)
+            results[j] = xs[i]
+        return results
+
+There's a few things to note in this implementation:
+
+    #. there's no ``pythran export`` for ``np_index`` as it's not meant to be used outside the module;
+
+    #. ``np_index`` plays well with lazy evaluation: the tail of the ``lookup > key`` expression is not evaluated if a non null value is found before;
+
+    #. Pythran supports built-in exceptions ;-)
+
+And a last benchmark:
+
+.. code:: sh
+
+    % pythran resample.py
+    % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(xs, qs, rands)'
+    1000 loops, best of 3: 64.5 usec per loop
+
+Final Thoughts
+==============
+
+This is only a story telling of the initial Stack Overflow post, reinterpreted
+with Pythran in mind. What do we learn? Numpy provides a lot of nice
+facilities, but one still need to understand some of its internal to rip the
+best of it. And using Pythran you can do so while keeping a relatively good
+abstraction!
+
