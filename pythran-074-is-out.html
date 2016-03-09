@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Pythran stories</title>
+	<meta name="description" content="">
+	<meta name="author" content="serge-sans-paille and other pythraners">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="/theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="/theme/bootstrap.min.css" rel="stylesheet">
+	<link href="/theme/local.css" rel="stylesheet">
+	<link href="/theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+	<link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed" />
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="/">Pythran stories</a>
+			<ul class="nav">
+					<li class="active"><a href="/category/release.html">release</a></li>
+			</ul>
+			<p class="pull-right"><a href="/archives.html">[archives]</a> <a href="/tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="http://pythonhosted.org/pythran">Pythran Doc</a></li>
+				<li><a href="https://pypi.python.org/pypi/pythran">Pythran on Pypi</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="https://github.com/serge-sans-paille/pythran">github</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Pythran 0.7.4 is out!</h1></div>
+		<div class="well small">Permalink: <a class="more" href="/pythran-074-is-out.html">2016-01-07 00:00:00+01:00</a>
+by <a class="url fn" href="/author/serge-sans-paille.html">serge-sans-paille </a>
+ in <a href="/category/release.html">release</a>
+</div>
+		<div><p>The pythran team (a great total of 2 active developers) is delighted to
+announce the release of Pythran 0.7.4, available on the traditional
+channels:</p>
+<blockquote>
+<ul class="simple">
+<li>pypi: <a class="reference external" href="https://pypi.python.org/pypi/pythran">https://pypi.python.org/pypi/pythran</a></li>
+<li>conda: <a class="reference external" href="https://anaconda.org/serge-sans-paille/pythran">https://anaconda.org/serge-sans-paille/pythran</a></li>
+<li>github: <a class="reference external" href="https://github.com/serge-sans-paille/pythran">https://github.com/serge-sans-paille/pythran</a></li>
+</ul>
+</blockquote>
+<p>As usual, here is a (new) code sample, once again adapted from a
+stackoverflow question[0] that showcases pythran capability:</p>
+<pre class="code python literal-block">
+<span class="c">#pythran export check_mask(bool[][], bool[])</span>
+<span class="c">#  ^~~~~~~ non intrusive top-level annotation</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="c">#      ^~~~~~ numpy support (partial)</span>
+<span class="k">def</span> <span class="nf">check_mask</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">db</span><span class="p">):</span>
+        <span class="n">target</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="c"># ^~~~~ type destructuring, array view</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">mask</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">vector</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="c"># ^~~~~~~ optimization of high level construct</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre>
+<p>Compiled with:</p>
+<pre class="code bash literal-block">
+% pythran check_mask.py
+</pre>
+<p>And benchmarked with:</p>
+<pre class="code bash literal-block">
+% python -m timeit -s <span class="s1">'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask'</span> <span class="s1">'check_mask(db, out)'</span>
+</pre>
+<p>On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)</p>
+<p>Here is an extract of the changelog:</p>
+<pre class="code literal-block">
+2016-01-05 Serge Guelton &lt;serge.guelton&#64;telecom-bretagne.eu&gt;
+
+    * IPython's magic for pythran now supports extra compile flags
+
+    * Pythran's C++ output is compatible with Python3 and pythran3 can compile it!
+
+    * More syntax checks (and less template traceback)
+
+    * Improved UI (multiline pythran exports, better setup.py...)
+
+    * Pythonic leaning / bugfixing (this tends to be a permanent item)
+
+    * More generic support for numpy's dtype
+
+    * Simpler install (no more boost.python deps, nor nt2 configuration)
+
+    * Faster compilation (no more boost.python deps, smarter pass manager)
+
+    * Better testing (gcc + clang)
+</pre>
+<p>Again, thanks a lot to Pierrick for his continuous top-quality work, and
+to the OpenDreamKit[1] project that funded (most of) the recent developments!</p>
+<p>Special thanks to &#64;hainm, &#64;nbecker, &#64;pkoch, &#64;fsteinmetz, &#64;Suor for their
+feedbacks. <em>You</em> give us the motivation to go on!</p>
+<p>[0] <a class="reference external" href="http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays">http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays</a>
+[1] <a class="reference external" href="http://opendreamkit.org/">http://opendreamkit.org/</a></p>
+</div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; serge-sans-paille and other pythraners</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>
