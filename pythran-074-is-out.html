@@ -29,6 +29,7 @@
 		<div class="container-fluid">
 		  <a class="brand" href="./">Pythran stories</a>
 			<ul class="nav">
+					<li ><a href="./category/optimisation.html">optimisation</a></li>
 					<li class="active"><a href="./category/release.html">release</a></li>
 			</ul>
 			<p class="pull-right"><a href="./archives.html">[archives]</a> <a href="./tags.html">[tags]</a></p>
@@ -42,7 +43,7 @@
 			<h3>Blogroll</h3>
 			<ul>
 				<li><a href="http://pythonhosted.org/pythran">Pythran Doc</a></li>
-				<li><a href="https://pypi.python.org/pypi/pythran">Pythran on Pypi</a></li>
+				<li><a href="https://pypi.python.org/pypi/pythran">Pythran on PyPI</a></li>
 			</ul>
 			<div class="social">
 			<h3>Social</h3>
@@ -88,11 +89,11 @@ stackoverflow question[0] that showcases pythran capability:</p>
     <span class="k">return</span> <span class="n">out</span>
 </pre>
 <p>Compiled with:</p>
-<pre class="code bash literal-block">
+<pre class="code sh literal-block">
 % pythran check_mask.py
 </pre>
 <p>And benchmarked with:</p>
-<pre class="code bash literal-block">
+<pre class="code sh literal-block">
 % python -m timeit -s <span class="s1">'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask'</span> <span class="s1">'check_mask(db, out)'</span>
 </pre>
 <p>On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)</p>

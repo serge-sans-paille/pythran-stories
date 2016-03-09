@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-03-09T00:00:00+01:00</updated><entry><title>Pythran Case: Resampling</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-case-resampling.html" rel="alternate"></link><updated>2016-03-09T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-09:pythran-stories/pythran-case-resampling.html</id><summary type="html">&lt;p&gt;While hanging on &lt;a class="reference external" href="http://stackoverflow.com"&gt;Stackoverflow&lt;/a&gt; (everybody does
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/optimisation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-03-09T00:00:00+01:00</updated><entry><title>Pythran Case: Resampling</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-case-resampling.html" rel="alternate"></link><updated>2016-03-09T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-09:pythran-stories/pythran-case-resampling.html</id><summary type="html">&lt;p&gt;While hanging on &lt;a class="reference external" href="http://stackoverflow.com"&gt;Stackoverflow&lt;/a&gt; (everybody does
 this, no?) I found this &lt;a class="reference external" href="http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python"&gt;Numpy code snippet&lt;/a&gt;:&lt;/p&gt;
 &lt;pre class="code python literal-block"&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
@@ -127,69 +127,4 @@ facilities, but one still need to understand some of its internal to rip the
 best of it. And using Pythran you can do so while keeping a relatively good
 abstraction!&lt;/p&gt;
 &lt;/div&gt;
-</summary></entry><entry><title>Pythran 0.7.4 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-074-is-out.html" rel="alternate"></link><updated>2016-01-07T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-01-07:pythran-stories/pythran-074-is-out.html</id><summary type="html">&lt;p&gt;The pythran team (a great total of 2 active developers) is delighted to
-announce the release of Pythran 0.7.4, available on the traditional
-channels:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;ul class="simple"&gt;
-&lt;li&gt;pypi: &lt;a class="reference external" href="https://pypi.python.org/pypi/pythran"&gt;https://pypi.python.org/pypi/pythran&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;conda: &lt;a class="reference external" href="https://anaconda.org/serge-sans-paille/pythran"&gt;https://anaconda.org/serge-sans-paille/pythran&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;github: &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran"&gt;https://github.com/serge-sans-paille/pythran&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;As usual, here is a (new) code sample, once again adapted from a
-stackoverflow question[0] that showcases pythran capability:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
-&lt;span class="c"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
-
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="c"&gt;#      ^~~~~~ numpy support (partial)&lt;/span&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_mask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
-    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-        &lt;span class="n"&gt;target&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt;
-        &lt;span class="c"&gt;# ^~~~~ type destructuring, array view&lt;/span&gt;
-        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mask&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bitwise_and&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;all&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-        &lt;span class="c"&gt;# ^~~~~~~ optimization of high level construct&lt;/span&gt;
-            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-                &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;
-&lt;/pre&gt;
-&lt;p&gt;Compiled with:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% pythran check_mask.py
-&lt;/pre&gt;
-&lt;p&gt;And benchmarked with:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% python -m timeit -s &lt;span class="s1"&gt;'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask'&lt;/span&gt; &lt;span class="s1"&gt;'check_mask(db, out)'&lt;/span&gt;
-&lt;/pre&gt;
-&lt;p&gt;On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)&lt;/p&gt;
-&lt;p&gt;Here is an extract of the changelog:&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-2016-01-05 Serge Guelton &amp;lt;serge.guelton&amp;#64;telecom-bretagne.eu&amp;gt;
-
-    * IPython's magic for pythran now supports extra compile flags
-
-    * Pythran's C++ output is compatible with Python3 and pythran3 can compile it!
-
-    * More syntax checks (and less template traceback)
-
-    * Improved UI (multiline pythran exports, better setup.py...)
-
-    * Pythonic leaning / bugfixing (this tends to be a permanent item)
-
-    * More generic support for numpy's dtype
-
-    * Simpler install (no more boost.python deps, nor nt2 configuration)
-
-    * Faster compilation (no more boost.python deps, smarter pass manager)
-
-    * Better testing (gcc + clang)
-&lt;/pre&gt;
-&lt;p&gt;Again, thanks a lot to Pierrick for his continuous top-quality work, and
-to the OpenDreamKit[1] project that funded (most of) the recent developments!&lt;/p&gt;
-&lt;p&gt;Special thanks to &amp;#64;hainm, &amp;#64;nbecker, &amp;#64;pkoch, &amp;#64;fsteinmetz, &amp;#64;Suor for their
-feedbacks. &lt;em&gt;You&lt;/em&gt; give us the motivation to go on!&lt;/p&gt;
-&lt;p&gt;[0] &lt;a class="reference external" href="http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays"&gt;http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays&lt;/a&gt;
-[1] &lt;a class="reference external" href="http://opendreamkit.org/"&gt;http://opendreamkit.org/&lt;/a&gt;&lt;/p&gt;
 </summary></entry></feed>

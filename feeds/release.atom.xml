@@ -28,11 +28,11 @@ stackoverflow question[0] that showcases pythran capability:&lt;/p&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;
 &lt;/pre&gt;
 &lt;p&gt;Compiled with:&lt;/p&gt;
-&lt;pre class="code bash literal-block"&gt;
+&lt;pre class="code sh literal-block"&gt;
 % pythran check_mask.py
 &lt;/pre&gt;
 &lt;p&gt;And benchmarked with:&lt;/p&gt;
-&lt;pre class="code bash literal-block"&gt;
+&lt;pre class="code sh literal-block"&gt;
 % python -m timeit -s &lt;span class="s1"&gt;'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask'&lt;/span&gt; &lt;span class="s1"&gt;'check_mask(db, out)'&lt;/span&gt;
 &lt;/pre&gt;
 &lt;p&gt;On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)&lt;/p&gt;
