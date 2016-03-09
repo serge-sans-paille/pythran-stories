@@ -17,7 +17,7 @@ channels:
     - github: https://github.com/serge-sans-paille/pythran
 
 As usual, here is a (new) code sample, once again adapted from a
-stackoverflow question[0] that showcases pythran capability:
+stackoverflow question [0]_ that showcases pythran capability:
 
 .. code:: python
 
@@ -78,12 +78,13 @@ Here is an extract of the changelog:
         * Better testing (gcc + clang)
 
 Again, thanks a lot to Pierrick for his continuous top-quality work, and
-to the OpenDreamKit[1] project that funded (most of) the recent developments!
+to the OpenDreamKit [1]_ project that funded (most of) the recent developments!
 
 Special thanks to @hainm, @nbecker, @pkoch, @fsteinmetz, @Suor for their
 feedbacks. *You* give us the motivation to go on!
 
 
-[0] http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays
-[1] http://opendreamkit.org/
+.. [0] http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays
+
+.. [1] http://opendreamkit.org/
 
