@@ -52,7 +52,7 @@ Pythran automatically computes when an expression can be lazily evaluated,
 could get some speedup?
 
 To use Pythran, we just add a comment line that states the expected types of
-the top-level functions:
+the top-level function:
 
 .. code:: python
 
@@ -84,7 +84,7 @@ Second step: Pythran + OpenMP
 
 But could we do better? An astute reader would note that the for loop can be
 run in parallel (iterations are independent). There's a famous standard for C,
-C++ and Fortran to parallelize this kind of trivial loops (and do many non
+C++ and Fortran to parallelize this kind of trivial loops (and to do many non
 trivial stuff also, but that's not the point here) called `OpenMP
 <http://openmp.org/>`_. It turns out Pythran supports OpenMP :-). By adding an extra comment (that should look pretty familiar to anyone accustomed to OpenMP) on the parallel loop:
 
