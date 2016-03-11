@@ -135,6 +135,7 @@ Now wait… calling ``np.argmax`` on an array of ``bool`` is indeed a nice trick
     def resample(qs, xs, rands):
         results = np.empty_like(qs)
         lookup = np.cumsum(qs)
+        #omp parallel for
         for j, key in enumerate(rands):
             i = np_index(lookup > key, True)
             results[j] = xs[i]
@@ -154,7 +155,38 @@ And a last benchmark:
 
     % pythran resample.py
     % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
-    1000 loops, best of 3: 64.5 usec per loop
+    1000 loops, best of 3: 491 usec per loop
+    % pythran resample.py -fopenmp
+    % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
+    1000 loops, best of 3: 326 usec per loop
+
+For reference, on my laptop, the Numba solution proposed as the answer to the Stack Overflow thread:
+
+.. code:: python
+
+    @nb.jit(nb.f8[:](nb.f8[:]))
+    def numba_cumsum(x):
+        return np.cumsum(x)
+
+    @nb.autojit
+    def numba_resample2(qs, xs, rands):
+        n = qs.shape[0]
+        lookup = numba_cumsum(qs)
+        results = np.empty(n)
+
+        for j in range(n):
+            for i in range(n):
+                if rands[j] < lookup[i]:
+                    results[j] = xs[i]
+                    break
+        return results
+
+runs in:
+
+.. code:: sh
+    10 loops, best of 3: 419 usec per loop
+
+Comparable timings, easier to deploy (Just In Time Compilation is really nice!) but lower level implementations :-)
 
 Final Thoughts
 ==============
