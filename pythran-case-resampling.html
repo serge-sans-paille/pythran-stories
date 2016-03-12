@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Pythran stories</title>
+	<meta name="description" content="">
+	<meta name="author" content="serge-sans-paille and other pythraners">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="./theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="./theme/bootstrap.min.css" rel="stylesheet">
+	<link href="./theme/local.css" rel="stylesheet">
+	<link href="./theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+	<link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed" />
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="./">Pythran stories</a>
+			<ul class="nav">
+					<li class="active"><a href="./category/optimisation.html">optimisation</a></li>
+					<li ><a href="./category/release.html">release</a></li>
+			</ul>
+			<p class="pull-right"><a href="./archives.html">[archives]</a> <a href="./tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="http://pythonhosted.org/pythran">Pythran Doc</a></li>
+				<li><a href="https://pypi.python.org/pypi/pythran">Pythran on PyPI</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="https://github.com/serge-sans-paille/pythran">github</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Pythran Case: Resampling</h1></div>
+		<div class="well small">Permalink: <a class="more" href="./pythran-case-resampling.html">2016-03-09 00:00:00+01:00</a>
+by <a class="url fn" href="./author/serge-sans-paille.html">serge-sans-paille </a>
+ in <a href="./category/optimisation.html">optimisation</a>
+</div>
+		<div><p>While hanging on <a class="reference external" href="http://stackoverflow.com">Stackoverflow</a> (everybody does
+this, no?) I found this <a class="reference external" href="http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python">Numpy code snippet</a>:</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">rands</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">lookup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rands</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">lookup</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre>
+<p>When running it through <a class="reference external" href="https://docs.python.org/2/library/timeit.html">timeit</a>, we get:</p>
+<pre class="code sh literal-block">
+% python -m timeit -s <span class="s1">'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'</span> <span class="s1">'resample(qs, xs, rands)'</span>
+<span class="m">100</span> loops, best of 3: 3.02 msec per loop
+</pre>
+<p>The initialization code, after the <tt class="docutils literal"><span class="pre">-s</span></tt> switch, is run only once, and includes a call to <tt class="docutils literal">np.random.seed</tt> so that further comparisons hold.</p>
+<div class="section" id="first-step-pythran">
+<h2>First step: Pythran</h2>
+<p>What kind of optimisations could improve this code? <tt class="docutils literal">np.cumsum</tt>,
+<tt class="docutils literal">np.argmax</tt> and <tt class="docutils literal">lookup &gt; key</tt> all are Numpy functions, so they run as native
+code and there should not be much to gain there.</p>
+<p><strong>But</strong> if we look carefully, <tt class="docutils literal">lookup &gt; key</tt> is building an intermediate
+array, which is then passed as argument to <tt class="docutils literal">np.argmax</tt>. This temporary array
+is not needed, as <tt class="docutils literal">np.argmax</tt> could work on a stream. That's a typical
+shortcoming of Numpy <cite>eager evaluation
+&lt;https://en.wikipedia.org/wiki/Eager_evaluation&gt;_</cite>, a pedantic word to state
+that expressions are evaluated when they are called, and not when their result
+is needed (which is <a class="reference external" href="https://en.wikipedia.org/wiki/Lazy_evaluation">lazy evaluation</a>).</p>
+<p>Pythran automatically computes when an expression can be lazily evaluated,
+(even when it's bound to a variable, which is not the case here). So maybe we
+could get some speedup?</p>
+<p>To use Pythran, we just add a comment line that states the expected types of
+the top-level function:</p>
+<pre class="code python literal-block">
+<span class="c">#pythran export resample(float[], float[], float[])</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">rands</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">lookup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rands</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">lookup</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre>
+<p>And then call the <tt class="docutils literal">pythran</tt> compiler:</p>
+<pre class="code sh literal-block">
+% pythran resample.py
+</pre>
+<p>This turns the Python file into a native extension, namely <tt class="docutils literal">resample.so</tt> on Linux. Running it yields a nice speedup:</p>
+<pre class="code sh literal-block">
+% python -m timeit <span class="s1">'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'</span> <span class="s1">'resample(qs, xs, rands)'</span>
+<span class="m">1000</span> loops, best of 3: 1.23 msec per loop
+</pre>
+</div>
+<div class="section" id="second-step-pythran-openmp">
+<h2>Second step: Pythran + OpenMP</h2>
+<p>But could we do better? An astute reader would note that the for loop can be
+run in parallel (iterations are independent). There's a famous standard for C,
+C++ and Fortran to parallelize this kind of trivial loops (and to do many non
+trivial stuff also, but that's not the point here) called <a class="reference external" href="http://openmp.org/">OpenMP</a>. It turns out Pythran supports OpenMP :-). By adding an extra comment (that should look pretty familiar to anyone accustomed to OpenMP) on the parallel loop:</p>
+<pre class="code python literal-block">
+<span class="c">#pythran export resample(float[], float[], float[])</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">rands</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">lookup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="c">#omp parallel for</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rands</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">lookup</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre>
+<p>And adding the <tt class="docutils literal"><span class="pre">-fopenmp</span></tt> flag to the <tt class="docutils literal">pythran</tt> call:</p>
+<pre class="code sh literal-block">
+% pythran resample.py -fopenmp
+</pre>
+<p>We get an extra speedup (only two cores there, sorry about this :-/):</p>
+<pre class="code sh literal-block">
+% python -m timeit <span class="s1">'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'</span> <span class="s1">'resample(qs, xs, rands)'</span>
+<span class="m">1000</span> loops, best of 3: <span class="m">693</span> usec per loop
+</pre>
+</div>
+<div class="section" id="third-step-pythran-brain">
+<h2>Third step: Pythran + Brain</h2>
+<p>Now wait… calling <tt class="docutils literal">np.argmax</tt> on an array of <tt class="docutils literal">bool</tt> is indeed a nice trick to get the index of the first value where <tt class="docutils literal">lookup &gt; key</tt>, but it evaluates the whole array. There's no early exit, while there could be (there's only <tt class="docutils literal">0</tt> and <tt class="docutils literal">1</tt> after all). As pointed out on the <a class="reference external" href="http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python">SO thread</a>, one could write a <tt class="docutils literal">np_index(array_expr)</tt> function that behaves like the <tt class="docutils literal">list.index</tt> one:</p>
+<pre class="code python literal-block">
+<span class="c">#pythran export resample(float[], float[], float[])</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">np_index</span><span class="p">(</span><span class="n">haystack</span><span class="p">,</span> <span class="n">needle</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">haystack</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">needle</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">i</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Value not found&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">rands</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">lookup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="c">#omp parallel for</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rands</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np_index</span><span class="p">(</span><span class="n">lookup</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre>
+<p>There's a few things to note in this implementation:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>there's no <tt class="docutils literal">pythran export</tt> for <tt class="docutils literal">np_index</tt> as it's not meant to be used outside the module;</li>
+<li><tt class="docutils literal">np_index</tt> plays well with lazy evaluation: the tail of the <tt class="docutils literal">lookup &gt; key</tt> expression is not evaluated if a non null value is found before;</li>
+<li>Pythran supports built-in exceptions ;-)</li>
+</ol>
+</blockquote>
+<p>And a last benchmark, without OpenMP:</p>
+<pre class="code sh literal-block">
+% pythran resample.py
+% python -m timeit <span class="s1">'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'</span> <span class="s1">'resample(qs, xs, rands)'</span>
+<span class="m">1000</span> loops, best of 3: <span class="m">491</span> usec per loop
+</pre>
+<p>And with OpenMP:</p>
+<pre class="code sh literal-block">
+% pythran resample.py -fopenmp
+% python -m timeit <span class="s1">'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'</span> <span class="s1">'resample(qs, xs, rands)'</span>
+<span class="m">1000</span> loops, best of 3: <span class="m">326</span> usec per loop
+</pre>
+</div>
+<div class="section" id="the-stack-overflow-solution">
+<h2>The Stack Overflow Solution</h2>
+<p>For reference, the Numba solution proposed as the answer to the Stack Overflow thread is:</p>
+<pre class="code python literal-block">
+<span class="nd">&#64;nb.jit</span><span class="p">(</span><span class="n">nb</span><span class="o">.</span><span class="n">f8</span><span class="p">[:](</span><span class="n">nb</span><span class="o">.</span><span class="n">f8</span><span class="p">[:]))</span>
+<span class="k">def</span> <span class="nf">numba_cumsum</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="nd">&#64;nb.autojit</span>
+<span class="k">def</span> <span class="nf">numba_resample2</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">rands</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lookup</span> <span class="o">=</span> <span class="n">numba_cumsum</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rands</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">lookup</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre>
+<p>On my laptop, it runs in:</p>
+<pre class="code sh literal-block">
+<span class="m">10</span> loops, best of 3: <span class="m">419</span> usec per loop
+</pre>
+<p>The equivalent implementation in Pythran does not need type annotation for <tt class="docutils literal">np.cumsum</tt> as it's already supported:</p>
+<pre class="code python literal-block">
+<span class="c">#pythran export resample(float[], float[], float[])</span>
+<span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">rands</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lookup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="c">#omp parallel for</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rands</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">lookup</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre>
+<p>And once compiled with Pythran it runs (no OpenMP) in:</p>
+<pre class="code sh literal-block">
+<span class="m">1000</span> loops, best of 3: <span class="m">350</span> usec per loop
+</pre>
+<p>Pythran and Numba timings are within the same range. Numba is still easier to
+integrate (Just In Time Compilation is really nice!) but it implies lower level
+implementation. Pythran can still use this implementation level efficiently,
+but that's not my preferred way of programming in Python ;-).</p>
+</div>
+<div class="section" id="final-thoughts">
+<h2>Final Thoughts</h2>
+<p>This is only a story telling of the initial Stack Overflow post, reinterpreted
+with Pythran in mind. What do we learn? Numpy provides a lot of nice
+facilities, but one still need to understand some of its internal to rip the
+best of it. And using Pythran you can do so while keeping a relatively good
+abstraction!</p>
+</div>
+</div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; serge-sans-paille and other pythraners</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>
