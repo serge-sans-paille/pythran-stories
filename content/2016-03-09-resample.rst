@@ -149,18 +149,26 @@ There's a few things to note in this implementation:
 
     #. Pythran supports built-in exceptions ;-)
 
-And a last benchmark:
+And a last benchmark, without OpenMP:
 
 .. code:: sh
 
     % pythran resample.py
     % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
     1000 loops, best of 3: 491 usec per loop
+
+And with OpenMP:
+
+.. code:: sh
+
     % pythran resample.py -fopenmp
     % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
     1000 loops, best of 3: 326 usec per loop
 
-For reference, on my laptop, the Numba solution proposed as the answer to the Stack Overflow thread:
+The Stack Overflow Solution
+===========================
+
+For reference, the Numba solution proposed as the answer to the Stack Overflow thread is:
 
 .. code:: python
 
@@ -181,18 +189,18 @@ For reference, on my laptop, the Numba solution proposed as the answer to the St
                     break
         return results
 
-runs in:
+On my laptop, it runs in:
 
 .. code:: sh
 
     10 loops, best of 3: 419 usec per loop
 
-A similar implementation:
+The equivalent implementation in Pythran does not need type annotation for ``np.cumsum`` as it's already supported:
 
 .. code:: python
 
     #pythran export resample(float[], float[], float[])
-    def numba_resample2(qs, xs, rands):
+    def resample(qs, xs, rands):
         n = qs.shape[0]
         lookup = np.cumsum(qs)
         results = np.empty(n)
@@ -205,7 +213,7 @@ A similar implementation:
                     break
         return results
 
-And compiled with pythran runs (no OpenMP) in:
+And once compiled with Pythran it runs (no OpenMP) in:
 
 .. code:: sh
 
@@ -214,7 +222,7 @@ And compiled with pythran runs (no OpenMP) in:
 
 Pythran and Numba timings are within the same range. Numba is still easier to
 integrate (Just In Time Compilation is really nice!) but it implies lower level
-implementation! Pythran can still use this implementation level efficiently,
+implementation. Pythran can still use this implementation level efficiently,
 but that's not my preferred way of programming in Python ;-).
 
 Final Thoughts
