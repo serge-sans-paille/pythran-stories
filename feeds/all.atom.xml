@@ -25,8 +25,7 @@ code and there should not be much to gain there.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;But&lt;/strong&gt; if we look carefully, &lt;tt class="docutils literal"&gt;lookup &amp;gt; key&lt;/tt&gt; is building an intermediate
 array, which is then passed as argument to &lt;tt class="docutils literal"&gt;np.argmax&lt;/tt&gt;. This temporary array
 is not needed, as &lt;tt class="docutils literal"&gt;np.argmax&lt;/tt&gt; could work on a stream. That's a typical
-shortcoming of Numpy &lt;cite&gt;eager evaluation
-&amp;lt;https://en.wikipedia.org/wiki/Eager_evaluation&amp;gt;_&lt;/cite&gt;, a pedantic word to state
+shortcoming of Numpy &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Eager_evaluation"&gt;eager evaluation&lt;/a&gt;, a pedantic word to state
 that expressions are evaluated when they are called, and not when their result
 is needed (which is &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Lazy_evaluation"&gt;lazy evaluation&lt;/a&gt;).&lt;/p&gt;
 &lt;p&gt;Pythran automatically computes when an expression can be lazily evaluated,
