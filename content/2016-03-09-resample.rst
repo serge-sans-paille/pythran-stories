@@ -184,9 +184,38 @@ For reference, on my laptop, the Numba solution proposed as the answer to the St
 runs in:
 
 .. code:: sh
+
     10 loops, best of 3: 419 usec per loop
 
-Comparable timings, easier to deploy (Just In Time Compilation is really nice!) but lower level implementations :-)
+A similar implementation:
+
+.. code:: python
+
+    #pythran export resample(float[], float[], float[])
+    def numba_resample2(qs, xs, rands):
+        n = qs.shape[0]
+        lookup = np.cumsum(qs)
+        results = np.empty(n)
+
+        #omp parallel for
+        for j in range(n):
+            for i in range(n):
+                if rands[j] < lookup[i]:
+                    results[j] = xs[i]
+                    break
+        return results
+
+And compiled with pythran runs (no OpenMP) in:
+
+.. code:: sh
+
+    1000 loops, best of 3: 350 usec per loop
+
+
+Pythran and Numba timings are within the same range. Numba is still easier to
+integrate (Just In Time Compilation is really nice!) but it implies lower level
+implementation! Pythran can still use this implementation level efficiently,
+but that's not my preferred way of programming in Python ;-).
 
 Final Thoughts
 ==============
