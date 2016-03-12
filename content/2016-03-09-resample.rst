@@ -42,7 +42,7 @@ code and there should not be much to gain there.
 array, which is then passed as argument to ``np.argmax``. This temporary array
 is not needed, as ``np.argmax`` could work on a stream. That's a typical
 shortcoming of Numpy `eager evaluation
-<https://en.wikipedia.org/wiki/Eager_evaluation>_`, a pedantic word to state
+<https://en.wikipedia.org/wiki/Eager_evaluation>`_, a pedantic word to state
 that expressions are evaluated when they are called, and not when their result
 is needed (which is `lazy evaluation
 <https://en.wikipedia.org/wiki/Lazy_evaluation>`_).
