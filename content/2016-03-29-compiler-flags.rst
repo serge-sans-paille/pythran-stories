@@ -254,7 +254,7 @@ in « I am using the multimedia instruction set of my CPU » is still a difficul
 task for compilers. Fortunately Pythran helps here, and passing the
 not-so-experimental-anymore-but-still-not-default flag ``-DUSE_BOOST_SIMD``
 triggers some hard-coded vectorization based on ``boost.simd`` [3]_, and that
-**did** help::
+**did** help:
 
 .. code:: sh
 
