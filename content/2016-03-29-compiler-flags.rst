@@ -86,47 +86,7 @@ linking:
     libraries     = []
     library_dirs  = []
     include_dirs  = ['/usr/include/python2.7']
-    ********************************************************************************
-    new_compiler returns distutils.unixccompiler.UnixCCompiler
-    INFO     customize UnixCCompiler
-    customize UnixCCompiler using build_ext
-    ********************************************************************************
-    distutils.unixccompiler.UnixCCompiler
-    linker_exe    = ['gcc']
-    compiler_so   = ['gcc', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-fno-strict-aliasing', '-g', '-O2', '-fPIC']
-    archiver      = ['x86_64-linux-gnu-gcc-ar', 'rc']
-    preprocessor  = ['gcc', '-E']
-    linker_so     = ['x86_64-linux-gnu-gcc', '-pthread', '-shared', '-Wl,-O1', '-Wl,-Bsymbolic-functions', '-Wl,-z,relro', '-fno-strict-aliasing', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-Wdate-time', '-D_FORTIFY_SOURCE=2', '-g', '-fstack-protector-strong', '-Wformat', '-Werror=format-security', '-Wl,-z,relro', '-g', '-O2']
-    compiler_cxx  = ['g++']
-    ranlib        = None
-    compiler      = ['gcc', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-fno-strict-aliasing', '-g', '-O2']
-    libraries     = []
-    library_dirs  = []
-    include_dirs  = ['/usr/include/python2.7']
-    ********************************************************************************
-    building 'cda' extension
-    compiling C++ sources
-    C compiler: g++ -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC
-
-    creating /tmp/tmpXNPd6a/tmp
-    compile options: '-DUSE_GMP -DENABLE_PYTHON_MODULE -I./pythran -I./pythran/pythonic/patch -I/usr/lib/python2.7/dist-packages/numpy/core/include -I/usr/include/python2.7 -c'
-    extra options: '-std=c++11 -fno-math-errno -w'
-    g++: /tmp/tmpBsVkbP.cpp
-    exec_command(['g++', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-fno-strict-aliasing', '-g', '-O2', '-fPIC', '-DUSE_GMP', '-DENABLE_PYTHON_MODULE', '-I./pythran', '-I./pythran/pythonic/patch', '-I/usr/lib/python2.7/dist-packages/numpy/core/include', '-I/usr/include/python2.7', '-c', '/tmp/tmpBsVkbP.cpp', '-o', '/tmp/tmpXNPd6a/tmp/tmpBsVkbP.o', '-std=c++11', '-fno-math-errno', '-w'],)
-    Retaining cwd: /home/sguelton/sources/pythran
-    _preserve_environment([])
-    _update_environment(...)
-    _exec_command_posix(...)
-    Running os.system('( g++ -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -I./pythran -I./pythran/pythonic/patch -I/usr/lib/python2.7/dist-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpBsVkbP.cpp -o /tmp/tmpXNPd6a/tmp/tmpBsVkbP.o -std=c++11 -fno-math-errno -w ; echo $? > /tmp/tmpk64Zxs/uqqun4 ) 2>&1 | tee /tmp/tmpk64Zxs/T686Ou ')
-    _update_environment(...)
-    g++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpXNPd6a/tmp/tmpBsVkbP.o -lgmp -lgmpxx -lblas -o /tmp/tmp8dXLM0/cda.so
-    exec_command(['g++', '-pthread', '-shared', '-Wl,-O1', '-Wl,-Bsymbolic-functions', '-Wl,-z,relro', '-fno-strict-aliasing', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-Wdate-time', '-D_FORTIFY_SOURCE=2', '-g', '-fstack-protector-strong', '-Wformat', '-Werror=format-security', '-Wl,-z,relro', '-g', '-O2', '/tmp/tmpXNPd6a/tmp/tmpBsVkbP.o', '-lgmp', '-lgmpxx', '-lblas', '-o', '/tmp/tmp8dXLM0/cda.so'],)
-    Retaining cwd: /home/sguelton/sources/pythran
-    _preserve_environment([])
-    _update_environment(...)
-    _exec_command_posix(...)
-    Running os.system('( g++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpXNPd6a/tmp/tmpBsVkbP.o -lgmp -lgmpxx -lblas -o /tmp/tmp8dXLM0/cda.so ; echo $? > /tmp/tmpk64Zxs/W3abcp ) 2>&1 | tee /tmp/tmpk64Zxs/jwGBrh ')
-    _update_environment(...)
+    [...]
     INFO     Generated module: cda
     INFO     Output: /home/sguelton/sources/pythran/cda.so
 
