@@ -1,8 +1,8 @@
-Pythran and Compiler Flags
-##########################
+Compiler Flags
+##############
 
 :date: 2016-03-29
-:category: compiler
+:category: compilation
 :lang: en
 :authors: serge-sans-paille
 :summary: Playing with compiler forwarded by Pythran to GCC (or Clang) can yield surprising results, let's explore this!
