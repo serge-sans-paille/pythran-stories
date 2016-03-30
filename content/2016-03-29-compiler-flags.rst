@@ -223,6 +223,8 @@ triggers some hard-coded vectorization based on ``boost.simd`` [3]_, and that
      > python -m timeit [...]
      1000 loops, best of 3: 462 usec per loo
 
+And that's woth 63 kilobytes :-)
+
 Concluding Remarks
 ==================
 
