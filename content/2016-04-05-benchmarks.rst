@@ -10,20 +10,18 @@ Compiler Flags
 The benchmark
 =================
 
-First there was a paper[0]_, 
-in the paper there was a github[1]_, 
-in the github[1]_ 
-some benchmarks. In my case I wanted to re-run the julia code because the 
-language is changing quickly and so may do better. But the day before I 
-discovered `Pythran` so why not test both ?
+First there was a paper [0]_, 
+in the paper there was a github [1]_, 
+in the github [1]_ some benchmarks. 
+In my case I wanted to re-run the julia code because the language is changing quickly and so may do better. 
+But the day before I discovered `Pythran` so why not test both ?
 
 And so let's re-run two benchmarks: C++, Julia and add a new one: Pythran.
 
 Compiling and running C++ code was easy:
 
-``
-g++ -Ofast RBC_CPP.cpp -o testcpp
-``
+	g++ -Ofast RBC_CPP.cpp -o testcpp
+
 
 then
 
