@@ -1,20 +1,20 @@
-Compiler Flags
-##############
+Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel
+################################################################
 
 :date: 2016-04-05
 :category: benchmark
 :lang: en
 :authors: Lightjohn
-:summary: Let's re-run an existing benchmark with pythran 
+:summary: Let's re-run an existing benchmark with Pythran
 
 The benchmark
 =============
 
-First there was a paper [0]_, 
-in the paper there was a github [1]_ and 
-in the github [1]_ some benchmarks. 
-In my case I wanted to re-run the Julia code because the language is changing quickly and so may run better now. 
-But the day before I discovered `Pythran` so why not test both?
+First there was a paper [0]_,
+in the paper there was a github [1]_ and
+in the github [1]_ some benchmarks.
+In my case I wanted to re-run the Julia code because the language is changing quickly and so may run better now.
+But the day before I discovered Pythran so why not test both?
 
 And so let's re-run two benchmarks: `C++ <https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_CPP.cpp>`_ , `Julia <https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Julia.jl>`_ and add a new one, Pythran.
 
@@ -33,7 +33,7 @@ then
 
 .. code:: julia
 
-	% ./testcpp 
+	% ./testcpp
 	Output = 0.562731, Capital = 0.178198, Consumption = 0.384533
 	Iteration = 1, Sup Diff = 0.0527416
 	Iteration = 10, Sup Diff = 0.0313469
@@ -43,8 +43,8 @@ then
 	Iteration = 240, Sup Diff = 2.32197e-07
 	Iteration = 250, Sup Diff = 1.39087e-07
 	Iteration = 257, Sup Diff = 9.71604e-08
-	 
-	My check = 0.146549 
+
+	My check = 0.146549
 	Elapsed time is   = 2.40271
 
 
@@ -68,7 +68,7 @@ we run `julia`:
 	Iteration = 240 Sup Diff = 2.3219657929729465e-7
 	Iteration = 250 Sup Diff = 1.3908720952748865e-7
 	Iteration = 257 Sup Diff = 9.716035642703957e-8
-	 
+
 	My check = 0.1465491436962635
 	3.001183 seconds (3.84 k allocations: 703.276 MB, 0.68% gc time)
 
@@ -77,13 +77,13 @@ Not bad!
 Python: Pythran  and Numba
 --------------------------
 
-Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and 
+Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and
 replace it by a Pythran comment:
 
 .. code:: python
 
 	from numba import autojit
-	
+
 	@autojit
 	def innerloop(bbeta, nGridCapital, gridCapitalNextPeriod, mOutput, nProductivity, vGridCapital, expectedValueFunction, mValueFunction, mValueFunctionNew, mPolicyFunction):
 
@@ -92,21 +92,21 @@ to
 .. code:: python
 
 	#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])
-  
+
 	def innerloop(bbeta, nGridCapital, gridCapitalNextPeriod, mOutput, nProductivity, vGridCapital, expectedValueFunction, mValueFunction, mValueFunctionNew, mPolicyFunction):
 
 
 Easy? not quite... while pythranisation of the code, something went wrong, but
-no idea why! With some (many) help, the solution was found: the idea was to extract the innerloop into a 
+no idea why! With some (many) help, the solution was found: the idea was to extract the innerloop into a
 new file and run Pythran on it then calling it from the main code.
 
-The function is in `je.py` and the main code is `run_je.py`
+The function is in ``je.py`` and the main code is ``run_je.py``
 
 Let's run the code:
 
 .. code:: sh
 
-	% time python2 run_je.py 
+	% time python2 run_je.py
 	Output =  0.562731433871  Capital =  0.178198287393  Consumption =  0.384533146479
 	Iteration =  1 , Sup Diff =  0.0527415934073
 	Iteration =  10 , Sup Diff =  0.0313469492659
@@ -119,11 +119,11 @@ Let's run the code:
 
 And it is very nice!
 
-And just for fun `python numba <https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py>`_:
+And just for fun, the `Numba version <https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py>`_:
 
 .. code:: sh
 
-	% time python2 RBC_Python_Numba.py 
+	% time python2 RBC_Python_Numba.py
 	Output =  0.562731433871  Capital =  0.178198287393  Consumption =  0.384533146479
 	Iteration =  1 , Sup Diff =  0.0527415934073
 	Iteration =  10 , Sup Diff =  0.0313469492659
@@ -133,11 +133,11 @@ And just for fun `python numba <https://github.com/jesusfv/Comparison-Programmin
 	Iteration =  240 , Sup Diff =  2.32196579297e-07
 	Iteration =  250 , Sup Diff =  1.39087209527e-07
 	Iteration =  257 , Sup Duff =  9.71603566491e-08
- 
+
 	My Check =  0.146549143696
 	Elapse time = is  3.00302290916
 
-So what do we have: 
+So in the end we have:
 
 +------------+------------+
 | Language   | Time       |
@@ -147,13 +147,13 @@ So what do we have:
 | Pythran    | 2.4 sec    |
 +------------+------------+
 | Numba      | 3.0 sec    |
-+------------+------------|
-| Julia      | 3.0sec     |
++------------+------------+
+| Julia      | 3.0 sec    |
 +------------+------------+
 
 These benchs were run on a modest Pentium R 3550M @ 2.3GHz
 
-But what amaze me was the fact that with `Pythran` we were able to my high-end Intel i7 machine.
+But what amaze me was the fact that with Pythran we were able to my high-end Intel i7 machine.
 
 Conclusion
 ----------
