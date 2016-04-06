@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Pythran stories</title>
+	<meta name="description" content="">
+	<meta name="author" content="serge-sans-paille and other pythraners">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+		<script src="./theme/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	<link href="./theme/bootstrap.min.css" rel="stylesheet">
+	<link href="./theme/local.css" rel="stylesheet">
+	<link href="./theme/pygments.css" rel="stylesheet">
+
+	<!-- Feeds -->
+	<link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed" />
+
+
+
+
+</head>
+<body>
+	<div class="topbar">
+	  <div class="topbar-inner">
+		<div class="container-fluid">
+		  <a class="brand" href="./">Pythran stories</a>
+			<ul class="nav">
+					<li class="active"><a href="./category/benchmark.html">benchmark</a></li>
+					<li ><a href="./category/compilation.html">compilation</a></li>
+					<li ><a href="./category/optimisation.html">optimisation</a></li>
+					<li ><a href="./category/release.html">release</a></li>
+			</ul>
+			<p class="pull-right"><a href="./archives.html">[archives]</a> <a href="./tags.html">[tags]</a></p>
+		</div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+	  <div class="sidebar">
+		<div class="well">
+			<h3>Blogroll</h3>
+			<ul>
+				<li><a href="http://pythonhosted.org/pythran">Pythran Doc</a></li>
+				<li><a href="https://pypi.python.org/pypi/pythran">Pythran on PyPI</a></li>
+			</ul>
+			<div class="social">
+			<h3>Social</h3>
+			<ul>
+				<li><a href="https://github.com/serge-sans-paille/pythran">github</a></li>
+			</ul>
+			</div>
+		</div>
+	  </div>
+	  <div class="content">
+	<div class='article'>
+		<div class="page-header"><h1>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</h1></div>
+		<div class="well small">Permalink: <a class="more" href="./micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html">2016-04-05 00:00:00+02:00</a>
+by <a class="url fn" href="./author/lightjohn.html">Lightjohn </a>
+ in <a href="./category/benchmark.html">benchmark</a>
+</div>
+		<div><div class="section" id="the-benchmark">
+<h2>The benchmark</h2>
+<p>First there was a paper <a class="footnote-reference" href="#id4" id="id1">[0]</a>,
+in the paper there was a github <a class="footnote-reference" href="#id5" id="id2">[1]</a> and
+in the github <a class="footnote-reference" href="#id5" id="id3">[1]</a> some benchmarks.
+In my case I wanted to re-run the Julia code because the language is changing quickly and so may run better now.
+But the day before I discovered Pythran so why not test both?</p>
+<p>And so let's re-run two benchmarks: <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_CPP.cpp">C++</a> , <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Julia.jl">Julia</a> and add a new one, Pythran.</p>
+<div class="section" id="c-results">
+<h3>C++ results</h3>
+<p>Compiling and running the C++ code was easy:</p>
+<pre class="code sh literal-block">
+% g++ -O3 RBC_CPP.cpp -o testcpp
+</pre>
+<p>then</p>
+<pre class="code julia literal-block">
+<span class="o">%</span> <span class="o">./</span><span class="n">testcpp</span>
+<span class="n">Output</span> <span class="o">=</span> <span class="mf">0.562731</span><span class="p">,</span> <span class="n">Capital</span> <span class="o">=</span> <span class="mf">0.178198</span><span class="p">,</span> <span class="n">Consumption</span> <span class="o">=</span> <span class="mf">0.384533</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0527416</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0313469</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0187035</span>
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">230</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">3.87636e-07</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">2.32197e-07</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">250</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">1.39087e-07</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">257</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">9.71604e-08</span>
+
+<span class="n">My</span> <span class="n">check</span> <span class="o">=</span> <span class="mf">0.146549</span>
+<span class="n">Elapsed</span> <span class="n">time</span> <span class="nb">is</span>   <span class="o">=</span> <span class="mf">2.40271</span>
+</pre>
+</div>
+<div class="section" id="julia-results">
+<h3>Julia results</h3>
+<p>The Julia code:</p>
+<p>we run <cite>julia</cite>:</p>
+<pre class="code julia literal-block">
+<span class="n">include</span><span class="p">(</span><span class="s">&quot;RBC_Julia.jl&quot;</span><span class="p">)</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="p">&#64;</span><span class="n">time</span> <span class="n">main</span><span class="p">()</span>
+<span class="n">Output</span> <span class="o">=</span> <span class="mf">0.5627314338711378</span> <span class="n">Capital</span> <span class="o">=</span> <span class="mf">0.178198287392527</span> <span class="n">Consumption</span> <span class="o">=</span> <span class="mf">0.3845331464786108</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.05274159340733661</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">10</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.031346949265852075</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">20</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.01870345989335709</span>
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">230</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">3.876361940324813e-7</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">240</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">2.3219657929729465e-7</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">250</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">1.3908720952748865e-7</span>
+<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">257</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">9.716035642703957e-8</span>
+
+<span class="n">My</span> <span class="n">check</span> <span class="o">=</span> <span class="mf">0.1465491436962635</span>
+<span class="mf">3.001183</span> <span class="n">seconds</span> <span class="p">(</span><span class="mf">3.84</span> <span class="n">k</span> <span class="n">allocations</span><span class="p">:</span> <span class="mf">703.276</span> <span class="n">MB</span><span class="p">,</span> <span class="mf">0.68</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="p">)</span>
+</pre>
+<p>Not bad!</p>
+</div>
+<div class="section" id="python-pythran-and-numba">
+<h3>Python: Pythran  and Numba</h3>
+<p>Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and
+replace it by a Pythran comment:</p>
+<pre class="code python literal-block">
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">autojit</span>
+
+<span class="nd">&#64;autojit</span>
+<span class="k">def</span> <span class="nf">innerloop</span><span class="p">(</span><span class="n">bbeta</span><span class="p">,</span> <span class="n">nGridCapital</span><span class="p">,</span> <span class="n">gridCapitalNextPeriod</span><span class="p">,</span> <span class="n">mOutput</span><span class="p">,</span> <span class="n">nProductivity</span><span class="p">,</span> <span class="n">vGridCapital</span><span class="p">,</span> <span class="n">expectedValueFunction</span><span class="p">,</span> <span class="n">mValueFunction</span><span class="p">,</span> <span class="n">mValueFunctionNew</span><span class="p">,</span> <span class="n">mPolicyFunction</span><span class="p">):</span>
+</pre>
+<p>to</p>
+<pre class="code python literal-block">
+<span class="c">#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])</span>
+
+<span class="k">def</span> <span class="nf">innerloop</span><span class="p">(</span><span class="n">bbeta</span><span class="p">,</span> <span class="n">nGridCapital</span><span class="p">,</span> <span class="n">gridCapitalNextPeriod</span><span class="p">,</span> <span class="n">mOutput</span><span class="p">,</span> <span class="n">nProductivity</span><span class="p">,</span> <span class="n">vGridCapital</span><span class="p">,</span> <span class="n">expectedValueFunction</span><span class="p">,</span> <span class="n">mValueFunction</span><span class="p">,</span> <span class="n">mValueFunctionNew</span><span class="p">,</span> <span class="n">mPolicyFunction</span><span class="p">):</span>
+</pre>
+<p>Easy? not quite... while pythranisation of the code, something went wrong, but
+no idea why! With some (many) help, the solution was found: the idea was to extract the innerloop into a
+new file and run Pythran on it then calling it from the main code.</p>
+<p>The function is in <tt class="docutils literal">je.py</tt> and the main code is <tt class="docutils literal">run_je.py</tt></p>
+<p>Let's run the code:</p>
+<pre class="code sh literal-block">
+% <span class="nb">time </span>python2 run_je.py
+<span class="nv">Output</span> <span class="o">=</span>  0.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  0.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  0.384533146479
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0527415934073
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0313469492659
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0187034598934
+<span class="o">[</span>...<span class="o">]</span>
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  3.87636194032e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  2.32196579297e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  1.39087209527e-07
+python2 run_je.py  2,45s user 0,08s system 94% cpu 2,666 total
+</pre>
+<p>And it is very nice!</p>
+<p>And just for fun, the <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py">Numba version</a>:</p>
+<pre class="code sh literal-block">
+% <span class="nb">time </span>python2 RBC_Python_Numba.py
+<span class="nv">Output</span> <span class="o">=</span>  0.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  0.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  0.384533146479
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0527415934073
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0313469492659
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0187034598934
+<span class="o">[</span>...<span class="o">]</span>
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  3.87636194032e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  2.32196579297e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  1.39087209527e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">257</span> , Sup <span class="nv">Duff</span> <span class="o">=</span>  9.71603566491e-08
+
+My <span class="nv">Check</span> <span class="o">=</span>  0.146549143696
+Elapse <span class="nb">time</span> <span class="o">=</span> is  3.00302290916
+</pre>
+<p>So in the end we have:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Language</th>
+<th class="head">Time</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>C++</td>
+<td>2.4 sec</td>
+</tr>
+<tr><td>Pythran</td>
+<td>2.4 sec</td>
+</tr>
+<tr><td>Numba</td>
+<td>3.0 sec</td>
+</tr>
+<tr><td>Julia</td>
+<td>3.0 sec</td>
+</tr>
+</tbody>
+</table>
+<p>These benchs were run on a modest Pentium R 3550M &#64; 2.3GHz</p>
+<p>But what amaze me was the fact that with Pythran we were able to my high-end Intel i7 machine.</p>
+</div>
+<div class="section" id="conclusion">
+<h3>Conclusion</h3>
+<p>To conclude, Pythran is for me still young, like Julia, but for a little cost and no particular knowlegde you can
+get the same performances as C code in Python. It worth the time to take a look to Pythran.</p>
+<p>So good luck Pythran!</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[0]</a></td><td><a class="reference external" href="http://economics.sas.upenn.edu/~jesusfv/comparison_languages.pdf">http://economics.sas.upenn.edu/~jesusfv/comparison_languages.pdf</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics">https://github.com/jesusfv/Comparison-Programming-Languages-Economics</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+	</div>
+		<footer>
+		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
+		  <p>&copy; serge-sans-paille and other pythraners</p>
+		</footer>
+	  </div>
+
+	</div>
+</body>
+</html>
