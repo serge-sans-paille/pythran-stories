@@ -11,9 +11,9 @@ The benchmark
 =============
 
 First there was a paper [0]_, 
-in the paper there was a github [1]_, 
+in the paper there was a github [1]_ and 
 in the github [1]_ some benchmarks. 
-In my case I wanted to re-run the julia code because the language is changing quickly and so may do better now. 
+In my case I wanted to re-run the Julia code because the language is changing quickly and so may run better now. 
 But the day before I discovered `Pythran` so why not test both?
 
 And so let's re-run two benchmarks: `C++ <https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_CPP.cpp>`_ , `Julia <https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Julia.jl>`_ and add a new one, Pythran.
@@ -21,11 +21,11 @@ And so let's re-run two benchmarks: `C++ <https://github.com/jesusfv/Comparison-
 C++ results
 -----------
 
-Compiling and running C++ code was easy:
+Compiling and running the C++ code was easy:
 
 .. code:: sh
 
-	% g++ -Ofast RBC_CPP.cpp -o testcpp
+	% g++ -O3 RBC_CPP.cpp -o testcpp
 
 
 then
@@ -51,7 +51,7 @@ then
 Julia results
 -------------
 
-Then Julia Code:
+The Julia code:
 
 we run `julia`:
 
@@ -74,11 +74,11 @@ we run `julia`:
 
 Not bad!
 
-Python: pythran  and numba
+Python: Pythran  and Numba
 --------------------------
 
-Now some pythran code, we use the numba version as starter: so we remove numba decorator and 
-replace it by a pythran comment:
+Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and 
+replace it by a Pythran comment:
 
 .. code:: python
 
@@ -97,8 +97,8 @@ to
 
 
 Easy? not quite... while pythranisation of the code, something went wrong, but
-no idea why ! With some (many) help, the solution was found: the idea was to extract the innerloop into a 
-new file and run pythran on it then calling it from the main code.
+no idea why! With some (many) help, the solution was found: the idea was to extract the innerloop into a 
+new file and run Pythran on it then calling it from the main code.
 
 The function is in `je.py` and the main code is `run_je.py`
 
@@ -139,24 +139,27 @@ And just for fun `python numba <https://github.com/jesusfv/Comparison-Programmin
 
 So what do we have: 
 
-**C++: 2.4 sec**
-
-**Pythran: 2.4 sec**
-
-**Numba: 3 sec**
-
-**Julia: 3 sec**
++------------+------------+
+| Language   | Time       |
++============+============+
+| C++        | 2.4 sec    |
++------------+------------+
+| Pythran    | 2.4 sec    |
++------------+------------+
+| Numba      | 3.0 sec    |
++------------+------------|
+| Julia      | 3.0sec     |
++------------+------------+
 
 These benchs were run on a modest Pentium R 3550M @ 2.3GHz
 
-But what amaze me was the fact that with `pythran` we were able to close my high-end Intel i7
-machine.
+But what amaze me was the fact that with `Pythran` we were able to my high-end Intel i7 machine.
 
 Conclusion
 ----------
 
-To conclude, pythran is for me still young, like julia, but for a little cost and no particular knowlegde you can
-get the same performances as C code in Python. It worth the time to take a look to pythran.
+To conclude, Pythran is for me still young, like Julia, but for a little cost and no particular knowlegde you can
+get the same performances as C code in Python. It worth the time to take a look to Pythran.
 
 So good luck Pythran!
 
