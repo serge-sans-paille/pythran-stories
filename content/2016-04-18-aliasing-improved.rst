@@ -20,7 +20,7 @@ This is **not** a `Jupyter notebook
 <http://jupyter-notebook-beginner-guide.readthedocs.org/en/latest/what_is_jupyter.html>`_,
 but it could have be. Instead, the content of this article is mostly taken from
 the `Doctest <https://docs.python.org/2/library/doctest.html>`_ of the
-``pythran.analyse.aliases`` module, and the relevant unit tests in
+``pythran.analyses.aliases`` module, and the relevant unit tests in
 ``test_typing.py``. So the reader still has a strong warranty that the output
 described is the one she would get by running the commands herself.
 
@@ -66,19 +66,19 @@ an identifier, as shown by the following code:
 Nothing prevents this to happen in Python [0]_, so Pythran takes great care in
 not confusing *identifiers* and *values*. And The ill-named Alias Analysis is
 the tool we use to solve this problem. In the particular case above, this
-analyse tells us that the identifier ``id`` in the call expression ``id([1])``
+analysis tells us that the identifier ``id`` in the call expression ``id([1])``
 always has the value ``__builtin__.len``. This can be used, for instance, to
 state that this call has no side effect.
 
 Where is Identifier Binding Used in Pythran
 ===========================================
 
-Identifier binding is used by all Pythran analysis that interact with function
+Identifier binding is used by all Pythran analyses that interact with function
 calls, when they need to know something about the function property, or when
 they want to verify that all the possibles (function) values taken by an
 identifier share the same property. For instance:
 
-    #. Conversion from calls with named arguments to call without named arguments, as in ``zeros(1à, dtype=int)``
+    #. Conversion from calls with named arguments to call without named arguments, as in ``zeros(10, dtype=int)``
 
     #. Conversion from iterator to generator, e.g. turning ``range`` into ``xrange`` (Python2 inside ``:-/``)
 
@@ -142,7 +142,7 @@ So let's start to write some simple equations [1]_, with a few test cases demons
 
 Here we basically inject the ``aliases`` namespace into current namespace for
 convenience, then create an instance of the object in charge of applying passes
-and gathering analyse results.
+and gathering analysis results.
 
 Bool Op Expression
 ------------------
@@ -252,9 +252,10 @@ or if Pythran already computed it's ``return_alias`` behavior.
 
 .. code:: python
 
-    >>> fun0 = 'def f(a): return a\n'
-    >>> fun1 = 'def foo(b): c = f(b)\n'
-    >>> module = ast.parse(fun0 + fun1)
+    >>> fun = '''
+    ... def f(a): return a
+    ... def foo(b): c = f(b)'''
+    >>> module = ast.parse(fun)
 
 The ``f`` function create aliasing between
 the returned value and its first argument.
@@ -266,11 +267,11 @@ the returned value and its first argument.
     f(b) => ['b']
 
 This also works with intrinsics, e.g ``dict.setdefault`` which
-may create alias between its third argument and the return value
+may create alias between its third argument and the return value.
 
 .. code:: python
 
-    >>> fun = 'def foo(a, d): __builtin__.dict.setdefault(d, 0, a)\n'
+    >>> fun = 'def foo(a, d): __builtin__.dict.setdefault(d, 0, a)'
     >>> module = ast.parse(fun)
     >>> result = pm.gather(Aliases, module)
     >>> Aliases.dump(result, filter=ast.Call)
@@ -281,9 +282,10 @@ is already known to alias to various values:
 
 .. code:: python
 
-    >>> fun0 = 'def f(a, b): return a and b\n'
-    >>> fun1 = 'def foo(A, B, C, D): return f(A or B, C or D)\n'
-    >>> module = ast.parse(fun0 + fun1)
+    >>> fun = '''
+    ... def f(a, b): return a and b
+    ... def foo(A, B, C, D): return f(A or B, C or D)'''
+    >>> module = ast.parse(fun)
     >>> result = pm.gather(Aliases, module)
     >>> Aliases.dump(result, filter=ast.Call)
     f((A or B), (C or D)) => ['A', 'B', 'C', 'D']
@@ -316,9 +318,10 @@ further refine the aliasing information:
 
 .. code:: python
 
-    >>> fun0 = 'def f(a, b): return a, b\n'
-    >>> fun1 = 'def foo(a, b): return f(a, b)[0]\n'
-    >>> module = ast.parse(fun0 + fun1)
+    >>> fun = '''
+    ... def f(a, b): return a, b
+    ... def foo(a, b): return f(a, b)[0]'''
+    >>> module = ast.parse(fun)
     >>> result = pm.gather(Aliases, module)
     >>> Aliases.dump(result, filter=ast.Subscript)
     f(a, b)[0] => ['a']
@@ -405,7 +408,10 @@ and the content of the iterator
 
 .. code:: python
 
-    >>> module = ast.parse('def foo(a):\n for i in a:\n  {i}')
+    >>> module = ast.parse('''
+    ... def foo(a):
+    ...    for i in a:
+    ...        {i}''')
     >>> result = pm.gather(Aliases, module)
     >>> Aliases.dump(result, filter=ast.Set)
     {i} => ['|i|']
@@ -414,7 +420,10 @@ Not very useful, unless we know something about the iterated container
 
 .. code:: python
 
-    >>> module = ast.parse('def foo(a, b):\n for i in [a, b]:\n  {i}')
+    >>> module = ast.parse('''
+    ... def foo(a, b):
+    ...     for i in [a, b]:
+    ...           {i}''')
     >>> result = pm.gather(Aliases, module)
     >>> Aliases.dump(result, filter=ast.Set)
     {i} => ['|a|', '|b|']
@@ -427,7 +436,11 @@ potentially creating more aliasing:
 
 .. code:: python
 
-    >>> fun = 'def foo(a, b):\n if a: c=a\n else: c=b\n return {c}'
+    >>> fun = '''
+    ... def foo(a, b):
+    ...     if a: c=a
+    ...     else: c=b
+    ...     return {c}'''
     >>> module = ast.parse(fun)
     >>> result = pm.gather(Aliases, module)
     >>> Aliases.dump(result, filter=ast.Set)
@@ -436,7 +449,7 @@ potentially creating more aliasing:
 Illustration: Typing
 --------------------
 
-Thanks to the above analyse, Pythran is capable of computing some rather difficult informations! In the following:
+Thanks to the above analysis, Pythran is capable of computing some rather difficult informations! In the following:
 
 .. code:: python
 
