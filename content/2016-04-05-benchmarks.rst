@@ -23,7 +23,7 @@ C++ results
 
 Compiling and running the C++ code was easy:
 
-.. code:: sh
+.. code-block:: sh
 
 	% g++ -O3 RBC_CPP.cpp -o testcpp
 
@@ -31,7 +31,7 @@ Compiling and running the C++ code was easy:
 then
 
 
-.. code:: julia
+.. code-block:: julia
 
 	% ./testcpp
 	Output = 0.562731, Capital = 0.178198, Consumption = 0.384533
@@ -55,7 +55,7 @@ The Julia code:
 
 we run `julia`:
 
-.. code:: julia
+.. code-block:: julia
 
 	include("RBC_Julia.jl")
 	julia> @time main()
@@ -80,7 +80,7 @@ Python: Pythran  and Numba
 Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and
 replace it by a Pythran comment:
 
-.. code:: python
+.. code-block:: python
 
 	from numba import autojit
 
@@ -89,7 +89,7 @@ replace it by a Pythran comment:
 
 to
 
-.. code:: python
+.. code-block:: python
 
 	#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])
 
@@ -104,7 +104,7 @@ The function is in ``je.py`` and the main code is ``run_je.py``
 
 Let's run the code:
 
-.. code:: sh
+.. code-block:: sh
 
 	% time python2 run_je.py
 	Output =  0.562731433871  Capital =  0.178198287393  Consumption =  0.384533146479
@@ -121,7 +121,7 @@ And it is very nice!
 
 And just for fun, the `Numba version <https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py>`_:
 
-.. code:: sh
+.. code-block:: sh
 
 	% time python2 RBC_Python_Numba.py
 	Output =  0.562731433871  Capital =  0.178198287393  Consumption =  0.384533146479

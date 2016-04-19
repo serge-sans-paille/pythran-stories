@@ -32,4 +32,4 @@ DEFAULT_PAGINATION = 10
 
 RELATIVE_URLS = True
 
-THEME= 'bootstrap'
+THEME= 'bootstrap2'
