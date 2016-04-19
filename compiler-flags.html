@@ -1,74 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Pythran stories</title>
-	<meta name="description" content="">
-	<meta name="author" content="serge-sans-paille and other pythraners">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Flags</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
 
-	<!-- HTML5 shim, for IE6-8 support of HTML elements -->
-	<!--[if lt IE 9]>
-		<script src="./theme/html5.js"></script>
-	<![endif]-->
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
 
-	<!-- Styles -->
-	<link href="./theme/bootstrap.min.css" rel="stylesheet">
-	<link href="./theme/local.css" rel="stylesheet">
-	<link href="./theme/pygments.css" rel="stylesheet">
+    <link href="./theme/css/pygments.css" rel="stylesheet">
 
-	<!-- Feeds -->
-	<link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed" />
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Compiler Flags">
+                                        Compiler Flags
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2016-03-29T00:00:00+02:00">
+        <i class="icon-calendar"></i>Tue 29 March 2016
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/compilation.html"><i class="icon-folder-open"></i>compilation</a>.
 
 
-
-
-</head>
-<body>
-	<div class="topbar">
-	  <div class="topbar-inner">
-		<div class="container-fluid">
-		  <a class="brand" href="./">Pythran stories</a>
-			<ul class="nav">
-					<li ><a href="./category/benchmark.html">benchmark</a></li>
-					<li class="active"><a href="./category/compilation.html">compilation</a></li>
-					<li ><a href="./category/optimisation.html">optimisation</a></li>
-					<li ><a href="./category/release.html">release</a></li>
-			</ul>
-			<p class="pull-right"><a href="./archives.html">[archives]</a> <a href="./tags.html">[tags]</a></p>
-		</div>
-	  </div>
-	</div>
-
-	<div class="container-fluid">
-	  <div class="sidebar">
-		<div class="well">
-			<h3>Blogroll</h3>
-			<ul>
-				<li><a href="http://pythonhosted.org/pythran">Pythran Doc</a></li>
-				<li><a href="https://pypi.python.org/pypi/pythran">Pythran on PyPI</a></li>
-			</ul>
-			<div class="social">
-			<h3>Social</h3>
-			<ul>
-				<li><a href="https://github.com/serge-sans-paille/pythran">github</a></li>
-			</ul>
-			</div>
-		</div>
-	  </div>
-	  <div class="content">
-	<div class='article'>
-		<div class="page-header"><h1>Compiler Flags</h1></div>
-		<div class="well small">Permalink: <a class="more" href="./compiler-flags.html">2016-03-29 00:00:00+02:00</a>
-by <a class="url fn" href="./author/serge-sans-paille.html">serge-sans-paille </a>
- in <a href="./category/compilation.html">compilation</a>
-</div>
-		<div><div class="section" id="when-size-matters">
+</footer><!-- /.post-info -->                </div>
+                <div class="section" id="when-size-matters">
 <h2>When Size Matters</h2>
 <p>Everything started a few days ago with a Pythran user complaining about the
 size of the binaries generated by Pythran. In essence, take the following code
 <cite>cda.py</cite>:</p>
-<pre class="code python literal-block">
-<span class="c">#pythran export closest_distance_arrays(float, float, float[], float[])</span>
+<div class="highlight"><pre><span class="c1">#pythran export closest_distance_arrays(float, float, float[], float[])</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="k">def</span> <span class="nf">closest_distance_arrays</span> <span class="p">(</span><span class="n">lat1</span><span class="p">,</span> <span class="n">long1</span><span class="p">,</span> <span class="n">latitudes</span><span class="p">,</span> <span class="n">longitudes</span><span class="p">):</span>
@@ -81,24 +142,21 @@ size of the binaries generated by Pythran. In essence, take the following code
            <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi2</span><span class="p">))</span>
     <span class="n">arc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span> <span class="n">cos</span> <span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">arc</span><span class="p">),</span> <span class="n">arc</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-</pre>
+</pre></div>
 <p>It doesn't even weight a kilobyte, and when benchmarked, it runs in a few milliseconds:</p>
-<pre class="code sh literal-block">
-&gt; python -m timeit -s <span class="s1">'import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays'</span> <span class="s1">'closest_distance_arrays(x,y,lat, lon)'</span>
+<div class="highlight"><pre>&gt; python -m timeit -s <span class="s1">&#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&#39;</span> <span class="s1">&#39;closest_distance_arrays(x,y,lat, lon)&#39;</span>
 <span class="m">100</span> loops, best of 3: 1.95 msec per loop
-</pre>
+</pre></div>
 <p>Thanks to the <tt class="docutils literal">#pythran export</tt> annotation, Pythran can turn it into a native
 library that runs slightly faster than the Python version:</p>
-<pre class="code sh literal-block">
-&gt; pythran cda.py
-&gt; python -m timeit -s <span class="s1">'import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays'</span> <span class="s1">'closest_distance_arrays(x,y,lat, lon)'</span>
+<div class="highlight"><pre>&gt; pythran cda.py
+&gt; python -m timeit -s <span class="s1">&#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&#39;</span> <span class="s1">&#39;closest_distance_arrays(x,y,lat, lon)&#39;</span>
 <span class="m">1000</span> loops, best of 3: 1.17 msec per loop
-</pre>
+</pre></div>
 <p>It is, however, a very big binary:</p>
-<pre class="code sh literal-block">
-&gt; ls -lh cda.so
+<div class="highlight"><pre>&gt; ls -lh cda.so
 -rwxr-xr-x <span class="m">1</span> sguelton sguelton 1.3M Mar <span class="m">29</span> 18:10 cda.so*
-</pre>
+</pre></div>
 <p>Who wants to multiply the binary size by <tt class="docutils literal">2e3</tt> to get less than a <tt class="docutils literal">x2</tt> speedup?</p>
 </div>
 <div class="section" id="the-culprits-debug-informations">
@@ -106,33 +164,32 @@ library that runs slightly faster than the Python version:</p>
 <p>One can call Pythran with the <tt class="docutils literal"><span class="pre">-v</span></tt> flag to inspect part of its internal,
 especially the C++ compiler call done to perform object code generation and
 linking:</p>
-<pre class="code literal-block">
-&gt; pythran cda.py -v
+<div class="highlight"><pre>&gt; pythran cda.py -v
 running build_ext
 running build_src
 build_src
-building extension &quot;cda&quot; sources
+building extension <span class="s2">&quot;cda&quot;</span> sources
 build_src: building npy-pkg config files
 new_compiler returns distutils.unixccompiler.UnixCCompiler
 INFO     customize UnixCCompiler
 customize UnixCCompiler using build_ext
 ********************************************************************************
 distutils.unixccompiler.UnixCCompiler
-linker_exe    = ['gcc']
-compiler_so   = ['gcc', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-fno-strict-aliasing', '-g', '-O2', '-fPIC']
-archiver      = ['x86_64-linux-gnu-gcc-ar', 'rc']
-preprocessor  = ['gcc', '-E']
-linker_so     = ['x86_64-linux-gnu-gcc', '-pthread', '-shared', '-Wl,-O1', '-Wl,-Bsymbolic-functions', '-Wl,-z,relro', '-fno-strict-aliasing', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-Wdate-time', '-D_FORTIFY_SOURCE=2', '-g', '-fstack-protector-strong', '-Wformat', '-Werror=format-security', '-Wl,-z,relro', '-g', '-O2']
-compiler_cxx  = ['g++']
-ranlib        = None
-compiler      = ['gcc', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-fno-strict-aliasing', '-g', '-O2']
-libraries     = []
-library_dirs  = []
-include_dirs  = ['/usr/include/python2.7']
-[...]
+<span class="nv">linker_exe</span>    <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;gcc&#39;</span><span class="o">]</span>
+<span class="nv">compiler_so</span>   <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;gcc&#39;</span>, <span class="s1">&#39;-DNDEBUG&#39;</span>, <span class="s1">&#39;-g&#39;</span>, <span class="s1">&#39;-fwrapv&#39;</span>, <span class="s1">&#39;-O2&#39;</span>, <span class="s1">&#39;-Wall&#39;</span>, <span class="s1">&#39;-Wstrict-prototypes&#39;</span>, <span class="s1">&#39;-fno-strict-aliasing&#39;</span>, <span class="s1">&#39;-g&#39;</span>, <span class="s1">&#39;-O2&#39;</span>, <span class="s1">&#39;-fPIC&#39;</span><span class="o">]</span>
+<span class="nv">archiver</span>      <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;x86_64-linux-gnu-gcc-ar&#39;</span>, <span class="s1">&#39;rc&#39;</span><span class="o">]</span>
+<span class="nv">preprocessor</span>  <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;gcc&#39;</span>, <span class="s1">&#39;-E&#39;</span><span class="o">]</span>
+<span class="nv">linker_so</span>     <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;x86_64-linux-gnu-gcc&#39;</span>, <span class="s1">&#39;-pthread&#39;</span>, <span class="s1">&#39;-shared&#39;</span>, <span class="s1">&#39;-Wl,-O1&#39;</span>, <span class="s1">&#39;-Wl,-Bsymbolic-functions&#39;</span>, <span class="s1">&#39;-Wl,-z,relro&#39;</span>, <span class="s1">&#39;-fno-strict-aliasing&#39;</span>, <span class="s1">&#39;-DNDEBUG&#39;</span>, <span class="s1">&#39;-g&#39;</span>, <span class="s1">&#39;-fwrapv&#39;</span>, <span class="s1">&#39;-O2&#39;</span>, <span class="s1">&#39;-Wall&#39;</span>, <span class="s1">&#39;-Wstrict-prototypes&#39;</span>, <span class="s1">&#39;-Wdate-time&#39;</span>, <span class="s1">&#39;-D_FORTIFY_SOURCE=2&#39;</span>, <span class="s1">&#39;-g&#39;</span>, <span class="s1">&#39;-fstack-protector-strong&#39;</span>, <span class="s1">&#39;-Wformat&#39;</span>, <span class="s1">&#39;-Werror=format-security&#39;</span>, <span class="s1">&#39;-Wl,-z,relro&#39;</span>, <span class="s1">&#39;-g&#39;</span>, <span class="s1">&#39;-O2&#39;</span><span class="o">]</span>
+<span class="nv">compiler_cxx</span>  <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;g++&#39;</span><span class="o">]</span>
+<span class="nv">ranlib</span>        <span class="o">=</span> None
+<span class="nv">compiler</span>      <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;gcc&#39;</span>, <span class="s1">&#39;-DNDEBUG&#39;</span>, <span class="s1">&#39;-g&#39;</span>, <span class="s1">&#39;-fwrapv&#39;</span>, <span class="s1">&#39;-O2&#39;</span>, <span class="s1">&#39;-Wall&#39;</span>, <span class="s1">&#39;-Wstrict-prototypes&#39;</span>, <span class="s1">&#39;-fno-strict-aliasing&#39;</span>, <span class="s1">&#39;-g&#39;</span>, <span class="s1">&#39;-O2&#39;</span><span class="o">]</span>
+<span class="nv">libraries</span>     <span class="o">=</span> <span class="o">[]</span>
+<span class="nv">library_dirs</span>  <span class="o">=</span> <span class="o">[]</span>
+<span class="nv">include_dirs</span>  <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;/usr/include/python2.7&#39;</span><span class="o">]</span>
+<span class="o">[</span>...<span class="o">]</span>
 INFO     Generated module: cda
 INFO     Output: /home/sguelton/sources/pythran/cda.so
-</pre>
+</pre></div>
 <p>That's a pretty long trace, but that's what verbose mode is for. The
 enlightened reader noticed that we use <tt class="docutils literal">distutils</tt> under the hood to abstract
 the compiler calls, and that's why we're getting some funky compiler flags like
@@ -143,11 +200,10 @@ last ones are hardening flags used to improve the security of the binary and I
 wrote a (passionating) article about it for Quarkslab <a class="footnote-reference" href="#id4" id="id1">[0]</a>.</p>
 <p>It turns out <tt class="docutils literal"><span class="pre">-g</span></tt> (and C++) is responsible for the fat binary: if we simply
 strip the binary, we get back to a decent size:</p>
-<pre class="code sh literal-block">
-&gt; strip cda.so
+<div class="highlight"><pre>&gt; strip cda.so
 &gt; ls -lh cda.so
 -rwxr-xr-x <span class="m">1</span> sguelton sguelton 151K Mar <span class="m">29</span> 18:26 cda.so
-</pre>
+</pre></div>
 <p>As Pythran users generally don't want the debug info on the generated native
 code, we chose to strip them by default, using the linker flag
 <tt class="docutils literal"><span class="pre">-Wl,-strip-all</span></tt> that removes all symbol informations, including debug
@@ -158,13 +214,12 @@ symbols.</p>
 <p>While we're at it, let's call <tt class="docutils literal">nm</tt> to check if any symbol remains in the
 binary. After all, the Python interpreter still needs some of them to load the
 native extension!</p>
-<pre class="code sh literal-block">
-&gt; nm -C -D cda.so
+<div class="highlight"><pre>&gt; nm -C -D cda.so
 <span class="o">[</span>...<span class="o">]</span> skipping &gt; <span class="m">900</span> entries
 000000000001ed00 u nt2::ext::implement&lt;nt2::tag::rem_pio2_ <span class="o">(</span>boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;, boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;, boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;<span class="o">)</span>, boost::dispatch::tag::cpu_, void&gt;::__kernel_rem_pio2<span class="o">(</span>double*, double*, int, int, int, int const*<span class="o">)</span>::PIo2
 000000000001edc0 u nt2::ext::implement&lt;nt2::tag::rem_pio2_ <span class="o">(</span>boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;, boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;, boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;<span class="o">)</span>, boost::dispatch::tag::cpu_, void&gt;::__ieee754_rem_pio2<span class="o">(</span>double, double*<span class="o">)</span>::two_over_pi
 000000000001ed40 u nt2::ext::implement&lt;nt2::tag::rem_pio2_ <span class="o">(</span>boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;, boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;, boost::dispatch::meta::scalar_&lt;boost::dispatch::meta::double_&lt;double&gt; &gt;<span class="o">)</span>, boost::dispatch::tag::cpu_, void&gt;::__ieee754_rem_pio2<span class="o">(</span>double, double*<span class="o">)</span>::npio2_hw
-</pre>
+</pre></div>
 <p>I can tell you Python is <em>not</em> using nt2 dispatch mechanism to load native
 extensions. Again, the default compiler settings are responsible for this
 noise, and the relevant compiler flag is <tt class="docutils literal"><span class="pre">-fvisibility=hidden</span></tt> that tells the
@@ -195,38 +250,34 @@ always inlined, and thus win space. So we flag the <tt class="docutils literal">
 with the visibility attribute, but it turns out this triggers abunch of
 different optimization path that gives us a significantly smaller binary, that
 runs slightly faster:</p>
-<pre class="code sh literal-block">
-&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all
+<div class="highlight"><pre>&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all
 &gt; ls -lh cda.so
 -rwxr-xr-x <span class="m">1</span> sguelton sguelton 31K Mar <span class="m">29</span> 18:52 cda.so*
-&gt; python -m timeit -s <span class="s1">'import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays'</span> <span class="s1">'closest_distance_arrays(x,y,lat, lon)'</span>
+&gt; python -m timeit -s <span class="s1">&#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&#39;</span> <span class="s1">&#39;closest_distance_arrays(x,y,lat, lon)&#39;</span>
 <span class="m">1000</span> loops, best of 3: 1.15 msec per loop
-</pre>
+</pre></div>
 <p>All these flags are now the default on Linux.</p>
 </div>
 <div class="section" id="playing-with-the-optimization-flags-too">
 <h2>Playing with the optimization flags too</h2>
 <p>The default optimization flag is <tt class="docutils literal"><span class="pre">-O2</span></tt>, and that's generally a decent choice.
 On <tt class="docutils literal">cda.py</tt>, using <tt class="docutils literal"><span class="pre">-O3</span></tt> does not give much change (gcc 4.9):</p>
-<pre class="code sh literal-block">
-&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -O3
+<div class="highlight"><pre>&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -O3
 &gt; python -m timeit <span class="o">[</span>...<span class="o">]</span>
 <span class="m">1000</span> loops, best of 3: 1.14 msec per loop
-</pre>
+</pre></div>
 <p>Asking for code specific to my CPU using <tt class="docutils literal"><span class="pre">-march=native</span></tt> actually gives some improvments</p>
-<pre class="code sh literal-block">
-&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -O3 -march<span class="o">=</span>native
+<div class="highlight"><pre>&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -O3 -march<span class="o">=</span>native
 &gt; python -m timeit <span class="o">[</span>...<span class="o">]</span>
 <span class="m">1000</span> loops, best of 3: 1.11 msec per loop
-</pre>
+</pre></div>
 <p>But the best speedup has a price: relaxing standard compliance with <tt class="docutils literal"><span class="pre">-Ofast</span></tt>
 can be beneficial if you're not using denormalized numbers, infinity and the
 monstrosity that lies with <tt class="docutils literal">NaN</tt>:</p>
-<pre class="code sh literal-block">
-&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -Ofast -march<span class="o">=</span>native
+<div class="highlight"><pre>&gt; pythran cda.py -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -Ofast -march<span class="o">=</span>native
 &gt; python -m timeit <span class="o">[</span>...<span class="o">]</span>
 <span class="m">1000</span> loops, best of 3: 1.02 msec per loop
-</pre>
+</pre></div>
 <p>If you're really into compiler flags tuning, you can try out <tt class="docutils literal"><span class="pre">-funroll-loops</span></tt>
 or try to tune the <tt class="docutils literal"><span class="pre">-finline-limit=N</span></tt> parameter (that actually get mets dow
 to <tt class="docutils literal">1ms per loop</tt>) but that's going a bit too far :-)</p>
@@ -240,12 +291,11 @@ task for compilers. Fortunately Pythran helps here, and passing the
 not-so-experimental-anymore-but-still-not-default flag <tt class="docutils literal"><span class="pre">-DUSE_BOOST_SIMD</span></tt>
 triggers some hard-coded vectorization based on <tt class="docutils literal">boost.simd</tt> <a class="footnote-reference" href="#id7" id="id3">[3]</a>, and that
 <strong>did</strong> help:</p>
-<pre class="code sh literal-block">
-&gt; <span class="c"># esod mumixam
-</span>&gt; python -m pythran.run cda.cpp -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -Ofast -march<span class="o">=</span>native -funroll-loops -finline-limit<span class="o">=</span><span class="m">100000000</span> -DUSE_BOOST_SIMD
+<div class="highlight"><pre>&gt; <span class="c1"># esod mumixam</span>
+&gt; python -m pythran.run cda.cpp -fvisibility<span class="o">=</span>hidden -fwhole-program -Wl,-strip-all -Ofast -march<span class="o">=</span>native -funroll-loops -finline-limit<span class="o">=</span><span class="m">100000000</span> -DUSE_BOOST_SIMD
 &gt; python -m timeit <span class="o">[</span>...<span class="o">]</span>
 <span class="m">1000</span> loops, best of 3: <span class="m">462</span> usec per loo
-</pre>
+</pre></div>
 <p>And that's woth 63 kilobytes :-)</p>
 </div>
 <div class="section" id="concluding-remarks">
@@ -280,14 +330,69 @@ changing the original code.</p>
 </tbody>
 </table>
 </div>
-</div>
-	</div>
-		<footer>
-		  <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme based on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>.</p>
-		  <p>&copy; serge-sans-paille and other pythraners</p>
-		</footer>
-	  </div>
 
-	</div>
-</body>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
 </html>

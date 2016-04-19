@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/benchmark.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-04-05T00:00:00+02:00</updated><entry><title>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html" rel="alternate"></link><updated>2016-04-05T00:00:00+02:00</updated><author><name>Lightjohn</name></author><id>tag:serge-sans-paille.github.io,2016-04-05:pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html</id><summary type="html">&lt;div class="section" id="the-benchmark"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/benchmark.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-04-05T00:00:00+02:00</updated><entry><title>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html" rel="alternate"></link><published>2016-04-05T00:00:00+02:00</published><author><name>Lightjohn</name></author><id>tag:serge-sans-paille.github.io,2016-04-05:pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html</id><summary type="html">&lt;div class="section" id="the-benchmark"&gt;
 &lt;h2&gt;The benchmark&lt;/h2&gt;
 &lt;p&gt;First there was a paper &lt;a class="footnote-reference" href="#id4" id="id1"&gt;[0]&lt;/a&gt;,
 in the paper there was a github &lt;a class="footnote-reference" href="#id5" id="id2"&gt;[1]&lt;/a&gt; and
@@ -10,12 +10,10 @@ But the day before I discovered Pythran so why not test both?&lt;/p&gt;
 &lt;div class="section" id="c-results"&gt;
 &lt;h3&gt;C++ results&lt;/h3&gt;
 &lt;p&gt;Compiling and running the C++ code was easy:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% g++ -O3 RBC_CPP.cpp -o testcpp
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% g++ -O3 RBC_CPP.cpp -o testcpp
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;then&lt;/p&gt;
-&lt;pre class="code julia literal-block"&gt;
-&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;testcpp&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;testcpp&lt;/span&gt;
 &lt;span class="n"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.562731&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.178198&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.384533&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.0527416&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.0313469&lt;/span&gt;
@@ -28,15 +26,14 @@ But the day before I discovered Pythran so why not test both?&lt;/p&gt;
 
 &lt;span class="n"&gt;My&lt;/span&gt; &lt;span class="n"&gt;check&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.146549&lt;/span&gt;
 &lt;span class="n"&gt;Elapsed&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt; &lt;span class="nb"&gt;is&lt;/span&gt;   &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;2.40271&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="julia-results"&gt;
 &lt;h3&gt;Julia results&lt;/h3&gt;
 &lt;p&gt;The Julia code:&lt;/p&gt;
 &lt;p&gt;we run &lt;cite&gt;julia&lt;/cite&gt;:&lt;/p&gt;
-&lt;pre class="code julia literal-block"&gt;
-&lt;span class="n"&gt;include&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;RBC_Julia.jl&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;julia&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;&amp;#64;&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;include&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;RBC_Julia.jl&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;julia&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;@&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="n"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.5627314338711378&lt;/span&gt; &lt;span class="n"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.178198287392527&lt;/span&gt; &lt;span class="n"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.3845331464786108&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.05274159340733661&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.031346949265852075&lt;/span&gt;
@@ -49,32 +46,29 @@ But the day before I discovered Pythran so why not test both?&lt;/p&gt;
 
 &lt;span class="n"&gt;My&lt;/span&gt; &lt;span class="n"&gt;check&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.1465491436962635&lt;/span&gt;
 &lt;span class="mf"&gt;3.001183&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;3.84&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt; &lt;span class="n"&gt;allocations&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;703.276&lt;/span&gt; &lt;span class="n"&gt;MB&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.68&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Not bad!&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="python-pythran-and-numba"&gt;
 &lt;h3&gt;Python: Pythran  and Numba&lt;/h3&gt;
 &lt;p&gt;Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and
 replace it by a Pythran comment:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numba&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;autojit&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numba&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;autojit&lt;/span&gt;
 
-&lt;span class="nd"&gt;&amp;#64;autojit&lt;/span&gt;
+&lt;span class="nd"&gt;@autojit&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;innerloop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bbeta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;gridCapitalNextPeriod&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mOutput&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nProductivity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expectedValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunctionNew&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mPolicyFunction&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;to&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;innerloop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bbeta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;gridCapitalNextPeriod&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mOutput&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nProductivity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expectedValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunctionNew&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mPolicyFunction&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Easy? not quite... while pythranisation of the code, something went wrong, but
 no idea why! With some (many) help, the solution was found: the idea was to extract the innerloop into a
 new file and run Pythran on it then calling it from the main code.&lt;/p&gt;
 &lt;p&gt;The function is in &lt;tt class="docutils literal"&gt;je.py&lt;/tt&gt; and the main code is &lt;tt class="docutils literal"&gt;run_je.py&lt;/tt&gt;&lt;/p&gt;
 &lt;p&gt;Let's run the code:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% &lt;span class="nb"&gt;time &lt;/span&gt;python2 run_je.py
+&lt;div class="highlight"&gt;&lt;pre&gt;% &lt;span class="nb"&gt;time&lt;/span&gt; python2 run_je.py
 &lt;span class="nv"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.562731433871  &lt;span class="nv"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.178198287393  &lt;span class="nv"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.384533146479
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;1&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0527415934073
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;10&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0313469492659
@@ -84,11 +78,10 @@ new file and run Pythran on it then calling it from the main code.&lt;/p&gt;
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;240&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  2.32196579297e-07
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;250&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  1.39087209527e-07
 python2 run_je.py  2,45s user 0,08s system 94% cpu 2,666 total
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And it is very nice!&lt;/p&gt;
 &lt;p&gt;And just for fun, the &lt;a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py"&gt;Numba version&lt;/a&gt;:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% &lt;span class="nb"&gt;time &lt;/span&gt;python2 RBC_Python_Numba.py
+&lt;div class="highlight"&gt;&lt;pre&gt;% &lt;span class="nb"&gt;time&lt;/span&gt; python2 RBC_Python_Numba.py
 &lt;span class="nv"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.562731433871  &lt;span class="nv"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.178198287393  &lt;span class="nv"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.384533146479
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;1&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0527415934073
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;10&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0313469492659
@@ -101,7 +94,7 @@ python2 run_je.py  2,45s user 0,08s system 94% cpu 2,666 total
 
 My &lt;span class="nv"&gt;Check&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.146549143696
 Elapse &lt;span class="nb"&gt;time&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; is  3.00302290916
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;So in the end we have:&lt;/p&gt;
 &lt;table border="1" class="docutils"&gt;
 &lt;colgroup&gt;

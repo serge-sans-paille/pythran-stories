@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/release.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-01-07T00:00:00+01:00</updated><entry><title>Pythran 0.7.4 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-074-is-out.html" rel="alternate"></link><updated>2016-01-07T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-01-07:pythran-stories/pythran-074-is-out.html</id><summary type="html">&lt;p&gt;The pythran team (a great total of 2 active developers) is delighted to
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/release.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-01-07T00:00:00+01:00</updated><entry><title>Pythran 0.7.4 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-074-is-out.html" rel="alternate"></link><published>2016-01-07T00:00:00+01:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-01-07:pythran-stories/pythran-074-is-out.html</id><summary type="html">&lt;p&gt;The pythran team (a great total of 2 active developers) is delighted to
 announce the release of Pythran 0.7.4, available on the traditional
 channels:&lt;/p&gt;
 &lt;blockquote&gt;
@@ -11,30 +11,27 @@ channels:&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;As usual, here is a (new) code sample, once again adapted from a
 stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;[0]&lt;/a&gt; that showcases pythran capability:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
-&lt;span class="c"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
+&lt;span class="c1"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
 
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="c"&gt;#      ^~~~~~ numpy support (partial)&lt;/span&gt;
+&lt;span class="c1"&gt;#      ^~~~~~ numpy support (partial)&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_mask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="n"&gt;target&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt;
-        &lt;span class="c"&gt;# ^~~~~ type destructuring, array view&lt;/span&gt;
+        &lt;span class="c1"&gt;# ^~~~~ type destructuring, array view&lt;/span&gt;
         &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mask&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bitwise_and&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;all&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-        &lt;span class="c"&gt;# ^~~~~~~ optimization of high level construct&lt;/span&gt;
+        &lt;span class="c1"&gt;# ^~~~~~~ optimization of high level construct&lt;/span&gt;
             &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
                 &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Compiled with:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% pythran check_mask.py
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% pythran check_mask.py
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And benchmarked with:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% python -m timeit -s &lt;span class="s1"&gt;'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask'&lt;/span&gt; &lt;span class="s1"&gt;'check_mask(db, out)'&lt;/span&gt;
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% python -m timeit -s &lt;span class="s1"&gt;&amp;#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;check_mask(db, out)&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)&lt;/p&gt;
 &lt;p&gt;Here is an extract of the changelog:&lt;/p&gt;
 &lt;pre class="code literal-block"&gt;

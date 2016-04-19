@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Identifier Binding Computation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Identifier Binding Computation">
+                                        Identifier Binding Computation
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2016-04-18T00:00:00+02:00">
+        <i class="icon-calendar"></i>Mon 18 April 2016
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/compilation.html"><i class="icon-folder-open"></i>compilation</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <div class="section" id="foreword">
+<h2>Foreword</h2>
+<p>This is <strong>not</strong> a <a class="reference external" href="http://jupyter-notebook-beginner-guide.readthedocs.org/en/latest/what_is_jupyter.html">Jupyter notebook</a>,
+but it could have be. Instead, the content of this article is mostly taken from
+the <a class="reference external" href="https://docs.python.org/2/library/doctest.html">Doctest</a> of the
+<tt class="docutils literal">pythran.analyses.aliases</tt> module, and the relevant unit tests in
+<tt class="docutils literal">test_typing.py</tt>. So the reader still has a strong warranty that the output
+described is the one she would get by running the commands herself.</p>
+<p>The curious reader can verify this statement by running <tt class="docutils literal">python <span class="pre">-m</span> doctest</tt>
+with Pythran in its <tt class="docutils literal">PYTHONPATH</tt> <a class="citation-reference" href="#git-version" id="id1">[git-version]</a> on the article source, which is in fact what
+I did before posting it <tt class="docutils literal"><span class="pre">:-)</span></tt>.</p>
+</div>
+<div class="section" id="static-computation-of-identifier-binding">
+<h2>Static Computation of Identifier Binding</h2>
+<p>In Python, everything is a reference, from literal to objects. Assignment
+creates a <em>binding</em> between a reference and an identifier, thus the following
+sequence always hold:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">c</span> <span class="o">=</span> <span class="n">a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">b</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="ow">is</span> <span class="n">a</span>
+<span class="go">True</span>
+</pre></div>
+<p>In  some sense, assignement creates aliasing between identifiers, as any change
+made to the <em>value</em> referenced by the identifier <tt class="docutils literal">b</tt> impacts the <em>value</em>
+referenced by identifer <tt class="docutils literal">c</tt> (and <tt class="docutils literal">a</tt> and <tt class="docutils literal">d</tt>):</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+<span class="go">True</span>
+</pre></div>
+<p>In the context of Pythran, the static knowledge of the different values an
+identifier <strong>may</strong> be bound to is critical. First there is no reason to trust
+an identifier, as shown by the following code:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">id</span> <span class="o">=</span> <span class="nb">len</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">id</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">1</span>
+</pre></div>
+<p>Nothing prevents this to happen in Python <a class="footnote-reference" href="#id4" id="id2">[0]</a>, so Pythran takes great care in
+not confusing <em>identifiers</em> and <em>values</em>. And The ill-named Alias Analysis is
+the tool we use to solve this problem. In the particular case above, this
+analysis tells us that the identifier <tt class="docutils literal">id</tt> in the call expression <tt class="docutils literal"><span class="pre">id([1])</span></tt>
+always has the value <tt class="docutils literal">__builtin__.len</tt>. This can be used, for instance, to
+state that this call has no side effect.</p>
+</div>
+<div class="section" id="where-is-identifier-binding-used-in-pythran">
+<h2>Where is Identifier Binding Used in Pythran</h2>
+<p>Identifier binding is used by all Pythran analyses that interact with function
+calls, when they need to know something about the function property, or when
+they want to verify that all the possibles (function) values taken by an
+identifier share the same property. For instance:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>Conversion from calls with named arguments to call without named arguments, as in <tt class="docutils literal">zeros(10, dtype=int)</tt></li>
+<li>Conversion from iterator to generator, e.g. turning <tt class="docutils literal">range</tt> into <tt class="docutils literal">xrange</tt> (Python2 inside <tt class="docutils literal"><span class="pre">:-/</span></tt>)</li>
+<li>Constant folding (it needs to make sure it manipulates pure functions)</li>
+<li>…</li>
+</ol>
+</blockquote>
+<p>But the single more important use of identifier binding is in fact typing. This
+is likely to evolve, but current (clumsy) typing system in Pythran attaches
+some kind of typing properties to functions. For instance for the following
+function:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+<p>Pythran computes a property that states</p>
+<blockquote>
+&gt; if functions <tt class="docutils literal">foo</tt> is called with an argument of type A as first argument and an argument of type B as second argument,
+&gt; <strong>then</strong> the type of the first argument is the combination of its actual type A and an abstract type <em>Container of B</em></blockquote>
+<p>So in case we make the following call:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">b</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<p>then the type of <tt class="docutils literal">a</tt> is first computed to be <em>empty list</em> and calling <tt class="docutils literal">foo</tt>
+combines this information with the fact that <tt class="docutils literal">a</tt> must be capable of holding
+integers, to conclude <tt class="docutils literal">a</tt> has the type <em>list of integers</em>.</p>
+<p>Identifier binding is used twice in the process. Once to prove that the
+<em>identifier</em> <tt class="docutils literal">foo</tt> is bound to the value <tt class="docutils literal">foo</tt>, and once to track which
+values the <em>identifier</em> <tt class="docutils literal">a</tt> was bound to, here to compute that the type
+information gathered for <tt class="docutils literal">a</tt> also impacts <tt class="docutils literal">b</tt>, even if <tt class="docutils literal">b</tt> was not used
+in the function call, as they share the same value.</p>
+</div>
+<div class="section" id="computing-an-overset-of-the-bound-values">
+<h2>Computing an Overset of the Bound Values</h2>
+<p>Pythran <strong>cannot</strong> track any possible values bound to a variable. In the following example:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+</pre></div>
+<p>identifier <tt class="docutils literal">i</tt> can be bound to a great deal of values, and we cannot track them individually.
+Instead Pythran only keep tracks of values that are bound to an identifier. All
+the others are hidden between the terms of <tt class="docutils literal"><span class="pre">&lt;unbound-value&gt;</span></tt>.</p>
+<p>So let's start to write some simple equations <a class="footnote-reference" href="#id5" id="id3">[1]</a>, with a few test cases demonstrated as Python code which needs some initialization:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ast</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran.analyses.aliases</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran</span> <span class="kn">import</span> <span class="n">passmanager</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pm</span> <span class="o">=</span> <span class="n">passmanager</span><span class="o">.</span><span class="n">PassManager</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+</pre></div>
+<p>Here we basically inject the <tt class="docutils literal">aliases</tt> namespace into current namespace for
+convenience, then create an instance of the object in charge of applying passes
+and gathering analysis results.</p>
+<div class="section" id="bool-op-expression">
+<h3>Bool Op Expression</h3>
+<p><em>(A.k.a ``or`` and ``and``)</em></p>
+<p>Resulting node may alias to either operands:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b): return a or b&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">BoolOp</span><span class="p">)</span>
+<span class="go">(a or b) =&gt; [&#39;a&#39;, &#39;b&#39;]</span>
+</pre></div>
+<p>This code snippet requires a few explanations:</p>
+<blockquote>
+<ol class="arabic">
+<li><p class="first">First, it parses a code snippet and turns it into an Abstract Syntax Tree (AST).</p>
+</li>
+<li><dl class="first docutils">
+<dt>Second, it computes the alias information at every point of the program.</dt>
+<dd><p class="first last"><tt class="docutils literal">result</tt> is a dictionary that maps nodes from the AST to set of
+identifiers (remember that for Pythran, a node can only alias to
+bounded values. These values are represented by the first identifier
+they are bound to).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Finally, it pretty prints the result of the analysis, using a filter to</dt>
+<dd><p class="first last">only dump the part we are interested in. In that case it dumps a
+textual representation of the alias set of the <tt class="docutils literal">ast.BoolOp</tt> nodes,
+which turns out to be <tt class="docutils literal">['a', 'b']</tt>.</p>
+</dd>
+</dl>
+</li>
+</ol>
+</blockquote>
+</div>
+<div class="section" id="unary-operator-expression">
+<h3>Unary Operator Expression</h3>
+<p>Resulting node does not alias to anything</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a): return -a&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">)</span>
+<span class="go">(- a) =&gt; [&#39;&lt;unbound-value&gt;&#39;]</span>
+</pre></div>
+<p>As stated previously, values not bound to an identifier are only represented as <tt class="docutils literal"><span class="pre">&lt;unbound-value&gt;</span></tt>.</p>
+</div>
+<div class="section" id="if-expression">
+<h3>If Expression</h3>
+<p>Resulting node alias to either branch</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b, c): return a if c else b&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">IfExp</span><span class="p">)</span>
+<span class="go">(a if c else b) =&gt; [&#39;a&#39;, &#39;b&#39;]</span>
+</pre></div>
+</div>
+<div class="section" id="dict-expression">
+<h3>Dict Expression</h3>
+<p>A dict is abstracted as an unordered container of its values</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b): return {0: a, 1: b}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Dict</span><span class="p">)</span>
+<span class="go">{0: a, 1: b} =&gt; [&#39;|a|&#39;, &#39;|b|&#39;]</span>
+</pre></div>
+<p>where the <tt class="docutils literal">|id|</tt> notation means something that may contain <tt class="docutils literal">id</tt>.</p>
+</div>
+<div class="section" id="set-expression">
+<h3>Set Expression</h3>
+<p>A set is abstracted as an unordered container of its elements</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b): return {a, b}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Set</span><span class="p">)</span>
+<span class="go">{a, b} =&gt; [&#39;|a|&#39;, &#39;|b|&#39;]</span>
+</pre></div>
+</div>
+<div class="section" id="tuple-expression">
+<h3>Tuple Expression</h3>
+<p>A tuple is abstracted as an ordered container of its values</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b): return a, b&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Tuple</span><span class="p">)</span>
+<span class="go">(a, b) =&gt; [&#39;|[0]=a|&#39;, &#39;|[1]=b|&#39;]</span>
+</pre></div>
+<p>where the <tt class="docutils literal"><span class="pre">|[i]=id|</span></tt> notation means something that
+may contain <tt class="docutils literal">id</tt> at index <tt class="docutils literal">i</tt>.</p>
+</div>
+<div class="section" id="call-expression">
+<h3>Call Expression</h3>
+<p>Resulting node alias to the return_alias of called function,
+if the function is already known by Pythran (i.e. it's an Intrinsic)
+or if Pythran already computed it's <tt class="docutils literal">return_alias</tt> behavior.</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">def f(a): return a</span>
+<span class="gp">... </span><span class="s1">def foo(b): c = f(b)&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+</pre></div>
+<p>The <tt class="docutils literal">f</tt> function create aliasing between
+the returned value and its first argument.</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span>
+<span class="go">f(b) =&gt; [&#39;b&#39;]</span>
+</pre></div>
+<p>This also works with intrinsics, e.g <tt class="docutils literal">dict.setdefault</tt> which
+may create alias between its third argument and the return value.</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;def foo(a, d): __builtin__.dict.setdefault(d, 0, a)&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span>
+<span class="go">__builtin__.dict.setdefault(d, 0, a) =&gt; [&#39;&lt;unbound-value&gt;&#39;, &#39;a&#39;]</span>
+</pre></div>
+<p>Note that complex cases can arise, when one of the formal parameter
+is already known to alias to various values:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">def f(a, b): return a and b</span>
+<span class="gp">... </span><span class="s1">def foo(A, B, C, D): return f(A or B, C or D)&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span>
+<span class="go">f((A or B), (C or D)) =&gt; [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;]</span>
+</pre></div>
+</div>
+<div class="section" id="subscript-expression">
+<h3>Subscript Expression</h3>
+<p>Resulting node alias stores the subscript relationship if we don't know
+anything about the subscripted node.</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a): return a[0]&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+<span class="go">a[0] =&gt; [&#39;a[0]&#39;]</span>
+</pre></div>
+<p>If we know something about the container, e.g. in case of a list, we
+can use this information to get more accurate informations:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b, c): return [a, b][c]&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+<span class="go">[a, b][c] =&gt; [&#39;a&#39;, &#39;b&#39;]</span>
+</pre></div>
+<p>Moreover, in case of a tuple indexed by a constant value, we can
+further refine the aliasing information:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">def f(a, b): return a, b</span>
+<span class="gp">... </span><span class="s1">def foo(a, b): return f(a, b)[0]&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+<span class="go">f(a, b)[0] =&gt; [&#39;a&#39;]</span>
+</pre></div>
+<p>Nothing is done for slices, even if the indices are known :-/</p>
+<blockquote>
+<pre class="doctest-block">
+&gt;&gt;&gt; module = ast.parse('def foo(a, b, c): return [a, b, c][1:]')
+&gt;&gt;&gt; result = pm.gather(Aliases, module)
+&gt;&gt;&gt; Aliases.dump(result, filter=ast.Subscript)
+[a, b, c][1:] =&gt; ['&lt;unbound-value&gt;']
+</pre>
+</blockquote>
+</div>
+<div class="section" id="list-comprehension">
+<h3>List Comprehension</h3>
+<p>A comprehension is not abstracted in any way</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b): return [a for i in b]&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">ListComp</span><span class="p">)</span>
+<span class="go">[a for i in b] =&gt; [&#39;&lt;unbound-value&gt;&#39;]</span>
+</pre></div>
+</div>
+<div class="section" id="return-statement">
+<h3>Return Statement</h3>
+<p>A side effect of computing aliases on a Return is that it updates the
+<tt class="docutils literal">return_alias</tt> field of current function</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b): return a&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">return_alias</span> <span class="c1"># doctest: +ELLIPSIS</span>
+<span class="go">&lt;function merge_return_aliases at...&gt;</span>
+</pre></div>
+<p>This field is a function that takes as many nodes as the function
+argument count as input and returns an expression based on
+these arguments if the function happens to create aliasing
+between its input and output. In our case:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">return_alias</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">f</span><span class="p">([</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">()),</span> <span class="n">ast</span><span class="o">.</span><span class="n">Num</span><span class="p">(</span><span class="mi">1</span><span class="p">)]))</span>
+<span class="go">[&#39;A&#39;]</span>
+</pre></div>
+<p>This also works if the relationship between input and output
+is more complex:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a, b): return a or b[0]&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">return_alias</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">List</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">List</span><span class="p">([</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s1">&#39;L0&#39;</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">())],</span> <span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">f</span><span class="p">([</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">()),</span> <span class="n">List</span><span class="p">]))</span>
+<span class="go">[&#39;B&#39;, &#39;[L0][0]&#39;]</span>
+</pre></div>
+<p>Which actually means that when called with two arguments <tt class="docutils literal">B</tt> and
+the single-element list <tt class="docutils literal">[L[0]]</tt>, <tt class="docutils literal">foo</tt> may returns either the
+first argument, or the first element of the second argument.</p>
+</div>
+<div class="section" id="assign-statement">
+<h3>Assign Statement</h3>
+<p>Assignment creates aliasing between lhs and rhs</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a): c = a ; d = e = c ; {c, d, e}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Set</span><span class="p">)</span>
+<span class="go">{c, d, e} =&gt; [&#39;|a|&#39;, &#39;|a|&#39;, &#39;|a|&#39;]</span>
+</pre></div>
+<p>Everyone points to the formal parameter <tt class="docutils literal">a</tt> o/</p>
+</div>
+<div class="section" id="for-statement">
+<h3>For Statement</h3>
+<p>For loop creates aliasing between the target
+and the content of the iterator</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">def foo(a):</span>
+<span class="gp">... </span><span class="s1">   for i in a:</span>
+<span class="gp">... </span><span class="s1">       {i}&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Set</span><span class="p">)</span>
+<span class="go">{i} =&gt; [&#39;|i|&#39;]</span>
+</pre></div>
+<p>Not very useful, unless we know something about the iterated container</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">def foo(a, b):</span>
+<span class="gp">... </span><span class="s1">    for i in [a, b]:</span>
+<span class="gp">... </span><span class="s1">          {i}&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Set</span><span class="p">)</span>
+<span class="go">{i} =&gt; [&#39;|a|&#39;, &#39;|b|&#39;]</span>
+</pre></div>
+</div>
+<div class="section" id="if-statement">
+<h3>If Statement</h3>
+<p>After an if statement, the values from both branches are merged,
+potentially creating more aliasing:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">def foo(a, b):</span>
+<span class="gp">... </span><span class="s1">    if a: c=a</span>
+<span class="gp">... </span><span class="s1">    else: c=b</span>
+<span class="gp">... </span><span class="s1">    return {c}&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Set</span><span class="p">)</span>
+<span class="go">{c} =&gt; [&#39;|a|&#39;, &#39;|b|&#39;]</span>
+</pre></div>
+</div>
+<div class="section" id="illustration-typing">
+<h3>Illustration: Typing</h3>
+<p>Thanks to the above analysis, Pythran is capable of computing some rather difficult informations! In the following:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">typing_aliasing_and_variable_subscript_combiner</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
+       <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">y</span><span class="p">])</span>
+    <span class="p">]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">b</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">b</span>
+</pre></div>
+<p>Pythran knows that <tt class="docutils literal">b</tt> is a list of elements of the same type as <tt class="docutils literal">i</tt>.</p>
+<p>And in the following:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">typing_and_function_dict</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="n">funcs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;zero&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="s1">&#39;one&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">funcs</span><span class="p">[</span><span class="n">a</span><span class="p">](</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
+</pre></div>
+<p>Pythran knows that <tt class="docutils literal">s</tt> is a set of integers :-)</p>
+</div>
+<div class="section" id="illustration-dead-code-elimination">
+<h3>Illustration: Dead Code Elimination</h3>
+<p>Consider the following sequence:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">def useless0(x): return x + 1</span>
+<span class="gp">... </span><span class="s1">def useless1(x): return x - 1</span>
+<span class="gp">... </span><span class="s1">def useful(i):</span>
+<span class="gp">... </span><span class="s1">    funcs = useless0, useless1</span>
+<span class="gp">... </span><span class="s1">    funcs[i%2](i)</span>
+<span class="gp">... </span><span class="s1">    return i&#39;&#39;&#39;</span>
+</pre></div>
+<p>Pythran can prove that both <tt class="docutils literal">useless0</tt> and <tt class="docutils literal">useless1</tt> don't have side
+effects. Thanks to the binded value analysis, it can also prove that
+<strong>whatever</strong> the index, <tt class="docutils literal">funcs[something]</tt> either points to <tt class="docutils literal">useless0</tt> or
+<tt class="docutils literal">useless1</tt>. And in either cases, the function has no side effect, which means
+we can remove the whole instruction:</p>
+<div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran.optimizations</span> <span class="kn">import</span> <span class="n">DeadCodeElimination</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran.backend</span> <span class="kn">import</span> <span class="n">Python</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">DeadCodeElimination</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">pm</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Python</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+<span class="go">def useless0(x):</span>
+<span class="go">    return (x + 1)</span>
+<span class="go">def useless1(x):</span>
+<span class="go">    return (x - 1)</span>
+<span class="go">def useful(i):</span>
+<span class="go">    funcs = (useless0, useless1)</span>
+<span class="go">    pass</span>
+<span class="go">    return i</span>
+</pre></div>
+<p>Other optimizations will take care of removing the useless  assignment to <tt class="docutils literal">funcs</tt> :-)</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[0]</a></td><td>Except the sanity of the developer, but who never used the <tt class="docutils literal">id</tt> or <tt class="docutils literal">len</tt> identifiers?</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>Starting from this note, the identifiers from the <a class="reference external" href="https://docs.python.org/2/library/ast.html">ast</a> module are used.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="git-version" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[git-version]</a></td><td>The Pythran commit id used for this article is <tt class="docutils literal">f38a16491ea644fbaed15e8facbcabf869637b39</tt></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>

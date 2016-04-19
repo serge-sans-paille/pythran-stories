@@ -1,5 +1,419 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-04-05T00:00:00+02:00</updated><entry><title>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html" rel="alternate"></link><updated>2016-04-05T00:00:00+02:00</updated><author><name>Lightjohn</name></author><id>tag:serge-sans-paille.github.io,2016-04-05:pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html</id><summary type="html">&lt;div class="section" id="the-benchmark"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-04-18T00:00:00+02:00</updated><entry><title>Identifier Binding Computation</title><link href="http://serge-sans-paille.github.io/pythran-stories/identifier-binding-computation.html" rel="alternate"></link><published>2016-04-18T00:00:00+02:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-04-18:pythran-stories/identifier-binding-computation.html</id><summary type="html">&lt;div class="section" id="foreword"&gt;
+&lt;h2&gt;Foreword&lt;/h2&gt;
+&lt;p&gt;This is &lt;strong&gt;not&lt;/strong&gt; a &lt;a class="reference external" href="http://jupyter-notebook-beginner-guide.readthedocs.org/en/latest/what_is_jupyter.html"&gt;Jupyter notebook&lt;/a&gt;,
+but it could have be. Instead, the content of this article is mostly taken from
+the &lt;a class="reference external" href="https://docs.python.org/2/library/doctest.html"&gt;Doctest&lt;/a&gt; of the
+&lt;tt class="docutils literal"&gt;pythran.analyses.aliases&lt;/tt&gt; module, and the relevant unit tests in
+&lt;tt class="docutils literal"&gt;test_typing.py&lt;/tt&gt;. So the reader still has a strong warranty that the output
+described is the one she would get by running the commands herself.&lt;/p&gt;
+&lt;p&gt;The curious reader can verify this statement by running &lt;tt class="docutils literal"&gt;python &lt;span class="pre"&gt;-m&lt;/span&gt; doctest&lt;/tt&gt;
+with Pythran in its &lt;tt class="docutils literal"&gt;PYTHONPATH&lt;/tt&gt; &lt;a class="citation-reference" href="#git-version" id="id1"&gt;[git-version]&lt;/a&gt; on the article source, which is in fact what
+I did before posting it &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;:-)&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="static-computation-of-identifier-binding"&gt;
+&lt;h2&gt;Static Computation of Identifier Binding&lt;/h2&gt;
+&lt;p&gt;In Python, everything is a reference, from literal to objects. Assignment
+creates a &lt;em&gt;binding&lt;/em&gt; between a reference and an identifier, thus the following
+sequence always hold:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;
+&lt;span class="go"&gt;True&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In  some sense, assignement creates aliasing between identifiers, as any change
+made to the &lt;em&gt;value&lt;/em&gt; referenced by the identifier &lt;tt class="docutils literal"&gt;b&lt;/tt&gt; impacts the &lt;em&gt;value&lt;/em&gt;
+referenced by identifer &lt;tt class="docutils literal"&gt;c&lt;/tt&gt; (and &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;d&lt;/tt&gt;):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="go"&gt;True&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In the context of Pythran, the static knowledge of the different values an
+identifier &lt;strong&gt;may&lt;/strong&gt; be bound to is critical. First there is no reason to trust
+an identifier, as shown by the following code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="go"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Nothing prevents this to happen in Python &lt;a class="footnote-reference" href="#id4" id="id2"&gt;[0]&lt;/a&gt;, so Pythran takes great care in
+not confusing &lt;em&gt;identifiers&lt;/em&gt; and &lt;em&gt;values&lt;/em&gt;. And The ill-named Alias Analysis is
+the tool we use to solve this problem. In the particular case above, this
+analysis tells us that the identifier &lt;tt class="docutils literal"&gt;id&lt;/tt&gt; in the call expression &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;id([1])&lt;/span&gt;&lt;/tt&gt;
+always has the value &lt;tt class="docutils literal"&gt;__builtin__.len&lt;/tt&gt;. This can be used, for instance, to
+state that this call has no side effect.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="where-is-identifier-binding-used-in-pythran"&gt;
+&lt;h2&gt;Where is Identifier Binding Used in Pythran&lt;/h2&gt;
+&lt;p&gt;Identifier binding is used by all Pythran analyses that interact with function
+calls, when they need to know something about the function property, or when
+they want to verify that all the possibles (function) values taken by an
+identifier share the same property. For instance:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;Conversion from calls with named arguments to call without named arguments, as in &lt;tt class="docutils literal"&gt;zeros(10, dtype=int)&lt;/tt&gt;&lt;/li&gt;
+&lt;li&gt;Conversion from iterator to generator, e.g. turning &lt;tt class="docutils literal"&gt;range&lt;/tt&gt; into &lt;tt class="docutils literal"&gt;xrange&lt;/tt&gt; (Python2 inside &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;:-/&lt;/span&gt;&lt;/tt&gt;)&lt;/li&gt;
+&lt;li&gt;Constant folding (it needs to make sure it manipulates pure functions)&lt;/li&gt;
+&lt;li&gt;…&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;But the single more important use of identifier binding is in fact typing. This
+is likely to evolve, but current (clumsy) typing system in Pythran attaches
+some kind of typing properties to functions. For instance for the following
+function:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Pythran computes a property that states&lt;/p&gt;
+&lt;blockquote&gt;
+&amp;gt; if functions &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; is called with an argument of type A as first argument and an argument of type B as second argument,
+&amp;gt; &lt;strong&gt;then&lt;/strong&gt; the type of the first argument is the combination of its actual type A and an abstract type &lt;em&gt;Container of B&lt;/em&gt;&lt;/blockquote&gt;
+&lt;p&gt;So in case we make the following call:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;then the type of &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; is first computed to be &lt;em&gt;empty list&lt;/em&gt; and calling &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt;
+combines this information with the fact that &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; must be capable of holding
+integers, to conclude &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; has the type &lt;em&gt;list of integers&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Identifier binding is used twice in the process. Once to prove that the
+&lt;em&gt;identifier&lt;/em&gt; &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; is bound to the value &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt;, and once to track which
+values the &lt;em&gt;identifier&lt;/em&gt; &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; was bound to, here to compute that the type
+information gathered for &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; also impacts &lt;tt class="docutils literal"&gt;b&lt;/tt&gt;, even if &lt;tt class="docutils literal"&gt;b&lt;/tt&gt; was not used
+in the function call, as they share the same value.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="computing-an-overset-of-the-bound-values"&gt;
+&lt;h2&gt;Computing an Overset of the Bound Values&lt;/h2&gt;
+&lt;p&gt;Pythran &lt;strong&gt;cannot&lt;/strong&gt; track any possible values bound to a variable. In the following example:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;    &lt;span class="k"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;identifier &lt;tt class="docutils literal"&gt;i&lt;/tt&gt; can be bound to a great deal of values, and we cannot track them individually.
+Instead Pythran only keep tracks of values that are bound to an identifier. All
+the others are hidden between the terms of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;&amp;lt;unbound-value&amp;gt;&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;So let's start to write some simple equations &lt;a class="footnote-reference" href="#id5" id="id3"&gt;[1]&lt;/a&gt;, with a few test cases demonstrated as Python code which needs some initialization:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;ast&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran.analyses.aliases&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;passmanager&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;pm&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;passmanager&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;PassManager&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;demo&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Here we basically inject the &lt;tt class="docutils literal"&gt;aliases&lt;/tt&gt; namespace into current namespace for
+convenience, then create an instance of the object in charge of applying passes
+and gathering analysis results.&lt;/p&gt;
+&lt;div class="section" id="bool-op-expression"&gt;
+&lt;h3&gt;Bool Op Expression&lt;/h3&gt;
+&lt;p&gt;&lt;em&gt;(A.k.a ``or`` and ``and``)&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Resulting node may alias to either operands:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b): return a or b&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;BoolOp&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;(a or b) =&amp;gt; [&amp;#39;a&amp;#39;, &amp;#39;b&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This code snippet requires a few explanations:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ol class="arabic"&gt;
+&lt;li&gt;&lt;p class="first"&gt;First, it parses a code snippet and turns it into an Abstract Syntax Tree (AST).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;dl class="first docutils"&gt;
+&lt;dt&gt;Second, it computes the alias information at every point of the program.&lt;/dt&gt;
+&lt;dd&gt;&lt;p class="first last"&gt;&lt;tt class="docutils literal"&gt;result&lt;/tt&gt; is a dictionary that maps nodes from the AST to set of
+identifiers (remember that for Pythran, a node can only alias to
+bounded values. These values are represented by the first identifier
+they are bound to).&lt;/p&gt;
+&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;dl class="first docutils"&gt;
+&lt;dt&gt;Finally, it pretty prints the result of the analysis, using a filter to&lt;/dt&gt;
+&lt;dd&gt;&lt;p class="first last"&gt;only dump the part we are interested in. In that case it dumps a
+textual representation of the alias set of the &lt;tt class="docutils literal"&gt;ast.BoolOp&lt;/tt&gt; nodes,
+which turns out to be &lt;tt class="docutils literal"&gt;['a', 'b']&lt;/tt&gt;.&lt;/p&gt;
+&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;/div&gt;
+&lt;div class="section" id="unary-operator-expression"&gt;
+&lt;h3&gt;Unary Operator Expression&lt;/h3&gt;
+&lt;p&gt;Resulting node does not alias to anything&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a): return -a&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;UnaryOp&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;(- a) =&amp;gt; [&amp;#39;&amp;lt;unbound-value&amp;gt;&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As stated previously, values not bound to an identifier are only represented as &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;&amp;lt;unbound-value&amp;gt;&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="if-expression"&gt;
+&lt;h3&gt;If Expression&lt;/h3&gt;
+&lt;p&gt;Resulting node alias to either branch&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b, c): return a if c else b&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;IfExp&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;(a if c else b) =&amp;gt; [&amp;#39;a&amp;#39;, &amp;#39;b&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="dict-expression"&gt;
+&lt;h3&gt;Dict Expression&lt;/h3&gt;
+&lt;p&gt;A dict is abstracted as an unordered container of its values&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b): return {0: a, 1: b}&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;{0: a, 1: b} =&amp;gt; [&amp;#39;|a|&amp;#39;, &amp;#39;|b|&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;where the &lt;tt class="docutils literal"&gt;|id|&lt;/tt&gt; notation means something that may contain &lt;tt class="docutils literal"&gt;id&lt;/tt&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="set-expression"&gt;
+&lt;h3&gt;Set Expression&lt;/h3&gt;
+&lt;p&gt;A set is abstracted as an unordered container of its elements&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b): return {a, b}&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;{a, b} =&amp;gt; [&amp;#39;|a|&amp;#39;, &amp;#39;|b|&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="tuple-expression"&gt;
+&lt;h3&gt;Tuple Expression&lt;/h3&gt;
+&lt;p&gt;A tuple is abstracted as an ordered container of its values&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b): return a, b&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Tuple&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;(a, b) =&amp;gt; [&amp;#39;|[0]=a|&amp;#39;, &amp;#39;|[1]=b|&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;where the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;|[i]=id|&lt;/span&gt;&lt;/tt&gt; notation means something that
+may contain &lt;tt class="docutils literal"&gt;id&lt;/tt&gt; at index &lt;tt class="docutils literal"&gt;i&lt;/tt&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="call-expression"&gt;
+&lt;h3&gt;Call Expression&lt;/h3&gt;
+&lt;p&gt;Resulting node alias to the return_alias of called function,
+if the function is already known by Pythran (i.e. it's an Intrinsic)
+or if Pythran already computed it's &lt;tt class="docutils literal"&gt;return_alias&lt;/tt&gt; behavior.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def f(a): return a&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(b): c = f(b)&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The &lt;tt class="docutils literal"&gt;f&lt;/tt&gt; function create aliasing between
+the returned value and its first argument.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Call&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;f(b) =&amp;gt; [&amp;#39;b&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This also works with intrinsics, e.g &lt;tt class="docutils literal"&gt;dict.setdefault&lt;/tt&gt; which
+may create alias between its third argument and the return value.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;def foo(a, d): __builtin__.dict.setdefault(d, 0, a)&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Call&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;__builtin__.dict.setdefault(d, 0, a) =&amp;gt; [&amp;#39;&amp;lt;unbound-value&amp;gt;&amp;#39;, &amp;#39;a&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Note that complex cases can arise, when one of the formal parameter
+is already known to alias to various values:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def f(a, b): return a and b&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(A, B, C, D): return f(A or B, C or D)&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Call&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;f((A or B), (C or D)) =&amp;gt; [&amp;#39;A&amp;#39;, &amp;#39;B&amp;#39;, &amp;#39;C&amp;#39;, &amp;#39;D&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="subscript-expression"&gt;
+&lt;h3&gt;Subscript Expression&lt;/h3&gt;
+&lt;p&gt;Resulting node alias stores the subscript relationship if we don't know
+anything about the subscripted node.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a): return a[0]&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Subscript&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;a[0] =&amp;gt; [&amp;#39;a[0]&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If we know something about the container, e.g. in case of a list, we
+can use this information to get more accurate informations:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b, c): return [a, b][c]&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Subscript&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;[a, b][c] =&amp;gt; [&amp;#39;a&amp;#39;, &amp;#39;b&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Moreover, in case of a tuple indexed by a constant value, we can
+further refine the aliasing information:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def f(a, b): return a, b&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(a, b): return f(a, b)[0]&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Subscript&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;f(a, b)[0] =&amp;gt; [&amp;#39;a&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Nothing is done for slices, even if the indices are known :-/&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;pre class="doctest-block"&gt;
+&amp;gt;&amp;gt;&amp;gt; module = ast.parse('def foo(a, b, c): return [a, b, c][1:]')
+&amp;gt;&amp;gt;&amp;gt; result = pm.gather(Aliases, module)
+&amp;gt;&amp;gt;&amp;gt; Aliases.dump(result, filter=ast.Subscript)
+[a, b, c][1:] =&amp;gt; ['&amp;lt;unbound-value&amp;gt;']
+&lt;/pre&gt;
+&lt;/blockquote&gt;
+&lt;/div&gt;
+&lt;div class="section" id="list-comprehension"&gt;
+&lt;h3&gt;List Comprehension&lt;/h3&gt;
+&lt;p&gt;A comprehension is not abstracted in any way&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b): return [a for i in b]&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ListComp&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;[a for i in b] =&amp;gt; [&amp;#39;&amp;lt;unbound-value&amp;gt;&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="return-statement"&gt;
+&lt;h3&gt;Return Statement&lt;/h3&gt;
+&lt;p&gt;A side effect of computing aliases on a Return is that it updates the
+&lt;tt class="docutils literal"&gt;return_alias&lt;/tt&gt; field of current function&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b): return a&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;return_alias&lt;/span&gt; &lt;span class="c1"&gt;# doctest: +ELLIPSIS&lt;/span&gt;
+&lt;span class="go"&gt;&amp;lt;function merge_return_aliases at...&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This field is a function that takes as many nodes as the function
+argument count as input and returns an expression based on
+these arguments if the function happens to create aliasing
+between its input and output. In our case:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;return_alias&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;A&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Load&lt;/span&gt;&lt;span class="p"&gt;()),&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Num&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)]))&lt;/span&gt;
+&lt;span class="go"&gt;[&amp;#39;A&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This also works if the relationship between input and output
+is more complex:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a, b): return a or b[0]&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;return_alias&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;L0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Load&lt;/span&gt;&lt;span class="p"&gt;())],&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Load&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;B&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Load&lt;/span&gt;&lt;span class="p"&gt;()),&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
+&lt;span class="go"&gt;[&amp;#39;B&amp;#39;, &amp;#39;[L0][0]&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Which actually means that when called with two arguments &lt;tt class="docutils literal"&gt;B&lt;/tt&gt; and
+the single-element list &lt;tt class="docutils literal"&gt;[L[0]]&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; may returns either the
+first argument, or the first element of the second argument.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="assign-statement"&gt;
+&lt;h3&gt;Assign Statement&lt;/h3&gt;
+&lt;p&gt;Assignment creates aliasing between lhs and rhs&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a): c = a ; d = e = c ; {c, d, e}&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;{c, d, e} =&amp;gt; [&amp;#39;|a|&amp;#39;, &amp;#39;|a|&amp;#39;, &amp;#39;|a|&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Everyone points to the formal parameter &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; o/&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="for-statement"&gt;
+&lt;h3&gt;For Statement&lt;/h3&gt;
+&lt;p&gt;For loop creates aliasing between the target
+and the content of the iterator&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(a):&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;   for i in a:&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;       {i}&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;{i} =&amp;gt; [&amp;#39;|i|&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Not very useful, unless we know something about the iterated container&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(a, b):&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    for i in [a, b]:&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;          {i}&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;{i} =&amp;gt; [&amp;#39;|a|&amp;#39;, &amp;#39;|b|&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="if-statement"&gt;
+&lt;h3&gt;If Statement&lt;/h3&gt;
+&lt;p&gt;After an if statement, the values from both branches are merged,
+potentially creating more aliasing:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(a, b):&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    if a: c=a&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    else: c=b&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    return {c}&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;{c} =&amp;gt; [&amp;#39;|a|&amp;#39;, &amp;#39;|b|&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="illustration-typing"&gt;
+&lt;h3&gt;Illustration: Typing&lt;/h3&gt;
+&lt;p&gt;Thanks to the above analysis, Pythran is capable of computing some rather difficult informations! In the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;typing_aliasing_and_variable_subscript_combiner&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+       &lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;extend&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+    &lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Pythran knows that &lt;tt class="docutils literal"&gt;b&lt;/tt&gt; is a list of elements of the same type as &lt;tt class="docutils literal"&gt;i&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;And in the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;typing_and_function_dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;funcs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;zero&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;one&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;funcs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Pythran knows that &lt;tt class="docutils literal"&gt;s&lt;/tt&gt; is a set of integers :-)&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="illustration-dead-code-elimination"&gt;
+&lt;h3&gt;Illustration: Dead Code Elimination&lt;/h3&gt;
+&lt;p&gt;Consider the following sequence:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def useless0(x): return x + 1&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def useless1(x): return x - 1&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def useful(i):&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    funcs = useless0, useless1&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    funcs[i%2](i)&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    return i&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Pythran can prove that both &lt;tt class="docutils literal"&gt;useless0&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;useless1&lt;/tt&gt; don't have side
+effects. Thanks to the binded value analysis, it can also prove that
+&lt;strong&gt;whatever&lt;/strong&gt; the index, &lt;tt class="docutils literal"&gt;funcs[something]&lt;/tt&gt; either points to &lt;tt class="docutils literal"&gt;useless0&lt;/tt&gt; or
+&lt;tt class="docutils literal"&gt;useless1&lt;/tt&gt;. And in either cases, the function has no side effect, which means
+we can remove the whole instruction:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran.optimizations&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;DeadCodeElimination&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran.backend&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Python&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DeadCodeElimination&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Python&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="go"&gt;def useless0(x):&lt;/span&gt;
+&lt;span class="go"&gt;    return (x + 1)&lt;/span&gt;
+&lt;span class="go"&gt;def useless1(x):&lt;/span&gt;
+&lt;span class="go"&gt;    return (x - 1)&lt;/span&gt;
+&lt;span class="go"&gt;def useful(i):&lt;/span&gt;
+&lt;span class="go"&gt;    funcs = (useless0, useless1)&lt;/span&gt;
+&lt;span class="go"&gt;    pass&lt;/span&gt;
+&lt;span class="go"&gt;    return i&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Other optimizations will take care of removing the useless  assignment to &lt;tt class="docutils literal"&gt;funcs&lt;/tt&gt; :-)&lt;/p&gt;
+&lt;table class="docutils footnote" frame="void" id="id4" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id2"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Except the sanity of the developer, but who never used the &lt;tt class="docutils literal"&gt;id&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;len&lt;/tt&gt; identifiers?&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;table class="docutils footnote" frame="void" id="id5" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id3"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Starting from this note, the identifiers from the &lt;a class="reference external" href="https://docs.python.org/2/library/ast.html"&gt;ast&lt;/a&gt; module are used.&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;table class="docutils citation" frame="void" id="git-version" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[git-version]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;The Pythran commit id used for this article is &lt;tt class="docutils literal"&gt;f38a16491ea644fbaed15e8facbcabf869637b39&lt;/tt&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</summary></entry><entry><title>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html" rel="alternate"></link><published>2016-04-05T00:00:00+02:00</published><author><name>Lightjohn</name></author><id>tag:serge-sans-paille.github.io,2016-04-05:pythran-stories/micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html</id><summary type="html">&lt;div class="section" id="the-benchmark"&gt;
 &lt;h2&gt;The benchmark&lt;/h2&gt;
 &lt;p&gt;First there was a paper &lt;a class="footnote-reference" href="#id4" id="id1"&gt;[0]&lt;/a&gt;,
 in the paper there was a github &lt;a class="footnote-reference" href="#id5" id="id2"&gt;[1]&lt;/a&gt; and
@@ -10,12 +424,10 @@ But the day before I discovered Pythran so why not test both?&lt;/p&gt;
 &lt;div class="section" id="c-results"&gt;
 &lt;h3&gt;C++ results&lt;/h3&gt;
 &lt;p&gt;Compiling and running the C++ code was easy:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% g++ -O3 RBC_CPP.cpp -o testcpp
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% g++ -O3 RBC_CPP.cpp -o testcpp
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;then&lt;/p&gt;
-&lt;pre class="code julia literal-block"&gt;
-&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;testcpp&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;testcpp&lt;/span&gt;
 &lt;span class="n"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.562731&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.178198&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.384533&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.0527416&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.0313469&lt;/span&gt;
@@ -28,15 +440,14 @@ But the day before I discovered Pythran so why not test both?&lt;/p&gt;
 
 &lt;span class="n"&gt;My&lt;/span&gt; &lt;span class="n"&gt;check&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.146549&lt;/span&gt;
 &lt;span class="n"&gt;Elapsed&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt; &lt;span class="nb"&gt;is&lt;/span&gt;   &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;2.40271&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="julia-results"&gt;
 &lt;h3&gt;Julia results&lt;/h3&gt;
 &lt;p&gt;The Julia code:&lt;/p&gt;
 &lt;p&gt;we run &lt;cite&gt;julia&lt;/cite&gt;:&lt;/p&gt;
-&lt;pre class="code julia literal-block"&gt;
-&lt;span class="n"&gt;include&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;RBC_Julia.jl&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;julia&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;&amp;#64;&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;include&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;RBC_Julia.jl&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;julia&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;@&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="n"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.5627314338711378&lt;/span&gt; &lt;span class="n"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.178198287392527&lt;/span&gt; &lt;span class="n"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.3845331464786108&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.05274159340733661&lt;/span&gt;
 &lt;span class="n"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="n"&gt;Sup&lt;/span&gt; &lt;span class="n"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.031346949265852075&lt;/span&gt;
@@ -49,32 +460,29 @@ But the day before I discovered Pythran so why not test both?&lt;/p&gt;
 
 &lt;span class="n"&gt;My&lt;/span&gt; &lt;span class="n"&gt;check&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.1465491436962635&lt;/span&gt;
 &lt;span class="mf"&gt;3.001183&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;3.84&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt; &lt;span class="n"&gt;allocations&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;703.276&lt;/span&gt; &lt;span class="n"&gt;MB&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.68&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Not bad!&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="python-pythran-and-numba"&gt;
 &lt;h3&gt;Python: Pythran  and Numba&lt;/h3&gt;
 &lt;p&gt;Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and
 replace it by a Pythran comment:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numba&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;autojit&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numba&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;autojit&lt;/span&gt;
 
-&lt;span class="nd"&gt;&amp;#64;autojit&lt;/span&gt;
+&lt;span class="nd"&gt;@autojit&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;innerloop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bbeta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;gridCapitalNextPeriod&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mOutput&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nProductivity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expectedValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunctionNew&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mPolicyFunction&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;to&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;innerloop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bbeta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;gridCapitalNextPeriod&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mOutput&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;nProductivity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vGridCapital&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expectedValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mValueFunctionNew&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mPolicyFunction&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Easy? not quite... while pythranisation of the code, something went wrong, but
 no idea why! With some (many) help, the solution was found: the idea was to extract the innerloop into a
 new file and run Pythran on it then calling it from the main code.&lt;/p&gt;
 &lt;p&gt;The function is in &lt;tt class="docutils literal"&gt;je.py&lt;/tt&gt; and the main code is &lt;tt class="docutils literal"&gt;run_je.py&lt;/tt&gt;&lt;/p&gt;
 &lt;p&gt;Let's run the code:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% &lt;span class="nb"&gt;time &lt;/span&gt;python2 run_je.py
+&lt;div class="highlight"&gt;&lt;pre&gt;% &lt;span class="nb"&gt;time&lt;/span&gt; python2 run_je.py
 &lt;span class="nv"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.562731433871  &lt;span class="nv"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.178198287393  &lt;span class="nv"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.384533146479
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;1&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0527415934073
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;10&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0313469492659
@@ -84,11 +492,10 @@ new file and run Pythran on it then calling it from the main code.&lt;/p&gt;
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;240&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  2.32196579297e-07
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;250&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  1.39087209527e-07
 python2 run_je.py  2,45s user 0,08s system 94% cpu 2,666 total
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And it is very nice!&lt;/p&gt;
 &lt;p&gt;And just for fun, the &lt;a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py"&gt;Numba version&lt;/a&gt;:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% &lt;span class="nb"&gt;time &lt;/span&gt;python2 RBC_Python_Numba.py
+&lt;div class="highlight"&gt;&lt;pre&gt;% &lt;span class="nb"&gt;time&lt;/span&gt; python2 RBC_Python_Numba.py
 &lt;span class="nv"&gt;Output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.562731433871  &lt;span class="nv"&gt;Capital&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.178198287393  &lt;span class="nv"&gt;Consumption&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.384533146479
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;1&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0527415934073
 &lt;span class="nv"&gt;Iteration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="m"&gt;10&lt;/span&gt; , Sup &lt;span class="nv"&gt;Diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.0313469492659
@@ -101,7 +508,7 @@ python2 run_je.py  2,45s user 0,08s system 94% cpu 2,666 total
 
 My &lt;span class="nv"&gt;Check&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  0.146549143696
 Elapse &lt;span class="nb"&gt;time&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; is  3.00302290916
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;So in the end we have:&lt;/p&gt;
 &lt;table border="1" class="docutils"&gt;
 &lt;colgroup&gt;
@@ -150,13 +557,12 @@ get the same performances as C code in Python. It worth the time to take a look 
 &lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-</summary></entry><entry><title>Compiler Flags</title><link href="http://serge-sans-paille.github.io/pythran-stories/compiler-flags.html" rel="alternate"></link><updated>2016-03-29T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-29:pythran-stories/compiler-flags.html</id><summary type="html">&lt;div class="section" id="when-size-matters"&gt;
+</summary></entry><entry><title>Compiler Flags</title><link href="http://serge-sans-paille.github.io/pythran-stories/compiler-flags.html" rel="alternate"></link><published>2016-03-29T00:00:00+02:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-29:pythran-stories/compiler-flags.html</id><summary type="html">&lt;div class="section" id="when-size-matters"&gt;
 &lt;h2&gt;When Size Matters&lt;/h2&gt;
 &lt;p&gt;Everything started a few days ago with a Pythran user complaining about the
 size of the binaries generated by Pythran. In essence, take the following code
 &lt;cite&gt;cda.py&lt;/cite&gt;:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export closest_distance_arrays(float, float, float[], float[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export closest_distance_arrays(float, float, float[], float[])&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;math&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;closest_distance_arrays&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lat1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;long1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;latitudes&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;longitudes&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -169,24 +575,21 @@ size of the binaries generated by Pythran. In essence, take the following code
            &lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cos&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;phi1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cos&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;phi2&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
     &lt;span class="n"&gt;arc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;arccos&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;cos&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arc&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;arc&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It doesn't even weight a kilobyte, and when benchmarked, it runs in a few milliseconds:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; python -m timeit -s &lt;span class="s1"&gt;'import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays'&lt;/span&gt; &lt;span class="s1"&gt;'closest_distance_arrays(x,y,lat, lon)'&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;100&lt;/span&gt; loops, best of 3: 1.95 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Thanks to the &lt;tt class="docutils literal"&gt;#pythran export&lt;/tt&gt; annotation, Pythran can turn it into a native
 library that runs slightly faster than the Python version:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; pythran cda.py
-&amp;gt; python -m timeit -s &lt;span class="s1"&gt;'import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays'&lt;/span&gt; &lt;span class="s1"&gt;'closest_distance_arrays(x,y,lat, lon)'&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; pythran cda.py
+&amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.17 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It is, however, a very big binary:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; ls -lh cda.so
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; ls -lh cda.so
 -rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 1.3M Mar &lt;span class="m"&gt;29&lt;/span&gt; 18:10 cda.so*
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Who wants to multiply the binary size by &lt;tt class="docutils literal"&gt;2e3&lt;/tt&gt; to get less than a &lt;tt class="docutils literal"&gt;x2&lt;/tt&gt; speedup?&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="the-culprits-debug-informations"&gt;
@@ -194,33 +597,32 @@ library that runs slightly faster than the Python version:&lt;/p&gt;
 &lt;p&gt;One can call Pythran with the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-v&lt;/span&gt;&lt;/tt&gt; flag to inspect part of its internal,
 especially the C++ compiler call done to perform object code generation and
 linking:&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-&amp;gt; pythran cda.py -v
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; pythran cda.py -v
 running build_ext
 running build_src
 build_src
-building extension &amp;quot;cda&amp;quot; sources
+building extension &lt;span class="s2"&gt;&amp;quot;cda&amp;quot;&lt;/span&gt; sources
 build_src: building npy-pkg config files
 new_compiler returns distutils.unixccompiler.UnixCCompiler
 INFO     customize UnixCCompiler
 customize UnixCCompiler using build_ext
 ********************************************************************************
 distutils.unixccompiler.UnixCCompiler
-linker_exe    = ['gcc']
-compiler_so   = ['gcc', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-fno-strict-aliasing', '-g', '-O2', '-fPIC']
-archiver      = ['x86_64-linux-gnu-gcc-ar', 'rc']
-preprocessor  = ['gcc', '-E']
-linker_so     = ['x86_64-linux-gnu-gcc', '-pthread', '-shared', '-Wl,-O1', '-Wl,-Bsymbolic-functions', '-Wl,-z,relro', '-fno-strict-aliasing', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-Wdate-time', '-D_FORTIFY_SOURCE=2', '-g', '-fstack-protector-strong', '-Wformat', '-Werror=format-security', '-Wl,-z,relro', '-g', '-O2']
-compiler_cxx  = ['g++']
-ranlib        = None
-compiler      = ['gcc', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-fno-strict-aliasing', '-g', '-O2']
-libraries     = []
-library_dirs  = []
-include_dirs  = ['/usr/include/python2.7']
-[...]
+&lt;span class="nv"&gt;linker_exe&lt;/span&gt;    &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;compiler_so&lt;/span&gt;   &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fPIC&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;archiver&lt;/span&gt;      &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;x86_64-linux-gnu-gcc-ar&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;rc&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;preprocessor&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-E&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;linker_so&lt;/span&gt;     &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;x86_64-linux-gnu-gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-pthread&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-shared&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-O1&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-Bsymbolic-functions&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-z,relro&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wdate-time&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-D_FORTIFY_SOURCE=2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fstack-protector-strong&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wformat&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Werror=format-security&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-z,relro&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;compiler_cxx&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;g++&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;ranlib&lt;/span&gt;        &lt;span class="o"&gt;=&lt;/span&gt; None
+&lt;span class="nv"&gt;compiler&lt;/span&gt;      &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;libraries&lt;/span&gt;     &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[]&lt;/span&gt;
+&lt;span class="nv"&gt;library_dirs&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[]&lt;/span&gt;
+&lt;span class="nv"&gt;include_dirs&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/usr/include/python2.7&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
 INFO     Generated module: cda
 INFO     Output: /home/sguelton/sources/pythran/cda.so
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;That's a pretty long trace, but that's what verbose mode is for. The
 enlightened reader noticed that we use &lt;tt class="docutils literal"&gt;distutils&lt;/tt&gt; under the hood to abstract
 the compiler calls, and that's why we're getting some funky compiler flags like
@@ -231,11 +633,10 @@ last ones are hardening flags used to improve the security of the binary and I
 wrote a (passionating) article about it for Quarkslab &lt;a class="footnote-reference" href="#id4" id="id1"&gt;[0]&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;It turns out &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-g&lt;/span&gt;&lt;/tt&gt; (and C++) is responsible for the fat binary: if we simply
 strip the binary, we get back to a decent size:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; strip cda.so
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; strip cda.so
 &amp;gt; ls -lh cda.so
 -rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 151K Mar &lt;span class="m"&gt;29&lt;/span&gt; 18:26 cda.so
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;As Pythran users generally don't want the debug info on the generated native
 code, we chose to strip them by default, using the linker flag
 &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Wl,-strip-all&lt;/span&gt;&lt;/tt&gt; that removes all symbol informations, including debug
@@ -246,13 +647,12 @@ symbols.&lt;/p&gt;
 &lt;p&gt;While we're at it, let's call &lt;tt class="docutils literal"&gt;nm&lt;/tt&gt; to check if any symbol remains in the
 binary. After all, the Python interpreter still needs some of them to load the
 native extension!&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; nm -C -D cda.so
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; nm -C -D cda.so
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt; skipping &amp;gt; &lt;span class="m"&gt;900&lt;/span&gt; entries
 000000000001ed00 u nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_ &lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;, boost::dispatch::tag::cpu_, void&amp;gt;::__kernel_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double*, double*, int, int, int, int const*&lt;span class="o"&gt;)&lt;/span&gt;::PIo2
 000000000001edc0 u nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_ &lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;, boost::dispatch::tag::cpu_, void&amp;gt;::__ieee754_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double, double*&lt;span class="o"&gt;)&lt;/span&gt;::two_over_pi
 000000000001ed40 u nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_ &lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;, boost::dispatch::tag::cpu_, void&amp;gt;::__ieee754_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double, double*&lt;span class="o"&gt;)&lt;/span&gt;::npio2_hw
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I can tell you Python is &lt;em&gt;not&lt;/em&gt; using nt2 dispatch mechanism to load native
 extensions. Again, the default compiler settings are responsible for this
 noise, and the relevant compiler flag is &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fvisibility=hidden&lt;/span&gt;&lt;/tt&gt; that tells the
@@ -283,38 +683,34 @@ always inlined, and thus win space. So we flag the &lt;tt class="docutils litera
 with the visibility attribute, but it turns out this triggers abunch of
 different optimization path that gives us a significantly smaller binary, that
 runs slightly faster:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all
 &amp;gt; ls -lh cda.so
 -rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 31K Mar &lt;span class="m"&gt;29&lt;/span&gt; 18:52 cda.so*
-&amp;gt; python -m timeit -s &lt;span class="s1"&gt;'import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays'&lt;/span&gt; &lt;span class="s1"&gt;'closest_distance_arrays(x,y,lat, lon)'&lt;/span&gt;
+&amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.15 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;All these flags are now the default on Linux.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="playing-with-the-optimization-flags-too"&gt;
 &lt;h2&gt;Playing with the optimization flags too&lt;/h2&gt;
 &lt;p&gt;The default optimization flag is &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O2&lt;/span&gt;&lt;/tt&gt;, and that's generally a decent choice.
 On &lt;tt class="docutils literal"&gt;cda.py&lt;/tt&gt;, using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O3&lt;/span&gt;&lt;/tt&gt; does not give much change (gcc 4.9):&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.14 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Asking for code specific to my CPU using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-march=native&lt;/span&gt;&lt;/tt&gt; actually gives some improvments&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.11 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;But the best speedup has a price: relaxing standard compliance with &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Ofast&lt;/span&gt;&lt;/tt&gt;
 can be beneficial if you're not using denormalized numbers, infinity and the
 monstrosity that lies with &lt;tt class="docutils literal"&gt;NaN&lt;/tt&gt;:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.02 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;If you're really into compiler flags tuning, you can try out &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-funroll-loops&lt;/span&gt;&lt;/tt&gt;
 or try to tune the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-finline-limit=N&lt;/span&gt;&lt;/tt&gt; parameter (that actually get mets dow
 to &lt;tt class="docutils literal"&gt;1ms per loop&lt;/tt&gt;) but that's going a bit too far :-)&lt;/p&gt;
@@ -328,12 +724,11 @@ task for compilers. Fortunately Pythran helps here, and passing the
 not-so-experimental-anymore-but-still-not-default flag &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-DUSE_BOOST_SIMD&lt;/span&gt;&lt;/tt&gt;
 triggers some hard-coded vectorization based on &lt;tt class="docutils literal"&gt;boost.simd&lt;/tt&gt; &lt;a class="footnote-reference" href="#id7" id="id3"&gt;[3]&lt;/a&gt;, and that
 &lt;strong&gt;did&lt;/strong&gt; help:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&amp;gt; &lt;span class="c"&gt;# esod mumixam
-&lt;/span&gt;&amp;gt; python -m pythran.run cda.cpp -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native -funroll-loops -finline-limit&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;100000000&lt;/span&gt; -DUSE_BOOST_SIMD
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt; &lt;span class="c1"&gt;# esod mumixam&lt;/span&gt;
+&amp;gt; python -m pythran.run cda.cpp -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native -funroll-loops -finline-limit&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;100000000&lt;/span&gt; -DUSE_BOOST_SIMD
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;462&lt;/span&gt; usec per loo
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And that's woth 63 kilobytes :-)&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="concluding-remarks"&gt;
@@ -368,10 +763,9 @@ changing the original code.&lt;/p&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;/div&gt;
-</summary></entry><entry><title>Pythran Case: Resampling</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-case-resampling.html" rel="alternate"></link><updated>2016-03-09T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-09:pythran-stories/pythran-case-resampling.html</id><summary type="html">&lt;p&gt;While hanging on &lt;a class="reference external" href="http://stackoverflow.com"&gt;Stackoverflow&lt;/a&gt; (everybody does
+</summary></entry><entry><title>Pythran Case: Resampling</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-case-resampling.html" rel="alternate"></link><published>2016-03-09T00:00:00+01:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-09:pythran-stories/pythran-case-resampling.html</id><summary type="html">&lt;p&gt;While hanging on &lt;a class="reference external" href="http://stackoverflow.com"&gt;Stackoverflow&lt;/a&gt; (everybody does
 this, no?) I found this &lt;a class="reference external" href="http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python"&gt;Numpy code snippet&lt;/a&gt;:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;resample&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty_like&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cumsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -379,12 +773,11 @@ this, no?) I found this &lt;a class="reference external" href="http://stackoverf
         &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;When running it through &lt;a class="reference external" href="https://docs.python.org/2/library/timeit.html"&gt;timeit&lt;/a&gt;, we get:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% python -m timeit -s &lt;span class="s1"&gt;'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'&lt;/span&gt; &lt;span class="s1"&gt;'resample(qs, xs, rands)'&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;100&lt;/span&gt; loops, best of 3: 3.02 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The initialization code, after the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-s&lt;/span&gt;&lt;/tt&gt; switch, is run only once, and includes a call to &lt;tt class="docutils literal"&gt;np.random.seed&lt;/tt&gt; so that further comparisons hold.&lt;/p&gt;
 &lt;div class="section" id="first-step-pythran"&gt;
 &lt;h2&gt;First step: Pythran&lt;/h2&gt;
@@ -402,8 +795,7 @@ is needed (which is &lt;a class="reference external" href="https://en.wikipedia.
 could get some speedup?&lt;/p&gt;
 &lt;p&gt;To use Pythran, we just add a comment line that states the expected types of
 the top-level function:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;resample&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty_like&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -412,16 +804,14 @@ the top-level function:&lt;/p&gt;
         &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And then call the &lt;tt class="docutils literal"&gt;pythran&lt;/tt&gt; compiler:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% pythran resample.py
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% pythran resample.py
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This turns the Python file into a native extension, namely &lt;tt class="docutils literal"&gt;resample.so&lt;/tt&gt; on Linux. Running it yields a nice speedup:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% python -m timeit &lt;span class="s1"&gt;'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'&lt;/span&gt; &lt;span class="s1"&gt;'resample(qs, xs, rands)'&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.23 msec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="second-step-pythran-openmp"&gt;
 &lt;h2&gt;Second step: Pythran + OpenMP&lt;/h2&gt;
@@ -429,50 +819,46 @@ the top-level function:&lt;/p&gt;
 run in parallel (iterations are independent). There's a famous standard for C,
 C++ and Fortran to parallelize this kind of trivial loops (and to do many non
 trivial stuff also, but that's not the point here) called &lt;a class="reference external" href="http://openmp.org/"&gt;OpenMP&lt;/a&gt;. It turns out Pythran supports OpenMP :-). By adding an extra comment (that should look pretty familiar to anyone accustomed to OpenMP) on the parallel loop:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;resample&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty_like&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cumsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="c"&gt;#omp parallel for&lt;/span&gt;
+    &lt;span class="c1"&gt;#omp parallel for&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And adding the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fopenmp&lt;/span&gt;&lt;/tt&gt; flag to the &lt;tt class="docutils literal"&gt;pythran&lt;/tt&gt; call:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% pythran resample.py -fopenmp
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% pythran resample.py -fopenmp
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;We get an extra speedup (only two cores there, sorry about this :-/):&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% python -m timeit &lt;span class="s1"&gt;'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'&lt;/span&gt; &lt;span class="s1"&gt;'resample(qs, xs, rands)'&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;693&lt;/span&gt; usec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="third-step-pythran-brain"&gt;
 &lt;h2&gt;Third step: Pythran + Brain&lt;/h2&gt;
 &lt;p&gt;Now wait… calling &lt;tt class="docutils literal"&gt;np.argmax&lt;/tt&gt; on an array of &lt;tt class="docutils literal"&gt;bool&lt;/tt&gt; is indeed a nice trick to get the index of the first value where &lt;tt class="docutils literal"&gt;lookup &amp;gt; key&lt;/tt&gt;, but it evaluates the whole array. There's no early exit, while there could be (there's only &lt;tt class="docutils literal"&gt;0&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;1&lt;/tt&gt; after all). As pointed out on the &lt;a class="reference external" href="http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python"&gt;SO thread&lt;/a&gt;, one could write a &lt;tt class="docutils literal"&gt;np_index(array_expr)&lt;/tt&gt; function that behaves like the &lt;tt class="docutils literal"&gt;list.index&lt;/tt&gt; one:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;np_index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;haystack&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;needle&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;haystack&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;needle&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
             &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;
-    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;ValueError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Value not found&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;ValueError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Value not found&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;resample&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty_like&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cumsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="c"&gt;#omp parallel for&lt;/span&gt;
+    &lt;span class="c1"&gt;#omp parallel for&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np_index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;There's a few things to note in this implementation:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;ol class="arabic simple"&gt;
@@ -482,27 +868,24 @@ trivial stuff also, but that's not the point here) called &lt;a class="reference
 &lt;/ol&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;And a last benchmark, without OpenMP:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% pythran resample.py
-% python -m timeit &lt;span class="s1"&gt;'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'&lt;/span&gt; &lt;span class="s1"&gt;'resample(qs, xs, rands)'&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% pythran resample.py
+% python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;491&lt;/span&gt; usec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And with OpenMP:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% pythran resample.py -fopenmp
-% python -m timeit &lt;span class="s1"&gt;'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample'&lt;/span&gt; &lt;span class="s1"&gt;'resample(qs, xs, rands)'&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% pythran resample.py -fopenmp
+% python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
 &lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;326&lt;/span&gt; usec per loop
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="the-stack-overflow-solution"&gt;
 &lt;h2&gt;The Stack Overflow Solution&lt;/h2&gt;
 &lt;p&gt;For reference, the Numba solution proposed as the answer to the Stack Overflow thread is:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="nd"&gt;&amp;#64;nb.jit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;nb&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;f8&lt;/span&gt;&lt;span class="p"&gt;[:](&lt;/span&gt;&lt;span class="n"&gt;nb&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;f8&lt;/span&gt;&lt;span class="p"&gt;[:]))&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@nb.jit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;nb&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;f8&lt;/span&gt;&lt;span class="p"&gt;[:](&lt;/span&gt;&lt;span class="n"&gt;nb&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;f8&lt;/span&gt;&lt;span class="p"&gt;[:]))&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;numba_cumsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cumsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-&lt;span class="nd"&gt;&amp;#64;nb.autojit&lt;/span&gt;
+&lt;span class="nd"&gt;@nb.autojit&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;numba_resample2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numba_cumsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -514,31 +897,28 @@ trivial stuff also, but that's not the point here) called &lt;a class="reference
                 &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
                 &lt;span class="k"&gt;break&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;On my laptop, it runs in:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;419&lt;/span&gt; usec per loop
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;419&lt;/span&gt; usec per loop
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The equivalent implementation in Pythran does not need type annotation for &lt;tt class="docutils literal"&gt;np.cumsum&lt;/tt&gt; as it's already supported:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;resample&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="n"&gt;lookup&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cumsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-    &lt;span class="c"&gt;#omp parallel for&lt;/span&gt;
+    &lt;span class="c1"&gt;#omp parallel for&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;j&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
             &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;lookup&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
                 &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
                 &lt;span class="k"&gt;break&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And once compiled with Pythran it runs (no OpenMP) in:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;350&lt;/span&gt; usec per loop
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;350&lt;/span&gt; usec per loop
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Pythran and Numba timings are within the same range. Numba is still easier to
 integrate (Just In Time Compilation is really nice!) but it implies lower level
 implementation. Pythran can still use this implementation level efficiently,
@@ -552,7 +932,7 @@ facilities, but one still need to understand some of its internal to rip the
 best of it. And using Pythran you can do so while keeping a relatively good
 abstraction!&lt;/p&gt;
 &lt;/div&gt;
-</summary></entry><entry><title>Pythran 0.7.4 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-074-is-out.html" rel="alternate"></link><updated>2016-01-07T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-01-07:pythran-stories/pythran-074-is-out.html</id><summary type="html">&lt;p&gt;The pythran team (a great total of 2 active developers) is delighted to
+</summary></entry><entry><title>Pythran 0.7.4 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-074-is-out.html" rel="alternate"></link><published>2016-01-07T00:00:00+01:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-01-07:pythran-stories/pythran-074-is-out.html</id><summary type="html">&lt;p&gt;The pythran team (a great total of 2 active developers) is delighted to
 announce the release of Pythran 0.7.4, available on the traditional
 channels:&lt;/p&gt;
 &lt;blockquote&gt;
@@ -564,30 +944,27 @@ channels:&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;As usual, here is a (new) code sample, once again adapted from a
 stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;[0]&lt;/a&gt; that showcases pythran capability:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
-&lt;span class="c"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
+&lt;span class="c1"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
 
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="c"&gt;#      ^~~~~~ numpy support (partial)&lt;/span&gt;
+&lt;span class="c1"&gt;#      ^~~~~~ numpy support (partial)&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_mask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="n"&gt;target&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt;
-        &lt;span class="c"&gt;# ^~~~~ type destructuring, array view&lt;/span&gt;
+        &lt;span class="c1"&gt;# ^~~~~ type destructuring, array view&lt;/span&gt;
         &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mask&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bitwise_and&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;all&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-        &lt;span class="c"&gt;# ^~~~~~~ optimization of high level construct&lt;/span&gt;
+        &lt;span class="c1"&gt;# ^~~~~~~ optimization of high level construct&lt;/span&gt;
             &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
                 &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Compiled with:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% pythran check_mask.py
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% pythran check_mask.py
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And benchmarked with:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-% python -m timeit -s &lt;span class="s1"&gt;'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask'&lt;/span&gt; &lt;span class="s1"&gt;'check_mask(db, out)'&lt;/span&gt;
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;% python -m timeit -s &lt;span class="s1"&gt;&amp;#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;check_mask(db, out)&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)&lt;/p&gt;
 &lt;p&gt;Here is an extract of the changelog:&lt;/p&gt;
 &lt;pre class="code literal-block"&gt;
