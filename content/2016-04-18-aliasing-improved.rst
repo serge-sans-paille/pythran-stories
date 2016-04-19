@@ -226,18 +226,18 @@ A set is abstracted as an unordered container of its elements
     >>> Aliases.dump(result, filter=ast.Set)
     {a, b} => ['|a|', '|b|']
 
-List Expression
----------------
+Tuple Expression
+----------------
 
 
-A list is abstracted as an ordered container of its values
+A tuple is abstracted as an ordered container of its values
 
 .. code:: python
 
-    >>> module = ast.parse('def foo(a, b): return [a, b]')
+    >>> module = ast.parse('def foo(a, b): return a, b')
     >>> result = pm.gather(Aliases, module)
-    >>> Aliases.dump(result, filter=ast.List)
-    [a, b] => ['|[0]=a|', '|[1]=b|']
+    >>> Aliases.dump(result, filter=ast.Tuple)
+    (a, b) => ['|[0]=a|', '|[1]=b|']
 
 where the ``|[i]=id|`` notation means something that
 may contain ``id`` at index ``i``.
@@ -478,9 +478,49 @@ And in the following:
 
 Pythran knows that ``s`` is a set of integers :-)
 
+Illustration: Dead Code Elimination
+-----------------------------------
+
+Consider the following sequence:
+
+.. code:: python
+
+    >>> fun = '''
+    ... def useless0(x): return x + 1
+    ... def useless1(x): return x - 1
+    ... def useful(i):
+    ...     funcs = useless0, useless1
+    ...     funcs[i%2](i)
+    ...     return i'''
+
+Pythran can prove that both ``useless0`` and ``useless1`` don't have side
+effects. Thanks to the binded value analysis, it can also prove that
+**whatever** the index, ``funcs[something]`` either points to ``useless0`` or
+``useless1``. And in either cases, the function has no side effect, which means
+we can remove the whole instruction:
+
+.. code:: python
+
+    >>> from pythran.optimizations import DeadCodeElimination
+    >>> from pythran.backend import Python
+    >>> module = ast.parse(fun)
+    >>> _, module = pm.apply(DeadCodeElimination, module)
+    >>> print pm.dump(Python, module)
+    def useless0(x):
+        return (x + 1)
+    def useless1(x):
+        return (x - 1)
+    def useful(i):
+        funcs = (useless0, useless1)
+        pass
+        return i
+
+Other optimizations will take care of removing the useless  assignment to ``funcs`` :-)
+
+
 
 .. [0] Except the sanity of the developer, but who never used the ``id`` or ``len`` identifiers?
 
 .. [1] Starting from this note, the identifiers from the `ast <https://docs.python.org/2/library/ast.html>`_ module are used.
 
-.. [git-version] The Pythran commit id used for this article is 0000eeeee
+.. [git-version] The Pythran commit id used for this article is ``f38a16491ea644fbaed15e8facbcabf869637b39``
