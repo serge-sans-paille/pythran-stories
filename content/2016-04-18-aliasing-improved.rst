@@ -35,7 +35,7 @@ In Python, everything is a reference, from literal to objects. Assignment
 creates a *binding* between a reference and an identifier, thus the following
 sequence always hold:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> a = list()
     >>> b = c = a
@@ -47,7 +47,7 @@ In  some sense, assignement creates aliasing between identifiers, as any change
 made to the *value* referenced by the identifier ``b`` impacts the *value*
 referenced by identifer ``c`` (and ``a`` and ``d``):
 
-.. code:: python
+.. code-block:: pycon
 
     >>> a.append(1)
     >>> len(b) == len(c) == len(d) == len(a) == 1
@@ -57,7 +57,7 @@ In the context of Pythran, the static knowledge of the different values an
 identifier **may** be bound to is critical. First there is no reason to trust
 an identifier, as shown by the following code:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> id = len
     >>> id([1])
@@ -91,7 +91,7 @@ is likely to evolve, but current (clumsy) typing system in Pythran attaches
 some kind of typing properties to functions. For instance for the following
 function:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> def foo(x, y): x.append(y)
 
@@ -102,7 +102,7 @@ Pythran computes a property that states
 
 So in case we make the following call:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> a = b = []
     >>> foo(a, 1)
@@ -122,7 +122,7 @@ Computing an Overset of the Bound Values
 
 Pythran **cannot** track any possible values bound to a variable. In the following example:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> for i in range(1000):
     ...     pass
@@ -133,7 +133,7 @@ the others are hidden between the terms of ``<unbound-value>``.
 
 So let's start to write some simple equations [1]_, with a few test cases demonstrated as Python code which needs some initialization:
 
-.. code::
+.. code-block:: pycon
 
     >>> import ast
     >>> from pythran.analyses.aliases import *
@@ -151,7 +151,7 @@ Bool Op Expression
 
 Resulting node may alias to either operands:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b): return a or b')
     >>> result = pm.gather(Aliases, module)
@@ -178,7 +178,7 @@ Unary Operator Expression
 
 Resulting node does not alias to anything
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a): return -a')
     >>> result = pm.gather(Aliases, module)
@@ -192,7 +192,7 @@ If Expression
 
 Resulting node alias to either branch
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b, c): return a if c else b')
     >>> result = pm.gather(Aliases, module)
@@ -204,7 +204,7 @@ Dict Expression
 
 A dict is abstracted as an unordered container of its values
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b): return {0: a, 1: b}')
     >>> result = pm.gather(Aliases, module)
@@ -219,7 +219,7 @@ Set Expression
 
 A set is abstracted as an unordered container of its elements
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b): return {a, b}')
     >>> result = pm.gather(Aliases, module)
@@ -232,7 +232,7 @@ Tuple Expression
 
 A tuple is abstracted as an ordered container of its values
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b): return a, b')
     >>> result = pm.gather(Aliases, module)
@@ -250,7 +250,7 @@ Resulting node alias to the return_alias of called function,
 if the function is already known by Pythran (i.e. it's an Intrinsic)
 or if Pythran already computed it's ``return_alias`` behavior.
 
-.. code:: python
+.. code-block:: pycon
 
     >>> fun = '''
     ... def f(a): return a
@@ -260,7 +260,7 @@ or if Pythran already computed it's ``return_alias`` behavior.
 The ``f`` function create aliasing between
 the returned value and its first argument.
 
-.. code:: python
+.. code-block:: pycon
 
     >>> result = pm.gather(Aliases, module)
     >>> Aliases.dump(result, filter=ast.Call)
@@ -269,7 +269,7 @@ the returned value and its first argument.
 This also works with intrinsics, e.g ``dict.setdefault`` which
 may create alias between its third argument and the return value.
 
-.. code:: python
+.. code-block:: pycon
 
     >>> fun = 'def foo(a, d): __builtin__.dict.setdefault(d, 0, a)'
     >>> module = ast.parse(fun)
@@ -280,7 +280,7 @@ may create alias between its third argument and the return value.
 Note that complex cases can arise, when one of the formal parameter
 is already known to alias to various values:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> fun = '''
     ... def f(a, b): return a and b
@@ -296,7 +296,7 @@ Subscript Expression
 Resulting node alias stores the subscript relationship if we don't know
 anything about the subscripted node.
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a): return a[0]')
     >>> result = pm.gather(Aliases, module)
@@ -306,7 +306,7 @@ anything about the subscripted node.
 If we know something about the container, e.g. in case of a list, we
 can use this information to get more accurate informations:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b, c): return [a, b][c]')
     >>> result = pm.gather(Aliases, module)
@@ -316,7 +316,7 @@ can use this information to get more accurate informations:
 Moreover, in case of a tuple indexed by a constant value, we can
 further refine the aliasing information:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> fun = '''
     ... def f(a, b): return a, b
@@ -338,7 +338,7 @@ List Comprehension
 
 A comprehension is not abstracted in any way
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b): return [a for i in b]')
     >>> result = pm.gather(Aliases, module)
@@ -351,7 +351,7 @@ Return Statement
 A side effect of computing aliases on a Return is that it updates the
 ``return_alias`` field of current function
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b): return a')
     >>> result = pm.gather(Aliases, module)
@@ -363,7 +363,7 @@ argument count as input and returns an expression based on
 these arguments if the function happens to create aliasing
 between its input and output. In our case:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> f = module.body[0].return_alias
     >>> Aliases.dump(f([ast.Name('A', ast.Load()), ast.Num(1)]))
@@ -372,7 +372,7 @@ between its input and output. In our case:
 This also works if the relationship between input and output
 is more complex:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a, b): return a or b[0]')
     >>> result = pm.gather(Aliases, module)
@@ -391,7 +391,7 @@ Assign Statement
 
 Assignment creates aliasing between lhs and rhs
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('def foo(a): c = a ; d = e = c ; {c, d, e}')
     >>> result = pm.gather(Aliases, module)
@@ -406,7 +406,7 @@ For Statement
 For loop creates aliasing between the target
 and the content of the iterator
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('''
     ... def foo(a):
@@ -418,7 +418,7 @@ and the content of the iterator
 
 Not very useful, unless we know something about the iterated container
 
-.. code:: python
+.. code-block:: pycon
 
     >>> module = ast.parse('''
     ... def foo(a, b):
@@ -434,7 +434,7 @@ If Statement
 After an if statement, the values from both branches are merged,
 potentially creating more aliasing:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> fun = '''
     ... def foo(a, b):
@@ -451,7 +451,7 @@ Illustration: Typing
 
 Thanks to the above analysis, Pythran is capable of computing some rather difficult informations! In the following:
 
-.. code:: python
+.. code-block:: python
 
     def typing_aliasing_and_variable_subscript_combiner(i):
         a=[list.append,
@@ -465,7 +465,7 @@ Pythran knows that ``b`` is a list of elements of the same type as ``i``.
 
 And in the following:
 
-.. code:: python
+.. code-block:: python
 
     def typing_and_function_dict(a):
         funcs = {
@@ -483,7 +483,7 @@ Illustration: Dead Code Elimination
 
 Consider the following sequence:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> fun = '''
     ... def useless0(x): return x + 1
@@ -499,7 +499,7 @@ effects. Thanks to the binded value analysis, it can also prove that
 ``useless1``. And in either cases, the function has no side effect, which means
 we can remove the whole instruction:
 
-.. code:: python
+.. code-block:: pycon
 
     >>> from pythran.optimizations import DeadCodeElimination
     >>> from pythran.backend import Python

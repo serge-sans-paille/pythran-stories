@@ -19,7 +19,7 @@ channels:
 As usual, here is a (new) code sample, once again adapted from a
 stackoverflow question [0]_ that showcases pythran capability:
 
-.. code:: python
+.. code-block:: python
 
 
     #pythran export check_mask(bool[][], bool[])
@@ -40,13 +40,13 @@ stackoverflow question [0]_ that showcases pythran capability:
 
 Compiled with:
 
-.. code:: sh
+.. code-block:: sh
 
     % pythran check_mask.py
 
 And benchmarked with:
 
-.. code:: sh
+.. code-block:: sh
 
     % python -m timeit -s 'n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask' 'check_mask(db, out)'
 

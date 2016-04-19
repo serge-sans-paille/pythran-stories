@@ -11,7 +11,7 @@ While hanging on `Stackoverflow <http://stackoverflow.com>`_ (everybody does
 this, no?) I found this `Numpy code snippet
 <http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python>`_:
 
-.. code:: python
+.. code-block:: python
 
     import numpy as np
     def resample(qs, xs, rands):
@@ -24,7 +24,7 @@ this, no?) I found this `Numpy code snippet
 
 When running it through `timeit <https://docs.python.org/2/library/timeit.html>`_, we get:
 
-.. code:: sh
+.. code-block:: sh
 
     % python -m timeit -s 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
     100 loops, best of 3: 3.02 msec per loop
@@ -54,7 +54,7 @@ could get some speedup?
 To use Pythran, we just add a comment line that states the expected types of
 the top-level function:
 
-.. code:: python
+.. code-block:: python
 
     #pythran export resample(float[], float[], float[])
     import numpy as np
@@ -68,13 +68,13 @@ the top-level function:
 
 And then call the ``pythran`` compiler:
 
-.. code:: sh
+.. code-block:: sh
 
     % pythran resample.py
 
 This turns the Python file into a native extension, namely ``resample.so`` on Linux. Running it yields a nice speedup:
 
-.. code:: sh
+.. code-block:: sh
 
     % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
     1000 loops, best of 3: 1.23 msec per loop
@@ -88,7 +88,7 @@ C++ and Fortran to parallelize this kind of trivial loops (and to do many non
 trivial stuff also, but that's not the point here) called `OpenMP
 <http://openmp.org/>`_. It turns out Pythran supports OpenMP :-). By adding an extra comment (that should look pretty familiar to anyone accustomed to OpenMP) on the parallel loop:
 
-.. code:: python
+.. code-block:: python
 
     #pythran export resample(float[], float[], float[])
     import numpy as np
@@ -103,13 +103,13 @@ trivial stuff also, but that's not the point here) called `OpenMP
 
 And adding the ``-fopenmp`` flag to the ``pythran`` call:
 
-.. code:: sh
+.. code-block:: sh
 
     % pythran resample.py -fopenmp
 
 We get an extra speedup (only two cores there, sorry about this :-/):
 
-.. code:: sh
+.. code-block:: sh
 
     % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
     1000 loops, best of 3: 693 usec per loop
@@ -121,7 +121,7 @@ Third step: Pythran + Brain
 Now wait… calling ``np.argmax`` on an array of ``bool`` is indeed a nice trick to get the index of the first value where ``lookup > key``, but it evaluates the whole array. There's no early exit, while there could be (there's only ``0`` and ``1`` after all). As pointed out on the `SO thread
 <http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python>`_, one could write a ``np_index(array_expr)`` function that behaves like the ``list.index`` one:
 
-.. code:: python
+.. code-block:: python
 
     #pythran export resample(float[], float[], float[])
     import numpy as np
@@ -151,7 +151,7 @@ There's a few things to note in this implementation:
 
 And a last benchmark, without OpenMP:
 
-.. code:: sh
+.. code-block:: sh
 
     % pythran resample.py
     % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
@@ -159,7 +159,7 @@ And a last benchmark, without OpenMP:
 
 And with OpenMP:
 
-.. code:: sh
+.. code-block:: sh
 
     % pythran resample.py -fopenmp
     % python -m timeit 'import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample' 'resample(qs, xs, rands)'
@@ -170,7 +170,7 @@ The Stack Overflow Solution
 
 For reference, the Numba solution proposed as the answer to the Stack Overflow thread is:
 
-.. code:: python
+.. code-block:: python
 
     @nb.jit(nb.f8[:](nb.f8[:]))
     def numba_cumsum(x):
@@ -191,13 +191,13 @@ For reference, the Numba solution proposed as the answer to the Stack Overflow t
 
 On my laptop, it runs in:
 
-.. code:: sh
+.. code-block:: sh
 
     10 loops, best of 3: 419 usec per loop
 
 The equivalent implementation in Pythran does not need type annotation for ``np.cumsum`` as it's already supported:
 
-.. code:: python
+.. code-block:: python
 
     #pythran export resample(float[], float[], float[])
     def resample(qs, xs, rands):
@@ -215,7 +215,7 @@ The equivalent implementation in Pythran does not need type annotation for ``np.
 
 And once compiled with Pythran it runs (no OpenMP) in:
 
-.. code:: sh
+.. code-block:: sh
 
     1000 loops, best of 3: 350 usec per loop
 
