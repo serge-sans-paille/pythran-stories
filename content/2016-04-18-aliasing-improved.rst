@@ -1,5 +1,5 @@
-Indentifier Binding Computation
-###############################
+Identifier Binding Computation
+##############################
 
 :date: 2016-04-18
 :category: compilation
