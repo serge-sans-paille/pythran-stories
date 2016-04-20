@@ -520,7 +520,7 @@ Other optimizations will take care of removing the useless  assignment to ``func
 Acknowledgments
 ===============
 
-Thanks a lot to Pierrick Brunet for his careful review, and to Florent Caryé from `Logilab <https://www.logilab.fr/>`_ for his advices that helped **a lot** to improve the post. And of course to `OpenDreamKit <http://opendreamkit.org/>`_ for funding this work!
+Thanks a lot to Pierrick Brunet for his careful review, and to Florent Cayré from `Logilab <https://www.logilab.fr/>`_ for his advices that helped **a lot** to improve the post. And of course to `OpenDreamKit <http://opendreamkit.org/>`_ for funding this work!
 
 
 
