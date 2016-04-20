@@ -517,6 +517,11 @@ we can remove the whole instruction:
 
 Other optimizations will take care of removing the useless  assignment to ``funcs`` :-)
 
+Acknowledgments
+===============
+
+Thanks a lot to Pierrick Brunet for his careful review, and to Florent Caryé from `Logilab <https://www.logilab.fr/>`_ for his advices that helped **a lot** to improve the post. And of course to `OpenDreamKit <http://opendreamkit.org/>`_ for funding this work!
+
 
 
 .. [0] Except the sanity of the developer, but who never used the ``id`` or ``len`` identifiers?
