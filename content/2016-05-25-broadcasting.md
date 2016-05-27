@@ -8,7 +8,7 @@ Summary: Broadcasting is a neat feature of Numpy array, but it was not trivial
          weeks of effort, here is a showcase of how good it runs, compared to the Numpy
          version and lower-level Cython and Numba version!
 
-This blogpost originally was a Jupyter Notebook. You can [download it](notebooks/broadcasting.ipynb) if you want.
+This blogpost originally was a Jupyter Notebook. You can [download it](notebooks/broadcasting.ipynb) if you want. The conversion was done using ``nbconvert`` and a [custom template](notebooks/nbmarkdown.tpl) to match the style of the other part of the blog.
 
 
 # Numpy's Broadcasting
@@ -26,12 +26,12 @@ For instance, the addition between two 1D array when one of them only holds a si
 ```python
 >>> a, b = np.arange(10), np.array([10])
 >>> a + b
-array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
 ```
 
 
 
 
+    array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
 
 
 
@@ -43,11 +43,15 @@ So to store all the possible multiplication between two 1D arrays, one can creat
 ```python
 >>> a, b = np.array([1,2,4,8]), np.array([1, 3, 7, 9])
 >>> a[np.newaxis, :] * b[:, np.newaxis]
-array([[ 1,  2,  4,  8],
-       [ 3,  6, 12, 24],
-       [ 7, 14, 28, 56],
-       [ 9, 18, 36, 72]])
 ```
+
+
+
+
+    array([[ 1,  2,  4,  8],
+           [ 3,  6, 12, 24],
+           [ 7, 14, 28, 56],
+           [ 9, 18, 36, 72]])
 
 
 
@@ -85,18 +89,8 @@ The Pythran implementation is straight-forward: just add the right annotation.
 
 ```python
 >>> %%pythran -O3
-... #pythran export broadcast_pythran(float64[], float64[])
-... def broadcast_pythran(x, y):
-...     return (x[:, None] * y[None, :]).sum()
-```
-
-Pythran can also be used to genererate SIMD instructions, so let's try a different flag combination, on the very same code:
-
-
-```python
->>> %%pythran -O3 -march=native -DUSE_BOOST_SIMD
-... #pythran export broadcast_pythran_simd(float64[], float64[])
-... def broadcast_pythran_simd(x, y):
+>>> #pythran export broadcast_pythran(float64[], float64[])
+>>> def broadcast_pythran(x, y):
 ...     return (x[:, None] * y[None, :]).sum()
 ```
 
@@ -112,14 +106,14 @@ The Cython implementation makes the looping explicit. We use all the tricks we k
 
 ```python
 >>> %%cython --compile-args=-O3
-...
-... import cython
-... import numpy as np
-... cimport numpy as np
-...
-... @cython.boundscheck(False)
-... @cython.wraparound(False)
-... def broadcast_cython(double[::1] x, double[::1] y):
+>>> 
+>>> import cython
+>>> import numpy as np
+>>> cimport numpy as np
+>>> 
+>>> @cython.boundscheck(False)
+>>> @cython.wraparound(False)
+>>> def broadcast_cython(double[::1] x, double[::1] y):
 ...     cdef int n = len(x)
 ...     cdef int i, j
 ...     cdef double res = 0
@@ -137,7 +131,7 @@ The Numba version is very similar to the Cython one, without the need of declari
 ```python
 >>> import numba
 >>> @numba.jit
-... def broadcast_numba(x, y):
+>>> def broadcast_numba(x, y):
 ...     n = len(x)
 ...     res = 0
 ...     for i in xrange(n):
@@ -157,7 +151,6 @@ Just to be sure all versions yield the same value :-)
 >>> functions['numpy'] = broadcast_numpy
 >>> functions['cython'] = broadcast_cython
 >>> functions['pythran'] = broadcast_pythran
->>> functions['pythran_simd'] = broadcast_pythran_simd
 >>> functions['numba'] = broadcast_numba
 ```
 
@@ -167,12 +160,12 @@ Just to be sure all versions yield the same value :-)
 >>> y = np.random.random(10).astype('float64')
 >>> for name, function in functions.items():
 ...     print name, function(x, y)
-numpy 26.6780345958
-cython 26.6780345958
-pythran 26.6780345958
-pythran_simd 26.6780345958
-numba 26.6780345958
 ```
+
+    numpy 32.5610471143
+    cython 32.5610471143
+    pythran 32.5610471143
+    numba 32.5610471143
 
 
 # Benchmark
@@ -193,22 +186,21 @@ The actual benchmark just runs each function through ``timeit`` for various arra
 ...         y = np.random.random(size).astype('float64')
 ...         result = %timeit -o function(x, y)
 ...         scores.loc[size, name] = result.best
-numpy  1000 loops, best of 3: 1.79 ms per loop
- cython  1000 loops, best of 3: 850 µs per loop
- pythran  1000 loops, best of 3: 844 µs per loop
- pythran_simd  1000 loops, best of 3: 210 µs per loop
- numba  1000 loops, best of 3: 843 µs per loop
- numpy  10 loops, best of 3: 79.9 ms per loop
- cython  10 loops, best of 3: 21.2 ms per loop
- pythran  10 loops, best of 3: 21.2 ms per loop
- pythran_simd  100 loops, best of 3: 5.98 ms per loop
- numba  10 loops, best of 3: 21.2 ms per loop
- numpy  1 loop, best of 3: 248 ms per loop
- cython  10 loops, best of 3: 85.1 ms per loop
- pythran  10 loops, best of 3: 85 ms per loop
- pythran_simd  10 loops, best of 3: 23.8 ms per loop
- numba  10 loops, best of 3: 85 ms per loop
 ```
+
+    numpy  1000 loops, best of 3: 2.41 ms per loop
+     cython  1000 loops, best of 3: 1.04 ms per loop
+     pythran  1000 loops, best of 3: 1.12 ms per loop
+     numba  1000 loops, best of 3: 990 µs per loop
+     numpy  10 loops, best of 3: 97.4 ms per loop
+     cython  10 loops, best of 3: 24.5 ms per loop
+     pythran  10 loops, best of 3: 24.9 ms per loop
+     numba  10 loops, best of 3: 25.1 ms per loop
+     numpy  1 loop, best of 3: 252 ms per loop
+     cython  10 loops, best of 3: 90.1 ms per loop
+     pythran  10 loops, best of 3: 102 ms per loop
+     numba  10 loops, best of 3: 97.5 ms per loop
+    
 
 
 ## Results (time in seconds, lower is better) 
@@ -222,41 +214,37 @@ numpy  1000 loops, best of 3: 1.79 ms per loop
 
 
 <div>
-<table border="1" class="dataframe" style="font-size:1.2em;">
+<table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
       <th>numpy</th>
       <th>cython</th>
       <th>pythran</th>
-      <th>pythran_simd</th>
       <th>numba</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>1000.0</th>
-      <td>0.001786</td>
-      <td>0.000850</td>
-      <td>0.000844</td>
-      <td>0.000210</td>
-      <td>0.000843</td>
+      <td>0.002410</td>
+      <td>0.001043</td>
+      <td>0.001120</td>
+      <td>0.000990</td>
     </tr>
     <tr>
       <th>5000.0</th>
-      <td>0.079889</td>
-      <td>0.021225</td>
-      <td>0.021171</td>
-      <td>0.005981</td>
-      <td>0.021245</td>
+      <td>0.097419</td>
+      <td>0.024484</td>
+      <td>0.024853</td>
+      <td>0.025112</td>
     </tr>
     <tr>
       <th>10000.0</th>
-      <td>0.248354</td>
-      <td>0.085127</td>
-      <td>0.085048</td>
-      <td>0.023765</td>
-      <td>0.085047</td>
+      <td>0.252430</td>
+      <td>0.090102</td>
+      <td>0.101917</td>
+      <td>0.097514</td>
     </tr>
   </tbody>
 </table>
@@ -282,14 +270,13 @@ numpy  1000 loops, best of 3: 1.79 ms per loop
 
 
 <div>
-<table border="1" class="dataframe" style="font-size:1.2em;">
+<table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
       <th>numpy</th>
       <th>cython</th>
       <th>pythran</th>
-      <th>pythran_simd</th>
       <th>numba</th>
     </tr>
   </thead>
@@ -297,26 +284,146 @@ numpy  1000 loops, best of 3: 1.79 ms per loop
     <tr>
       <th>1000.0</th>
       <td>1.0</td>
-      <td>0.475839</td>
-      <td>0.472335</td>
-      <td>0.117430</td>
-      <td>0.472121</td>
+      <td>0.432686</td>
+      <td>0.464744</td>
+      <td>0.410806</td>
     </tr>
     <tr>
       <th>5000.0</th>
       <td>1.0</td>
-      <td>0.265685</td>
-      <td>0.265010</td>
-      <td>0.074869</td>
-      <td>0.265931</td>
+      <td>0.251322</td>
+      <td>0.255111</td>
+      <td>0.257771</td>
     </tr>
     <tr>
       <th>10000.0</th>
       <td>1.0</td>
-      <td>0.342763</td>
-      <td>0.342447</td>
-      <td>0.095692</td>
-      <td>0.342441</td>
+      <td>0.356937</td>
+      <td>0.403744</td>
+      <td>0.386300</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+## Partial Conclusion
+
+At first glance, Cython, Pythran and Numba all manage to get a decent speedup over the Numpy version. So what's the point?
+
+1. Cython requires extra annotations, and explicit loops;
+2. Numba only requires a decorator, but still explicit loops;
+3. Pythran still requires a type annotation, but it keeps the Numpy abstraction.
+
+That's Pythran Leitmotiv: keep the Numpy abstraction, but try hard to make it run faster!
+
+# Round Two: Using the compiler
+
+Gcc (and clang, and…) provide two flags that can be useful in this situation: ``-Ofast`` and ``-march=native``. The former is generally equivalent to ``-O3`` with a few extra flags, most noatbly ``-ffast-math`` that disregards standard compliancy with respect to floating point operation; In our case it makes it possible to reorder the operations to perform the final reduction using SIMD instructions. And with ``-march=native``, the code gets specialized for the host architecure. In the case of this blogpost, It means it can use [AVX](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions) and its 256bits vector register than can store four double precision floating!
+
+In the Pythran case, vectorization is currently activated through the (somehow experimental) ``-DUSE_BOOST_SIMD`` flag.
+
+
+```python
+>>> %%pythran -O3 -march=native -DUSE_BOOST_SIMD
+>>> #pythran export broadcast_pythran_simd(float64[], float64[])
+>>> def broadcast_pythran_simd(x, y):
+...     return (x[:, None] * y[None, :]).sum()
+>>> 
+```
+
+
+```python
+>>> %%cython -c=-Ofast -c=-march=native
+>>> 
+>>> import cython
+>>> import numpy as np
+>>> cimport numpy as np
+>>> 
+>>> @cython.boundscheck(False)
+>>> @cython.wraparound(False)
+>>> def broadcast_cython_simd(double[::1] x, double[::1] y):
+...     cdef int n = len(x)
+...     cdef int i, j
+...     cdef double res = 0
+...     for i in xrange(n):
+...         for j in xrange(n):
+...             res += x[i] * y[j]
+...     return res
+```
+
+We can then rerun the previous benchmark, with these two functions
+
+
+```python
+>>> simd_functions = OrderedDict()
+>>> simd_functions['numpy'] = broadcast_numpy
+>>> simd_functions['cython+simd'] = broadcast_cython_simd
+>>> simd_functions['pythran+simd'] = broadcast_pythran_simd
+>>> simd_scores = pandas.DataFrame(data=0, columns=simd_functions.keys(), index=sizes)
+>>> for size in sizes:
+...     size = int(size)
+...     for name, function in simd_functions.items():
+...         print name, " ",
+...         x = np.random.random(size).astype('float64')
+...         y = np.random.random(size).astype('float64')
+...         result = %timeit -o function(x, y)
+...         simd_scores.loc[size, name] = result.best
+```
+
+    numpy  100 loops, best of 3: 2.39 ms per loop
+     cython+simd  1000 loops, best of 3: 262 µs per loop
+     pythran+simd  1000 loops, best of 3: 272 µs per loop
+     numpy  10 loops, best of 3: 99.9 ms per loop
+     cython+simd  100 loops, best of 3: 6.79 ms per loop
+     pythran+simd  100 loops, best of 3: 7.47 ms per loop
+     numpy  1 loop, best of 3: 331 ms per loop
+     cython+simd  10 loops, best of 3: 33.8 ms per loop
+     pythran+simd  10 loops, best of 3: 28.8 ms per loop
+    
+
+
+
+```python
+>>> scores
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>numpy</th>
+      <th>cython</th>
+      <th>pythran</th>
+      <th>numba</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1000.0</th>
+      <td>0.002410</td>
+      <td>0.001043</td>
+      <td>0.001120</td>
+      <td>0.000990</td>
+    </tr>
+    <tr>
+      <th>5000.0</th>
+      <td>0.097419</td>
+      <td>0.024484</td>
+      <td>0.024853</td>
+      <td>0.025112</td>
+    </tr>
+    <tr>
+      <th>10000.0</th>
+      <td>0.252430</td>
+      <td>0.090102</td>
+      <td>0.101917</td>
+      <td>0.097514</td>
     </tr>
   </tbody>
 </table>
@@ -326,59 +433,70 @@ numpy  1000 loops, best of 3: 1.79 ms per loop
 
 ## Conclusion
 
-At first glance, Cython, Pythran and Numba all manage to get a decent speedup over the Numpy version. So what's the point?
+What happens there is that the underlying compiler is capable, on our simple case, to vectorize the loops and takes advantage of the vector register to speedup the computation. Although there's still a small overhead, Pythran is almost on par with Cython, even when vectorization is enabled, which means that the abstraction is still valid, even for complex feature like Numpy's broadcasting.
 
-1. Cython requires extra annotations, and explicit loops;
-2. Numba only requires a decorator, but still explicit loops;
-3. Pythran still requires a type annotation, but it keeps the Numpy abstraction.
+Under the hood though, the approach is totally different: Pythran vectorizes the expression template and generates calls to [boost.simd](https://github.com/NumScale/boost.simd), while Cython fully relies on gcc auto-vectorizer, which proves to be a good approach until one meets a code gcc cannot vectorize!
 
-But the interesting result is obviously the additionnal speedup from ``pythran_simd``. Without a single change on the original code, we get an additionnal x3 speedup; that's thanks to [Boost.SIMD](https://github.com/NumScale/boost.simd) and the high level abstraction provided by Numpy. And thanks to Pythran engine, of course ;-)
-
-
-That's Pythran Leitmotiv: keep the Numpy abstraction, but try hard to make it run faster!
-
-# Technical info
+### Technical info
 
 
 ```python
 >>> np.__version__
-'1.11.0'
 ```
+
+
+
+
+    '1.11.0'
 
 
 
 
 ```python
 >>> import cython ; cython.__version__
-'0.24'
 ```
+
+
+
+
+    '0.24'
 
 
 
 
 ```python
->>> import pythran; pythran.__version__  # actually, the master version :-/
-'0.7.4.post1'
+>>> import pythran; pythran.__version__
 ```
+
+
+
+
+    '0.7.4.post1'
 
 
 
 
 ```python
 >>> numba.__version__
-'0.25.0'
 ```
+
+
+
+
+    '0.25.0'
 
 
 
 
 ```python
 >>> !g++ --version
-g++-5.real (Debian 5.3.1-19) 5.3.1 20160509
-Copyright (C) 2015 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
 ```
+
+    g++-5.real (Debian 5.3.1-19) 5.3.1 20160509
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+
 
 
