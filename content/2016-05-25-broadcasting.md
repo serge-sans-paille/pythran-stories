@@ -20,10 +20,19 @@ For instance, the addition between two 1D array when one of them only holds a si
 
 ```python
 >>> import numpy as np
+```
+
+
+```python
 >>> a, b = np.arange(10), np.array([10])
 >>> a + b
 array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
 ```
+
+
+
+
+
 
 
 Which is very similar to the addition between an array and a scalar, *btw*.
@@ -71,9 +80,23 @@ The Pythran implementation is straight-forward: just add the right annotation.
 
 ```python
 >>> %load_ext pythran.magic
+```
+
+
+```python
 >>> %%pythran -O3
 ... #pythran export broadcast_pythran(float64[], float64[])
 ... def broadcast_pythran(x, y):
+...     return (x[:, None] * y[None, :]).sum()
+```
+
+Pythran can also be used to genererate SIMD instructions, so let's try a different flag combination, on the very same code:
+
+
+```python
+>>> %%pythran -O3 -march=native -DUSE_BOOST_SIMD
+... #pythran export broadcast_pythran_simd(float64[], float64[])
+... def broadcast_pythran_simd(x, y):
 ...     return (x[:, None] * y[None, :]).sum()
 ```
 
@@ -84,6 +107,10 @@ The Cython implementation makes the looping explicit. We use all the tricks we k
 
 ```python
 >>> %load_ext Cython
+```
+
+
+```python
 >>> %%cython --compile-args=-O3
 ...
 ... import cython
@@ -130,19 +157,21 @@ Just to be sure all versions yield the same value :-)
 >>> functions['numpy'] = broadcast_numpy
 >>> functions['cython'] = broadcast_cython
 >>> functions['pythran'] = broadcast_pythran
+>>> functions['pythran_simd'] = broadcast_pythran_simd
 >>> functions['numba'] = broadcast_numba
 ```
 
 
 ```python
->>> x = np.random.random(2).astype('float64')
->>> y = np.random.random(2).astype('float64')
+>>> x = np.random.random(10).astype('float64')
+>>> y = np.random.random(10).astype('float64')
 >>> for name, function in functions.items():
 ...     print name, function(x, y)
-numpy 1.21034249677
-cython 1.21034249677
-pythran 1.21034249677
-numba 1.21034249677
+numpy 26.6780345958
+cython 26.6780345958
+pythran 26.6780345958
+pythran_simd 26.6780345958
+numba 26.6780345958
 ```
 
 
@@ -164,22 +193,25 @@ The actual benchmark just runs each function through ``timeit`` for various arra
 ...         y = np.random.random(size).astype('float64')
 ...         result = %timeit -o function(x, y)
 ...         scores.loc[size, name] = result.best
-numpy  100 loops, best of 3: 1.99 ms per loop
-cython  1000 loops, best of 3: 857 µs per loop
-pythran  1000 loops, best of 3: 859 µs per loop
-numba  1000 loops, best of 3: 858 µs per loop
-numpy  10 loops, best of 3: 86.9 ms per loop
-cython  10 loops, best of 3: 21.4 ms per loop
-pythran  10 loops, best of 3: 21.4 ms per loop
-numba  10 loops, best of 3: 21.3 ms per loop
-numpy  1 loop, best of 3: 259 ms per loop
-cython  10 loops, best of 3: 85.8 ms per loop
-pythran  10 loops, best of 3: 85.7 ms per loop
-numba  10 loops, best of 3: 85.4 ms per loop
+numpy  1000 loops, best of 3: 1.79 ms per loop
+ cython  1000 loops, best of 3: 850 µs per loop
+ pythran  1000 loops, best of 3: 844 µs per loop
+ pythran_simd  1000 loops, best of 3: 210 µs per loop
+ numba  1000 loops, best of 3: 843 µs per loop
+ numpy  10 loops, best of 3: 79.9 ms per loop
+ cython  10 loops, best of 3: 21.2 ms per loop
+ pythran  10 loops, best of 3: 21.2 ms per loop
+ pythran_simd  100 loops, best of 3: 5.98 ms per loop
+ numba  10 loops, best of 3: 21.2 ms per loop
+ numpy  1 loop, best of 3: 248 ms per loop
+ cython  10 loops, best of 3: 85.1 ms per loop
+ pythran  10 loops, best of 3: 85 ms per loop
+ pythran_simd  10 loops, best of 3: 23.8 ms per loop
+ numba  10 loops, best of 3: 85 ms per loop
+```
 
 
-
-## Results (time in seconds, less is better) 
+## Results (time in seconds, lower is better) 
 
 
 ```python
@@ -190,37 +222,41 @@ numba  10 loops, best of 3: 85.4 ms per loop
 
 
 <div>
-<table border="2" class="dataframe" style="font-size:1.2em;">
+<table border="1" class="dataframe" style="font-size:1.2em;">
   <thead>
     <tr style="text-align: right;">
       <th></th>
       <th>numpy</th>
       <th>cython</th>
       <th>pythran</th>
+      <th>pythran_simd</th>
       <th>numba</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>1000.0</th>
-      <td>0.001986</td>
-      <td>0.000857</td>
-      <td>0.000859</td>
-      <td>0.000858</td>
+      <td>0.001786</td>
+      <td>0.000850</td>
+      <td>0.000844</td>
+      <td>0.000210</td>
+      <td>0.000843</td>
     </tr>
     <tr>
       <th>5000.0</th>
-      <td>0.086943</td>
-      <td>0.021435</td>
-      <td>0.021409</td>
-      <td>0.021332</td>
+      <td>0.079889</td>
+      <td>0.021225</td>
+      <td>0.021171</td>
+      <td>0.005981</td>
+      <td>0.021245</td>
     </tr>
     <tr>
       <th>10000.0</th>
-      <td>0.258560</td>
-      <td>0.085761</td>
-      <td>0.085674</td>
-      <td>0.085381</td>
+      <td>0.248354</td>
+      <td>0.085127</td>
+      <td>0.085048</td>
+      <td>0.023765</td>
+      <td>0.085047</td>
     </tr>
   </tbody>
 </table>
@@ -228,13 +264,17 @@ numba  10 loops, best of 3: 85.4 ms per loop
 
 
 
-## Comparison to Numpy time (less is better)
+## Comparison to Numpy time (lower is better)
 
 
 ```python
 >>> normalized_scores = scores.copy()
 >>> for column in normalized_scores.columns:
-...     normalized_scores[column] /= scores['numpy']
+...     normalized_scores[column] /= scores['numpy']    
+```
+
+
+```python
 >>> normalized_scores
 ```
 
@@ -242,13 +282,14 @@ numba  10 loops, best of 3: 85.4 ms per loop
 
 
 <div>
-<table border="2" class="dataframe" style="font-size:1.2em;">
+<table border="1" class="dataframe" style="font-size:1.2em;">
   <thead>
     <tr style="text-align: right;">
       <th></th>
       <th>numpy</th>
       <th>cython</th>
       <th>pythran</th>
+      <th>pythran_simd</th>
       <th>numba</th>
     </tr>
   </thead>
@@ -256,23 +297,26 @@ numba  10 loops, best of 3: 85.4 ms per loop
     <tr>
       <th>1000.0</th>
       <td>1.0</td>
-      <td>0.431514</td>
-      <td>0.432595</td>
-      <td>0.431996</td>
+      <td>0.475839</td>
+      <td>0.472335</td>
+      <td>0.117430</td>
+      <td>0.472121</td>
     </tr>
     <tr>
       <th>5000.0</th>
       <td>1.0</td>
-      <td>0.246543</td>
-      <td>0.246238</td>
-      <td>0.245361</td>
+      <td>0.265685</td>
+      <td>0.265010</td>
+      <td>0.074869</td>
+      <td>0.265931</td>
     </tr>
     <tr>
       <th>10000.0</th>
       <td>1.0</td>
-      <td>0.331686</td>
-      <td>0.331351</td>
-      <td>0.330216</td>
+      <td>0.342763</td>
+      <td>0.342447</td>
+      <td>0.095692</td>
+      <td>0.342441</td>
     </tr>
   </tbody>
 </table>
@@ -287,6 +331,9 @@ At first glance, Cython, Pythran and Numba all manage to get a decent speedup ov
 1. Cython requires extra annotations, and explicit loops;
 2. Numba only requires a decorator, but still explicit loops;
 3. Pythran still requires a type annotation, but it keeps the Numpy abstraction.
+
+But the interesting result is obviously the additionnal speedup from ``pythran_simd``. Without a single change on the original code, we get an additionnal x3 speedup; that's thanks to [Boost.SIMD](https://github.com/NumScale/boost.simd) and the high level abstraction provided by Numpy. And thanks to Pythran engine, of course ;-)
+
 
 That's Pythran Leitmotiv: keep the Numpy abstraction, but try hard to make it run faster!
 
@@ -310,8 +357,16 @@ That's Pythran Leitmotiv: keep the Numpy abstraction, but try hard to make it ru
 
 
 ```python
->>> import pythran; pythran.__version__
+>>> import pythran; pythran.__version__  # actually, the master version :-/
 '0.7.4.post1'
+```
+
+
+
+
+```python
+>>> numba.__version__
+'0.25.0'
 ```
 
 
@@ -325,4 +380,5 @@ This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 ```
+
 

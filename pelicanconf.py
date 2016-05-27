@@ -30,6 +30,7 @@ SOCIAL = (('github', 'https://github.com/serge-sans-paille/pythran'),
         )
 
 DEFAULT_PAGINATION = 10
+RELATIVE_URLS = True
 DELETE_OUTPUT_DIRECTORY = True
 
 THEME= 'bootstrap2'
