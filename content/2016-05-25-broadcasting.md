@@ -11,6 +11,7 @@ Summary: Broadcasting is a neat feature of Numpy array, but it was not trivial
 This blogpost originally was a Jupyter Notebook. You can [download it](notebooks/broadcasting.ipynb) if you want. The conversion was done using ``nbconvert`` and a [custom template](notebooks/nbmarkdown.tpl) to match the style of the other part of the blog.
 
 
+
 # Numpy's Broadcasting
 
 Broadcasting is a neat feature of Numpy (and other similar array-oriented languages like Matlab). It makes it possible to avoid explicit loops on arrays (they are particularly inefficient in Numpy), and improves the abstraction level of your code, which is a good thing if you share the same abstraction.
@@ -433,6 +434,12 @@ We can then rerun the previous benchmark, with these two functions
 What happens there is that the underlying compiler is capable, on our simple case, to vectorize the loops and takes advantage of the vector register to speedup the computation. Although there's still a small overhead, Pythran is almost on par with Cython, even when vectorization is enabled, which means that the abstraction is still valid, even for complex feature like Numpy's broadcasting.
 
 Under the hood though, the approach is totally different: Pythran vectorizes the expression template and generates calls to [boost.simd](https://github.com/NumScale/boost.simd), while Cython fully relies on gcc auto-vectorizer, which proves to be a good approach until one meets a code gcc cannot vectorize!
+
+### Acknowledgments
+
+Thanks a lot to Pierrick, Adrien and Alexandre for their proof reading and insights! Pointing out my weaknesses is definitively one of your strength :-)
+
+And of course thanks to [Logilab](https://www.logilab.fr/) and [OpenDreamKit](http://opendreamkit.org/) for their support!
 
 ### Technical info
 
