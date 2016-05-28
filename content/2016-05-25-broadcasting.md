@@ -11,7 +11,6 @@ Summary: Broadcasting is a neat feature of Numpy array, but it was not trivial
 This blogpost originally was a Jupyter Notebook. You can [download it](notebooks/broadcasting.ipynb) if you want. The conversion was done using ``nbconvert`` and a [custom template](notebooks/nbmarkdown.tpl) to match the style of the other part of the blog.
 
 
-
 # Numpy's Broadcasting
 
 Broadcasting is a neat feature of Numpy (and other similar array-oriented languages like Matlab). It makes it possible to avoid explicit loops on arrays (they are particularly inefficient in Numpy), and improves the abstraction level of your code, which is a good thing if you share the same abstraction.
@@ -163,10 +162,10 @@ Just to be sure all versions yield the same value :-)
 ...     print name, function(x, y)
 ```
 
-    numpy 13.2055709149
-    cython 13.2055709149
-    pythran 13.2055709149
-    numba 13.2055709149
+    numpy 21.4640902072
+    cython 21.4640902072
+    pythran 21.4640902072
+    numba 21.4640902072
 
 
 # Benchmark
@@ -189,17 +188,17 @@ The actual benchmark just runs each function through ``timeit`` for various arra
 ...         scores.loc[size, name] = result.best
 ```
 
-    numpy  1000 loops, best of 3: 1.78 ms per loop
-     cython  1000 loops, best of 3: 846 µs per loop
-     pythran  1000 loops, best of 3: 260 µs per loop
+    numpy  1000 loops, best of 3: 1.81 ms per loop
+     cython  1000 loops, best of 3: 847 µs per loop
+     pythran  1000 loops, best of 3: 846 µs per loop
      numba  1000 loops, best of 3: 847 µs per loop
-     numpy  10 loops, best of 3: 81.8 ms per loop
+     numpy  10 loops, best of 3: 80.8 ms per loop
      cython  10 loops, best of 3: 21.1 ms per loop
-     pythran  100 loops, best of 3: 5.51 ms per loop
+     pythran  10 loops, best of 3: 21.2 ms per loop
      numba  10 loops, best of 3: 21.2 ms per loop
-     numpy  1 loop, best of 3: 251 ms per loop
-     cython  10 loops, best of 3: 84.8 ms per loop
-     pythran  10 loops, best of 3: 21.7 ms per loop
+     numpy  1 loop, best of 3: 248 ms per loop
+     cython  10 loops, best of 3: 84.9 ms per loop
+     pythran  10 loops, best of 3: 84.8 ms per loop
      numba  10 loops, best of 3: 84.8 ms per loop
     
 
@@ -228,24 +227,24 @@ The actual benchmark just runs each function through ``timeit`` for various arra
   <tbody>
     <tr>
       <th>1000.0</th>
-      <td>0.001778</td>
+      <td>0.001809</td>
+      <td>0.000847</td>
       <td>0.000846</td>
-      <td>0.000260</td>
       <td>0.000847</td>
     </tr>
     <tr>
       <th>5000.0</th>
-      <td>0.081801</td>
-      <td>0.021143</td>
-      <td>0.005512</td>
-      <td>0.021216</td>
+      <td>0.080827</td>
+      <td>0.021096</td>
+      <td>0.021222</td>
+      <td>0.021157</td>
     </tr>
     <tr>
       <th>10000.0</th>
-      <td>0.251358</td>
-      <td>0.084755</td>
-      <td>0.021656</td>
-      <td>0.084827</td>
+      <td>0.248488</td>
+      <td>0.084851</td>
+      <td>0.084849</td>
+      <td>0.084834</td>
     </tr>
   </tbody>
 </table>
@@ -285,23 +284,23 @@ The actual benchmark just runs each function through ``timeit`` for various arra
     <tr>
       <th>1000.0</th>
       <td>1.0</td>
-      <td>0.476117</td>
-      <td>0.146458</td>
-      <td>0.476436</td>
+      <td>0.468133</td>
+      <td>0.467495</td>
+      <td>0.468023</td>
     </tr>
     <tr>
       <th>5000.0</th>
       <td>1.0</td>
-      <td>0.258466</td>
-      <td>0.067383</td>
-      <td>0.259355</td>
+      <td>0.260999</td>
+      <td>0.262561</td>
+      <td>0.261762</td>
     </tr>
     <tr>
       <th>10000.0</th>
       <td>1.0</td>
-      <td>0.337190</td>
-      <td>0.086156</td>
-      <td>0.337474</td>
+      <td>0.341468</td>
+      <td>0.341463</td>
+      <td>0.341400</td>
     </tr>
   </tbody>
 </table>
@@ -373,16 +372,15 @@ We can then rerun the previous benchmark, with these two functions
 ...         simd_scores.loc[size, name] = result.best
 ```
 
-    numpy  The slowest run took 4.12 times longer than the fastest. This could mean that an intermediate result is being cached.
-    100 loops, best of 3: 1.78 ms per loop
-     cython+simd  1000 loops, best of 3: 204 µs per loop
-     pythran+simd  1000 loops, best of 3: 238 µs per loop
-     numpy  10 loops, best of 3: 81.6 ms per loop
-     cython+simd  100 loops, best of 3: 5.35 ms per loop
-     pythran+simd  100 loops, best of 3: 5.52 ms per loop
-     numpy  1 loop, best of 3: 248 ms per loop
+    numpy  100 loops, best of 3: 1.8 ms per loop
+     cython+simd  1000 loops, best of 3: 203 µs per loop
+     pythran+simd  1000 loops, best of 3: 232 µs per loop
+     numpy  10 loops, best of 3: 81.4 ms per loop
+     cython+simd  100 loops, best of 3: 5.42 ms per loop
+     pythran+simd  100 loops, best of 3: 5.98 ms per loop
+     numpy  1 loop, best of 3: 249 ms per loop
      cython+simd  10 loops, best of 3: 21.5 ms per loop
-     pythran+simd  10 loops, best of 3: 21.7 ms per loop
+     pythran+simd  10 loops, best of 3: 23.6 ms per loop
     
 
 
@@ -407,21 +405,21 @@ We can then rerun the previous benchmark, with these two functions
   <tbody>
     <tr>
       <th>1000.0</th>
-      <td>0.001781</td>
-      <td>0.000204</td>
-      <td>0.000238</td>
+      <td>0.001797</td>
+      <td>0.000203</td>
+      <td>0.000232</td>
     </tr>
     <tr>
       <th>5000.0</th>
-      <td>0.081561</td>
-      <td>0.005345</td>
-      <td>0.005517</td>
+      <td>0.081422</td>
+      <td>0.005419</td>
+      <td>0.005984</td>
     </tr>
     <tr>
       <th>10000.0</th>
-      <td>0.248430</td>
-      <td>0.021455</td>
-      <td>0.021670</td>
+      <td>0.249028</td>
+      <td>0.021458</td>
+      <td>0.023631</td>
     </tr>
   </tbody>
 </table>
@@ -434,12 +432,6 @@ We can then rerun the previous benchmark, with these two functions
 What happens there is that the underlying compiler is capable, on our simple case, to vectorize the loops and takes advantage of the vector register to speedup the computation. Although there's still a small overhead, Pythran is almost on par with Cython, even when vectorization is enabled, which means that the abstraction is still valid, even for complex feature like Numpy's broadcasting.
 
 Under the hood though, the approach is totally different: Pythran vectorizes the expression template and generates calls to [boost.simd](https://github.com/NumScale/boost.simd), while Cython fully relies on gcc auto-vectorizer, which proves to be a good approach until one meets a code gcc cannot vectorize!
-
-### Acknowledgments
-
-Thanks a lot to Pierrick, Adrien and Alexandre for their proof reading and insights! Pointing out my weaknesses is definitively one of your strength :-)
-
-And of course thanks to [Logilab](https://www.logilab.fr/) and [OpenDreamKit](http://opendreamkit.org/) for their support!
 
 ### Technical info
 
