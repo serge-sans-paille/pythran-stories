@@ -30,6 +30,7 @@
         font-size: 6pt;
      }
     </style>
+
     <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
         <link href="./theme/css/font-awesome.css" rel="stylesheet">
 
@@ -135,10 +136,10 @@ But the day before I discovered Pythran so why not test both?</p>
 <div class="section" id="c-results">
 <h3>C++ results</h3>
 <p>Compiling and running the C++ code was easy:</p>
-<div class="highlight"><pre>% g++ -O3 RBC_CPP.cpp -o testcpp
+<div class="highlight"><pre><span></span>% g++ -O3 RBC_CPP.cpp -o testcpp
 </pre></div>
 <p>then</p>
-<div class="highlight"><pre><span class="o">%</span> <span class="o">./</span><span class="n">testcpp</span>
+<div class="highlight"><pre><span></span><span class="o">%</span> <span class="o">./</span><span class="n">testcpp</span>
 <span class="n">Output</span> <span class="o">=</span> <span class="mf">0.562731</span><span class="p">,</span> <span class="n">Capital</span> <span class="o">=</span> <span class="mf">0.178198</span><span class="p">,</span> <span class="n">Consumption</span> <span class="o">=</span> <span class="mf">0.384533</span>
 <span class="n">Iteration</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0527416</span>
 <span class="n">Iteration</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0313469</span>
@@ -157,7 +158,7 @@ But the day before I discovered Pythran so why not test both?</p>
 <h3>Julia results</h3>
 <p>The Julia code:</p>
 <p>we run <cite>julia</cite>:</p>
-<div class="highlight"><pre><span class="n">include</span><span class="p">(</span><span class="s">&quot;RBC_Julia.jl&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="n">include</span><span class="p">(</span><span class="s">&quot;RBC_Julia.jl&quot;</span><span class="p">)</span>
 <span class="n">julia</span><span class="o">&gt;</span> <span class="p">@</span><span class="n">time</span> <span class="n">main</span><span class="p">()</span>
 <span class="n">Output</span> <span class="o">=</span> <span class="mf">0.5627314338711378</span> <span class="n">Capital</span> <span class="o">=</span> <span class="mf">0.178198287392527</span> <span class="n">Consumption</span> <span class="o">=</span> <span class="mf">0.3845331464786108</span>
 <span class="n">Iteration</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.05274159340733661</span>
@@ -178,13 +179,13 @@ But the day before I discovered Pythran so why not test both?</p>
 <h3>Python: Pythran  and Numba</h3>
 <p>Now some pythran code, we use the Numba version as starter: so we remove the Numba decorator and
 replace it by a Pythran comment:</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">autojit</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">autojit</span>
 
 <span class="nd">@autojit</span>
 <span class="k">def</span> <span class="nf">innerloop</span><span class="p">(</span><span class="n">bbeta</span><span class="p">,</span> <span class="n">nGridCapital</span><span class="p">,</span> <span class="n">gridCapitalNextPeriod</span><span class="p">,</span> <span class="n">mOutput</span><span class="p">,</span> <span class="n">nProductivity</span><span class="p">,</span> <span class="n">vGridCapital</span><span class="p">,</span> <span class="n">expectedValueFunction</span><span class="p">,</span> <span class="n">mValueFunction</span><span class="p">,</span> <span class="n">mValueFunctionNew</span><span class="p">,</span> <span class="n">mPolicyFunction</span><span class="p">):</span>
 </pre></div>
 <p>to</p>
-<div class="highlight"><pre><span class="c1">#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])</span>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export innerloop(float, int, int, float[][], int, float[], float[][], float[][], float[][], float[][])</span>
 
 <span class="k">def</span> <span class="nf">innerloop</span><span class="p">(</span><span class="n">bbeta</span><span class="p">,</span> <span class="n">nGridCapital</span><span class="p">,</span> <span class="n">gridCapitalNextPeriod</span><span class="p">,</span> <span class="n">mOutput</span><span class="p">,</span> <span class="n">nProductivity</span><span class="p">,</span> <span class="n">vGridCapital</span><span class="p">,</span> <span class="n">expectedValueFunction</span><span class="p">,</span> <span class="n">mValueFunction</span><span class="p">,</span> <span class="n">mValueFunctionNew</span><span class="p">,</span> <span class="n">mPolicyFunction</span><span class="p">):</span>
 </pre></div>
@@ -193,7 +194,7 @@ no idea why! With some (many) help, the solution was found: the idea was to extr
 new file and run Pythran on it then calling it from the main code.</p>
 <p>The function is in <tt class="docutils literal">je.py</tt> and the main code is <tt class="docutils literal">run_je.py</tt></p>
 <p>Let's run the code:</p>
-<div class="highlight"><pre>% <span class="nb">time</span> python2 run_je.py
+<div class="highlight"><pre><span></span>% <span class="nb">time</span> python2 run_je.py
 <span class="nv">Output</span> <span class="o">=</span>  0.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  0.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  0.384533146479
 <span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0527415934073
 <span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0313469492659
@@ -206,7 +207,7 @@ python2 run_je.py  2,45s user 0,08s system 94% cpu 2,666 total
 </pre></div>
 <p>And it is very nice!</p>
 <p>And just for fun, the <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py">Numba version</a>:</p>
-<div class="highlight"><pre>% <span class="nb">time</span> python2 RBC_Python_Numba.py
+<div class="highlight"><pre><span></span>% <span class="nb">time</span> python2 RBC_Python_Numba.py
 <span class="nv">Output</span> <span class="o">=</span>  0.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  0.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  0.384533146479
 <span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0527415934073
 <span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0313469492659

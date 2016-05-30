@@ -30,6 +30,7 @@
         font-size: 6pt;
      }
     </style>
+
     <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
         <link href="./theme/css/font-awesome.css" rel="stylesheet">
 
@@ -136,7 +137,7 @@ channels:</p>
 </blockquote>
 <p>As usual, here is a (new) code sample, once again adapted from a
 stackoverflow question <a class="footnote-reference" href="#id3" id="id1">[0]</a> that showcases pythran capability:</p>
-<div class="highlight"><pre><span class="c1">#pythran export check_mask(bool[][], bool[])</span>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export check_mask(bool[][], bool[])</span>
 <span class="c1">#  ^~~~~~~ non intrusive top-level annotation</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -152,10 +153,10 @@ stackoverflow question <a class="footnote-reference" href="#id3" id="id1">[0]</a
     <span class="k">return</span> <span class="n">out</span>
 </pre></div>
 <p>Compiled with:</p>
-<div class="highlight"><pre>% pythran check_mask.py
+<div class="highlight"><pre><span></span>% pythran check_mask.py
 </pre></div>
 <p>And benchmarked with:</p>
-<div class="highlight"><pre>% python -m timeit -s <span class="s1">&#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&#39;</span> <span class="s1">&#39;check_mask(db, out)&#39;</span>
+<div class="highlight"><pre><span></span>% python -m timeit -s <span class="s1">&#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&#39;</span> <span class="s1">&#39;check_mask(db, out)&#39;</span>
 </pre></div>
 <p>On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)</p>
 <p>Here is an extract of the changelog:</p>

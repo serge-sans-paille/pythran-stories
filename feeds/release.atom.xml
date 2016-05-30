@@ -11,7 +11,7 @@ channels:&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;As usual, here is a (new) code sample, once again adapted from a
 stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;[0]&lt;/a&gt; that showcases pythran capability:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
 &lt;span class="c1"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
 
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
@@ -27,10 +27,10 @@ stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Compiled with:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;% pythran check_mask.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% pythran check_mask.py
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And benchmarked with:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;% python -m timeit -s &lt;span class="s1"&gt;&amp;#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;check_mask(db, out)&amp;#39;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% python -m timeit -s &lt;span class="s1"&gt;&amp;#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;check_mask(db, out)&amp;#39;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)&lt;/p&gt;
 &lt;p&gt;Here is an extract of the changelog:&lt;/p&gt;
