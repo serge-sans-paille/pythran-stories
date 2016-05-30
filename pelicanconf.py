@@ -7,6 +7,7 @@ SITENAME = 'Pythran stories'
 SITEURL = 'http://serge-sans-paille.github.io/pythran-stories'
 
 PATH = 'content'
+STATIC_PATHS = ['notebooks']
 
 TIMEZONE = 'Europe/Paris'
 
@@ -29,7 +30,7 @@ SOCIAL = (('github', 'https://github.com/serge-sans-paille/pythran'),
         )
 
 DEFAULT_PAGINATION = 10
-
 RELATIVE_URLS = True
+DELETE_OUTPUT_DIRECTORY = True
 
 THEME= 'bootstrap2'
