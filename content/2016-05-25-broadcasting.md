@@ -162,10 +162,10 @@ Just to be sure all versions yield the same value :-)
 ...     print name, function(x, y)
 ```
 
-    numpy 21.4640902072
-    cython 21.4640902072
-    pythran 21.4640902072
-    numba 21.4640902072
+    numpy 19.3255679156
+    cython 19.3255679156
+    pythran 19.3255679156
+    numba 19.3255679156
 
 
 # Benchmark
@@ -188,18 +188,18 @@ The actual benchmark just runs each function through ``timeit`` for various arra
 ...         scores.loc[size, name] = result.best
 ```
 
-    numpy  1000 loops, best of 3: 1.81 ms per loop
-     cython  1000 loops, best of 3: 847 µs per loop
-     pythran  1000 loops, best of 3: 846 µs per loop
-     numba  1000 loops, best of 3: 847 µs per loop
-     numpy  10 loops, best of 3: 80.8 ms per loop
-     cython  10 loops, best of 3: 21.1 ms per loop
-     pythran  10 loops, best of 3: 21.2 ms per loop
-     numba  10 loops, best of 3: 21.2 ms per loop
-     numpy  1 loop, best of 3: 248 ms per loop
-     cython  10 loops, best of 3: 84.9 ms per loop
+    numpy  100 loops, best of 3: 2 ms per loop
+     cython  1000 loops, best of 3: 875 µs per loop
+     pythran  1000 loops, best of 3: 852 µs per loop
+     numba  1000 loops, best of 3: 859 µs per loop
+     numpy  10 loops, best of 3: 82 ms per loop
+     cython  10 loops, best of 3: 21.9 ms per loop
+     pythran  10 loops, best of 3: 22 ms per loop
+     numba  10 loops, best of 3: 22.2 ms per loop
+     numpy  1 loop, best of 3: 253 ms per loop
+     cython  10 loops, best of 3: 85.4 ms per loop
      pythran  10 loops, best of 3: 84.8 ms per loop
-     numba  10 loops, best of 3: 84.8 ms per loop
+     numba  10 loops, best of 3: 84.6 ms per loop
     
 
 
@@ -227,24 +227,24 @@ The actual benchmark just runs each function through ``timeit`` for various arra
   <tbody>
     <tr>
       <th>1000.0</th>
-      <td>0.001809</td>
-      <td>0.000847</td>
-      <td>0.000846</td>
-      <td>0.000847</td>
+      <td>0.002001</td>
+      <td>0.000875</td>
+      <td>0.000852</td>
+      <td>0.000859</td>
     </tr>
     <tr>
       <th>5000.0</th>
-      <td>0.080827</td>
-      <td>0.021096</td>
-      <td>0.021222</td>
-      <td>0.021157</td>
+      <td>0.082013</td>
+      <td>0.021908</td>
+      <td>0.021978</td>
+      <td>0.022195</td>
     </tr>
     <tr>
       <th>10000.0</th>
-      <td>0.248488</td>
-      <td>0.084851</td>
-      <td>0.084849</td>
-      <td>0.084834</td>
+      <td>0.252877</td>
+      <td>0.085423</td>
+      <td>0.084839</td>
+      <td>0.084629</td>
     </tr>
   </tbody>
 </table>
@@ -284,23 +284,23 @@ The actual benchmark just runs each function through ``timeit`` for various arra
     <tr>
       <th>1000.0</th>
       <td>1.0</td>
-      <td>0.468133</td>
-      <td>0.467495</td>
-      <td>0.468023</td>
+      <td>0.437434</td>
+      <td>0.425680</td>
+      <td>0.429456</td>
     </tr>
     <tr>
       <th>5000.0</th>
       <td>1.0</td>
-      <td>0.260999</td>
-      <td>0.262561</td>
-      <td>0.261762</td>
+      <td>0.267123</td>
+      <td>0.267988</td>
+      <td>0.270626</td>
     </tr>
     <tr>
       <th>10000.0</th>
       <td>1.0</td>
-      <td>0.341468</td>
-      <td>0.341463</td>
-      <td>0.341400</td>
+      <td>0.337803</td>
+      <td>0.335494</td>
+      <td>0.334665</td>
     </tr>
   </tbody>
 </table>
@@ -320,7 +320,7 @@ That's Pythran Leitmotiv: keep the Numpy abstraction, but try hard to make it ru
 
 # Round Two: Using the compiler
 
-Gcc (and Clang, and…) provide two flags that can be useful in this situation: ``-Ofast`` and ``-march=native``. The former is generally equivalent to ``-O3`` with a few extra flags, most notably ``-ffast-math`` that disregards standard compliance with respect to floating point operation; In our case it makes it possible to reorder the operations to perform the final reduction using SIMD instructions. And with ``-march=native``, the code gets specialized for the host architecture. In the case of this post, It means it can use [AVX](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions) and its 256bits vector register than can store four double precision floating!
+GCC (and Clang, and…) provide two flags that can be useful in this situation: ``-Ofast`` and ``-march=native``. The former is generally equivalent to ``-O3`` with a few extra flags, most notably ``-ffast-math`` that disregards standard compliance with respect to floating point operation; In our case it makes it possible to reorder the operations to perform the final reduction using SIMD instructions. And with ``-march=native``, the code gets specialized for the host architecture. In the case of this post (and the machine used to run the tests), it means it can use the [AVX](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions) instruction set and its 256bits vector register than can store four double precision floating!
 
 In the Pythran case, vectorization is currently activated through the (somehow experimental) ``-DUSE_BOOST_SIMD`` flag.
 
@@ -353,7 +353,7 @@ In the Pythran case, vectorization is currently activated through the (somehow e
 ...     return res
 ```
 
-We can then rerun the previous benchmark, with these two functions
+We can then rerun the previous benchmark, with these two functions:
 
 
 ```python
@@ -372,15 +372,15 @@ We can then rerun the previous benchmark, with these two functions
 ...         simd_scores.loc[size, name] = result.best
 ```
 
-    numpy  100 loops, best of 3: 1.8 ms per loop
-     cython+simd  1000 loops, best of 3: 203 µs per loop
-     pythran+simd  1000 loops, best of 3: 232 µs per loop
-     numpy  10 loops, best of 3: 81.4 ms per loop
-     cython+simd  100 loops, best of 3: 5.42 ms per loop
-     pythran+simd  100 loops, best of 3: 5.98 ms per loop
-     numpy  1 loop, best of 3: 249 ms per loop
-     cython+simd  10 loops, best of 3: 21.5 ms per loop
-     pythran+simd  10 loops, best of 3: 23.6 ms per loop
+    numpy  100 loops, best of 3: 1.86 ms per loop
+     cython+simd  1000 loops, best of 3: 207 µs per loop
+     pythran+simd  1000 loops, best of 3: 246 µs per loop
+     numpy  10 loops, best of 3: 80.7 ms per loop
+     cython+simd  100 loops, best of 3: 5.36 ms per loop
+     pythran+simd  100 loops, best of 3: 5.96 ms per loop
+     numpy  1 loop, best of 3: 250 ms per loop
+     cython+simd  10 loops, best of 3: 21.4 ms per loop
+     pythran+simd  10 loops, best of 3: 21.5 ms per loop
     
 
 
@@ -405,21 +405,21 @@ We can then rerun the previous benchmark, with these two functions
   <tbody>
     <tr>
       <th>1000.0</th>
-      <td>0.001797</td>
-      <td>0.000203</td>
-      <td>0.000232</td>
+      <td>0.001864</td>
+      <td>0.000207</td>
+      <td>0.000246</td>
     </tr>
     <tr>
       <th>5000.0</th>
-      <td>0.081422</td>
-      <td>0.005419</td>
-      <td>0.005984</td>
+      <td>0.080706</td>
+      <td>0.005360</td>
+      <td>0.005961</td>
     </tr>
     <tr>
       <th>10000.0</th>
-      <td>0.249028</td>
-      <td>0.021458</td>
-      <td>0.023631</td>
+      <td>0.249898</td>
+      <td>0.021382</td>
+      <td>0.021472</td>
     </tr>
   </tbody>
 </table>
@@ -431,7 +431,7 @@ We can then rerun the previous benchmark, with these two functions
 
 What happens there is that the underlying compiler is capable, on our simple case, to vectorize the loops and takes advantage of the vector register to speedup the computation. Although there's still a small overhead, Pythran is almost on par with Cython, even when vectorization is enabled, which means that the abstraction is still valid, even for complex feature like Numpy's broadcasting.
 
-Under the hood though, the approach is totally different: Pythran vectorizes the expression template and generates calls to [boost.simd](https://github.com/NumScale/boost.simd), while Cython fully relies on gcc auto-vectorizer, which proves to be a good approach until one meets a code gcc cannot vectorize!
+Under the hood though, the approach is totally different: Pythran vectorizes the expression template and generates calls to [boost.simd](https://github.com/NumScale/boost.simd), while Cython fully relies on GCC/clang auto-vectorizer, which proves to be a good approach until one meets a code compilers cannot vectorize!
 
 ### Technical info
 
