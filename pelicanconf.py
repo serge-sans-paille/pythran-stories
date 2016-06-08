@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
+import glob, os
 
 AUTHOR = 'serge-sans-paille and other pythraners'
 SITENAME = 'Pythran stories'
 SITEURL = 'http://serge-sans-paille.github.io/pythran-stories'
 
 PATH = 'content'
-STATIC_PATHS = ['notebooks']
+STATIC_PATHS = ['notebooks'] + [os.path.basename(p) for p in glob.glob(os.path.join(PATH, "*_files"))]
 
 TIMEZONE = 'Europe/Paris'
 
