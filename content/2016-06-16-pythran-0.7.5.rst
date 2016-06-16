@@ -1,0 +1,82 @@
+Pythran 0.7.5 is out!
+#########################
+
+:date: 2016-06-16
+:category: release
+:lang: en
+:authors: serge-sans-paille
+:summary: Pythran version bump, new pypi packages and conda release!
+
+
+The Pythran team (still 2 active developers) is delighted to
+announce the release of Pythran 0.7.5, available on the traditional
+channels:
+
+    - pypi: https://pypi.python.org/pypi/pythran
+    - conda: https://anaconda.org/serge-sans-paille/pythran
+    - github: https://github.com/serge-sans-paille/pythran
+
+
+What is it?
+===========
+
+Pythran is a static compiler for numerical kernels written in Python + Numpy.
+It basically turns Python-compatible modules into native ones,
+eventually vectorized and parallelized.
+
+Example
+=======
+
+Following the tradition, each release comes with a code sample. This one
+comes from http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/
+
+.. code-block:: python
+
+    #pythran export pythran_pairwise(float64 [][])
+    import numpy as np
+    def pythran_pairwise(X):
+        return np.sqrt(((X[:, None, :] - X) ** 2).sum(-1))
+
+This kernel relies a lot on Numpy's broadcasting, but Pythran can now
+compile it efficiently, which is a really nice improvement! It can rip
+(without vectorization and parallelization turned on) more than a x5
+speedup over the Numpy version \o/
+
+More Infos
+==========
+
+We have published some technical details about Pythran internal on the
+blog:
+
+    http://serge-sans-paille.github.io/pythran-stories/
+
+It is open to third-party contribution!
+
+Changelog
+=========
+
+	* Better Jupyter Note book integration
+
+	* Numpy Broadcasting support
+
+	* Improved value binding analysis
+
+	* Simple inlining optimization
+
+	* Type engine improvement
+
+	* Less fat in the generated modules
+
+	* More and better support for various Numpy functions
+
+	* Various performance improvement
+
+	* Global variable handling, as constants only though
+
+Acknowledgments
+===============
+
+Thanks a lot to Pierrick Brunet for his dedicated work, and to all the
+bug reporters and patch providers that helped a lot for this release:
+
+`nils-werner <https://github.com/nils-werner>`_, `ronbarak <https://github.com/ronbarak>`_, `fred oble <https://twitter.com/fredericoble>`_, `geekou <https://github.com/aguinet>`_, `hainm <https://github.com/hainm>`_, `nbecker <https://github.com/nbecker>`_ and `xantares <https://github.com/xantares>`_.
