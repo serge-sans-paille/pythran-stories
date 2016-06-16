@@ -1,5 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-06-08T00:00:00+02:00</updated><entry><title>Benchmarking Before the Release</title><link href="http://serge-sans-paille.github.io/pythran-stories/benchmarking-before-the-release.html" rel="alternate"></link><published>2016-06-08T00:00:00+02:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-06-08:pythran-stories/benchmarking-before-the-release.html</id><summary type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/Benchmarking Before the Release.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-06-16T00:00:00+02:00</updated><entry><title>Pythran 0.7.5 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-075-is-out.html" rel="alternate"></link><published>2016-06-16T00:00:00+02:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-06-16:pythran-stories/pythran-075-is-out.html</id><summary type="html">&lt;p&gt;The Pythran team (still 2 active developers) is delighted to
+announce the release of Pythran 0.7.5, available on the traditional
+channels:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;pypi: &lt;a class="reference external" href="https://pypi.python.org/pypi/pythran"&gt;https://pypi.python.org/pypi/pythran&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;conda: &lt;a class="reference external" href="https://anaconda.org/serge-sans-paille/pythran"&gt;https://anaconda.org/serge-sans-paille/pythran&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;github: &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran"&gt;https://github.com/serge-sans-paille/pythran&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;div class="section" id="what-is-it"&gt;
+&lt;h2&gt;What is it?&lt;/h2&gt;
+&lt;p&gt;Pythran is a static compiler for numerical kernels written in Python + Numpy.
+It basically turns Python-compatible modules into native ones,
+eventually vectorized and parallelized.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="example"&gt;
+&lt;h2&gt;Example&lt;/h2&gt;
+&lt;p&gt;Following the tradition, each release comes with a code sample. This one
+comes from &lt;a class="reference external" href="http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/"&gt;http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export pythran_pairwise(float64 [][])&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;pythran_pairwise&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sqrt&lt;/span&gt;&lt;span class="p"&gt;(((&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;:]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This kernel relies a lot on Numpy's broadcasting, but Pythran can now
+compile it efficiently, which is a really nice improvement! It can rip
+(without vectorization and parallelization turned on) more than a x5
+speedup over the Numpy version o/&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="more-infos"&gt;
+&lt;h2&gt;More Infos&lt;/h2&gt;
+&lt;p&gt;We have published some technical details about Pythran internal on the
+blog:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;a class="reference external" href="http://serge-sans-paille.github.io/pythran-stories/"&gt;http://serge-sans-paille.github.io/pythran-stories/&lt;/a&gt;&lt;/blockquote&gt;
+&lt;p&gt;It is open to third-party contribution!&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="changelog"&gt;
+&lt;h2&gt;Changelog&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Better Jupyter Note book integration&lt;/li&gt;
+&lt;li&gt;Numpy Broadcasting support&lt;/li&gt;
+&lt;li&gt;Improved value binding analysis&lt;/li&gt;
+&lt;li&gt;Simple inlining optimization&lt;/li&gt;
+&lt;li&gt;Type engine improvement&lt;/li&gt;
+&lt;li&gt;Less fat in the generated modules&lt;/li&gt;
+&lt;li&gt;More and better support for various Numpy functions&lt;/li&gt;
+&lt;li&gt;Various performance improvement&lt;/li&gt;
+&lt;li&gt;Global variable handling, as constants only though&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;/div&gt;
+&lt;div class="section" id="acknowledgments"&gt;
+&lt;h2&gt;Acknowledgments&lt;/h2&gt;
+&lt;p&gt;Thanks a lot to Pierrick Brunet for his dedicated work, and to all the
+bug reporters and patch providers that helped a lot for this release:&lt;/p&gt;
+&lt;p&gt;&lt;a class="reference external" href="https://github.com/nils-werner"&gt;nils-werner&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/ronbarak"&gt;ronbarak&lt;/a&gt;, &lt;a class="reference external" href="https://twitter.com/fredericoble"&gt;fred oble&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/aguinet"&gt;geekou&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/hainm"&gt;hainm&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/nbecker"&gt;nbecker&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/xantares"&gt;xantares&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+</summary></entry><entry><title>Benchmarking Before the Release</title><link href="http://serge-sans-paille.github.io/pythran-stories/benchmarking-before-the-release.html" rel="alternate"></link><published>2016-06-08T00:00:00+02:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-06-08:pythran-stories/benchmarking-before-the-release.html</id><summary type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/Benchmarking Before the Release.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
 &lt;p&gt;The goal of this notebook is to look for performance regression in Pythran before its release. To do so, several cython kernels have been collected on the World Wide Web, mostly from stackoverflow and blogs.&lt;/p&gt;
 &lt;p&gt;For each kernel, a Numpy version, a Cython version and a Pythran version (which aims to be equal to the Numpy version, with an additional &lt;code&gt;#pythran export&lt;/code&gt;) are benchmarked. If Pythran can rip the same performance level as Cython from the Numpy -like code, then it's ok for the release!&lt;/p&gt;
 &lt;h1&gt;Disclaimer&lt;/h1&gt;

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Pythran stories</title>
+    <title>Pythran 0.7.5 is out!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="serge-sans-paille and other pythraners">
@@ -80,7 +80,7 @@
 						<i class="icon-folder-open icon-large"></i>optimisation
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="./category/release.html">
 						<i class="icon-folder-open icon-large"></i>release
 					</a>
@@ -101,26 +101,93 @@
       <div class="row">
         <div class="span9" id="content">
 <section id="content">
-<h1>Archives for Pythran stories</h1>
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Pythran 0.7.5 is out!">
+                                        Pythran 0.7.5 is out!
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2016-06-16T00:00:00+02:00">
+        <i class="icon-calendar"></i>Thu 16 June 2016
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/release.html"><i class="icon-folder-open"></i>release</a>.
 
-<dl>
-	<dt>Thu 16 June 2016</dt>
-	<dd><a href='pythran-075-is-out.html'>Pythran 0.7.5 is out!</a></dd>
-	<dt>Wed 08 June 2016</dt>
-	<dd><a href='benchmarking-before-the-release.html'>Benchmarking Before the Release</a></dd>
-	<dt>Wed 25 May 2016</dt>
-	<dd><a href='costless-abstraction-with-pythran-broadcasting.html'>Costless Abstraction with Pythran: Broadcasting</a></dd>
-	<dt>Mon 18 April 2016</dt>
-	<dd><a href='identifier-binding-computation.html'>Identifier Binding Computation</a></dd>
-	<dt>Tue 05 April 2016</dt>
-	<dd><a href='micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html'>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</a></dd>
-	<dt>Tue 29 March 2016</dt>
-	<dd><a href='compiler-flags.html'>Compiler Flags</a></dd>
-	<dt>Wed 09 March 2016</dt>
-	<dd><a href='pythran-case-resampling.html'>Pythran Case: Resampling</a></dd>
-	<dt>Thu 07 January 2016</dt>
-	<dd><a href='pythran-074-is-out.html'>Pythran 0.7.4 is out!</a></dd>
-</dl>
+
+</footer><!-- /.post-info -->                </div>
+                <p>The Pythran team (still 2 active developers) is delighted to
+announce the release of Pythran 0.7.5, available on the traditional
+channels:</p>
+<blockquote>
+<ul class="simple">
+<li>pypi: <a class="reference external" href="https://pypi.python.org/pypi/pythran">https://pypi.python.org/pypi/pythran</a></li>
+<li>conda: <a class="reference external" href="https://anaconda.org/serge-sans-paille/pythran">https://anaconda.org/serge-sans-paille/pythran</a></li>
+<li>github: <a class="reference external" href="https://github.com/serge-sans-paille/pythran">https://github.com/serge-sans-paille/pythran</a></li>
+</ul>
+</blockquote>
+<div class="section" id="what-is-it">
+<h2>What is it?</h2>
+<p>Pythran is a static compiler for numerical kernels written in Python + Numpy.
+It basically turns Python-compatible modules into native ones,
+eventually vectorized and parallelized.</p>
+</div>
+<div class="section" id="example">
+<h2>Example</h2>
+<p>Following the tradition, each release comes with a code sample. This one
+comes from <a class="reference external" href="http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/">http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/</a></p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export pythran_pairwise(float64 [][])</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">pythran_pairwise</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">X</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+<p>This kernel relies a lot on Numpy's broadcasting, but Pythran can now
+compile it efficiently, which is a really nice improvement! It can rip
+(without vectorization and parallelization turned on) more than a x5
+speedup over the Numpy version o/</p>
+</div>
+<div class="section" id="more-infos">
+<h2>More Infos</h2>
+<p>We have published some technical details about Pythran internal on the
+blog:</p>
+<blockquote>
+<a class="reference external" href="http://serge-sans-paille.github.io/pythran-stories/">http://serge-sans-paille.github.io/pythran-stories/</a></blockquote>
+<p>It is open to third-party contribution!</p>
+</div>
+<div class="section" id="changelog">
+<h2>Changelog</h2>
+<blockquote>
+<ul class="simple">
+<li>Better Jupyter Note book integration</li>
+<li>Numpy Broadcasting support</li>
+<li>Improved value binding analysis</li>
+<li>Simple inlining optimization</li>
+<li>Type engine improvement</li>
+<li>Less fat in the generated modules</li>
+<li>More and better support for various Numpy functions</li>
+<li>Various performance improvement</li>
+<li>Global variable handling, as constants only though</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="acknowledgments">
+<h2>Acknowledgments</h2>
+<p>Thanks a lot to Pierrick Brunet for his dedicated work, and to all the
+bug reporters and patch providers that helped a lot for this release:</p>
+<p><a class="reference external" href="https://github.com/nils-werner">nils-werner</a>, <a class="reference external" href="https://github.com/ronbarak">ronbarak</a>, <a class="reference external" href="https://twitter.com/fredericoble">fred oble</a>, <a class="reference external" href="https://github.com/aguinet">geekou</a>, <a class="reference external" href="https://github.com/hainm">hainm</a>, <a class="reference external" href="https://github.com/nbecker">nbecker</a> and <a class="reference external" href="https://github.com/xantares">xantares</a>.</p>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
 </section>
         </div><!--/span-->
 
