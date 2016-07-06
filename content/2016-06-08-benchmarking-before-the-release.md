@@ -9,7 +9,6 @@ This blogpost originally was a Jupyter Notebook. You can [download it](notebooks
 
 
 
-
 The goal of this notebook is to look for performance regression in Pythran before its release. To do so, several cython kernels have been collected on the World Wide Web, mostly from stackoverflow and blogs.
 
 For each kernel, a Numpy version, a Cython version and a Pythran version (which aims to be equal to the Numpy version, with an additional ``#pythran export``) are benchmarked. If Pythran can rip the same performance level as Cython from the Numpy -like code, then it's ok for the release!
@@ -65,17 +64,17 @@ This kernel tests classical element wise operations *à la* Numpy.
 
 ```python
 >>> %%cython
->>> 
+... 
 >>> cimport cython
 >>> cimport numpy as np
->>> 
+... 
 >>> cdef extern from "math.h":
 ...     double cos(double x) nogil
 ...     double sqrt(double x) nogil
->>> 
+... 
 >>> def cython_cos_norm(a, b):
 ...     return cos_norm_impl(a, b)
->>> 
+... 
 >>> @cython.boundscheck(False)
 >>> @cython.wraparound(False)
 >>> @cython.cdivision(True)
@@ -84,19 +83,19 @@ This kernel tests classical element wise operations *à la* Numpy.
 ...     cdef int m = a.shape[0]
 ...     # XXX: shape of b not checked
 ...     cdef int j
->>> 
+... 
 ...     for j in range(m):
 ...         val = a[j] - b[j]
 ...         res += 1. - cos(val)
 ...     res /= 2.*m
->>> 
+... 
 ...     return sqrt(res)
 ```
 
 
 ```python
 >>> %%pythran
->>> 
+... 
 >>> #pythran export pythran_cos_norm(float[], float[])
 >>> import numpy as np
 >>> def pythran_cos_norm(a, b):
@@ -149,14 +148,14 @@ This kernel tests complex array interactions: slices, element-wise operations, e
 ...     U = np.zeros((n+2,n+2), dtype=np.float_)
 ...     V = np.zeros((n+2,n+2), dtype=np.float_)
 ...     u, v = U[1:-1,1:-1], V[1:-1,1:-1]
->>> 
+... 
 ...     r = 20
 ...     u[:] = 1.0
 ...     U[n/2-r:n/2+r,n/2-r:n/2+r] = 0.50
 ...     V[n/2-r:n/2+r,n/2-r:n/2+r] = 0.25
 ...     u += 0.15*np.random.random((n,n))
 ...     v += 0.15*np.random.random((n,n))
->>> 
+... 
 ...     for i in range(counts):
 ...         Lu = (                 U[0:-2,1:-1] +
 ...               U[1:-1,0:-2] - 4*U[1:-1,1:-1] + U[1:-1,2:] +
@@ -167,18 +166,18 @@ This kernel tests complex array interactions: slices, element-wise operations, e
 ...         uvv = u*v*v
 ...         u += Du*Lu - uvv + F*(1 - u)
 ...         v += Dv*Lv + uvv - (F + k)*v
->>> 
+... 
 ...     return V
 ```
 
 
 ```python
 >>> %%cython
->>> 
+... 
 >>> cimport cython
 >>> import numpy as np
 >>> cimport numpy as np
->>> 
+... 
 >>> @cython.boundscheck(False)
 >>> @cython.wraparound(False)
 >>> @cython.cdivision(True)
@@ -188,24 +187,24 @@ This kernel tests complex array interactions: slices, element-wise operations, e
 ...     cdef np.ndarray V = np.zeros((n+2,n+2), dtype=np.float_)
 ...     cdef np.ndarray u = U[1:-1,1:-1]
 ...     cdef np.ndarray v = V[1:-1,1:-1]
->>> 
+... 
 ...     cdef int r = 20
 ...     u[:] = 1.0
 ...     U[n/2-r:n/2+r,n/2-r:n/2+r] = 0.50
 ...     V[n/2-r:n/2+r,n/2-r:n/2+r] = 0.25
 ...     u += 0.15*np.random.random((n,n))
 ...     v += 0.15*np.random.random((n,n))
->>> 
+... 
 ...     cdef np.ndarray Lu = np.zeros_like(u)
 ...     cdef np.ndarray Lv = np.zeros_like(v)
 ...     cdef int i, c, r1, c1, r2, c2
 ...     cdef double uvv
->>> 
+... 
 ...     cdef double[:, ::1] bU = U
 ...     cdef double[:, ::1] bV = V
 ...     cdef double[:, ::1] bLu = Lu
 ...     cdef double[:, ::1] bLv = Lv
->>> 
+... 
 ...     for i in range(counts):
 ...         for r in range(n):
 ...             r1 = r + 1
@@ -215,7 +214,7 @@ This kernel tests complex array interactions: slices, element-wise operations, e
 ...                 c2 = c + 2
 ...                 bLu[r,c] = bU[r1,c2] + bU[r1,c] + bU[r2,c1] + bU[r,c1] - 4*bU[r1,c1]
 ...                 bLv[r,c] = bV[r1,c2] + bV[r1,c] + bV[r2,c1] + bV[r,c1] - 4*bV[r1,c1]
->>> 
+... 
 ...         for r in range(n):
 ...             r1 = r + 1
 ...             for c in range(n):
@@ -223,14 +222,14 @@ This kernel tests complex array interactions: slices, element-wise operations, e
 ...                 uvv = bU[r1,c1]*bV[r1,c1]*bV[r1,c1]
 ...                 bU[r1,c1] += Du*bLu[r,c] - uvv + F*(1 - bU[r1,c1])
 ...                 bV[r1,c1] += Dv*bLv[r,c] + uvv - (F + k)*bV[r1,c1]
->>> 
+... 
 ...     return V
 ```
 
 
 ```python
 >>> %%pythran
->>> 
+... 
 >>> #pythran export pythran_grayscott(int, float, float, float, float)
 >>> import numpy as np
 >>> def pythran_grayscott(counts, Du, Dv, F, k):
@@ -238,14 +237,14 @@ This kernel tests complex array interactions: slices, element-wise operations, e
 ...     U = np.zeros((n+2,n+2), dtype=np.float_)
 ...     V = np.zeros((n+2,n+2), dtype=np.float_)
 ...     u, v = U[1:-1,1:-1], V[1:-1,1:-1]
->>> 
+... 
 ...     r = 20
 ...     u[:] = 1.0
 ...     U[n/2-r:n/2+r,n/2-r:n/2+r] = 0.50
 ...     V[n/2-r:n/2+r,n/2-r:n/2+r] = 0.25
 ...     u += 0.15*np.random.random((n,n))
 ...     v += 0.15*np.random.random((n,n))
->>> 
+... 
 ...     for i in range(counts):
 ...         Lu = (                 U[0:-2,1:-1] +
 ...               U[1:-1,0:-2] - 4*U[1:-1,1:-1] + U[1:-1,2:] +
@@ -256,7 +255,7 @@ This kernel tests complex array interactions: slices, element-wise operations, e
 ...         uvv = u*v*v
 ...         u += Du*Lu - uvv + F*(1 - u)
 ...         v += Dv*Lv + uvv - (F + k)*v
->>> 
+... 
 ...     return V
 ```
 
@@ -306,14 +305,14 @@ This kernel tests conditionnal assignment (through ``np.where``) and array of co
 
 ```python
 >>> %%cython
->>> 
+... 
 >>> cimport cython
 >>> import numpy as np
 >>> cimport numpy as np
->>> 
+... 
 >>> cdef extern from "complex.h":
 ...     double cabs(double complex x) nogil
->>> 
+... 
 >>> @cython.boundscheck(False)
 >>> @cython.wraparound(False)
 >>> @cython.cdivision(True)
@@ -326,14 +325,14 @@ This kernel tests conditionnal assignment (through ``np.where``) and array of co
 ...             out[i] = z[i]/cabs(z[i]) * _max
 ...         else:
 ...             out[i] = z[i]
->>> 
+... 
 ...     return out
 ```
 
 
 ```python
 >>> %%pythran
->>> 
+... 
 >>> #pythran export pythran_clip(complex128[], float64)
 >>> import numpy as np
 >>> def pythran_clip(z, _max):
@@ -387,11 +386,11 @@ This kernel tests Numpy's broadcasting.
 
 ```python
 >>> %%cython
->>> 
+... 
 >>> import numpy as np
 >>> cimport cython
 >>> from libc.math cimport sqrt
->>> 
+... 
 >>> @cython.boundscheck(False)
 >>> @cython.wraparound(False)
 >>> def cython_pairwise(double[:, ::1] X):
@@ -412,7 +411,7 @@ This kernel tests Numpy's broadcasting.
 
 ```python
 >>> %%pythran
->>> 
+... 
 >>> #pythran export pythran_pairwise(float64 [][])
 >>> import numpy as np
 >>> def pythran_pairwise(X):
@@ -460,7 +459,7 @@ This kernel tests interaction between Numpy arrays, slices and regular loops.
 ```python
 >>> def np_det_by_lu(y, x):
 ...     y[0] = 1.
->>> 
+... 
 ...     N = x.shape[0]
 ...     with np.errstate(invalid='ignore'):
 ...         for k in range(N):
@@ -470,32 +469,32 @@ This kernel tests interaction between Numpy arrays, slices and regular loops.
 ...                 xi = x[i]
 ...                 xi[k] /= xk[k]
 ...                 xi[k+1:] -= xi[k] * xk[k+1:]
->>> 
->>> 
+... 
+... 
 ```
 
 
 ```python
 >>> %%cython
->>> 
+... 
 >>> import cython
->>> 
+... 
 >>> @cython.boundscheck(False)
 >>> @cython.wraparound(False)
 >>> cpdef cython_det_by_lu(double[:] y, double[:,:] x):
 ...     y[0] = 1.
->>> 
+... 
 ...     cdef int N = x.shape[0]
 ...     cdef int i,j,k
->>> 
+... 
 ...     for k in range(N):
 ...         y[0] *= x[k,k]
 ...         for i in range(k+1, N):
 ...             x[i,k] /= x[k,k]
 ...             for j in range(k+1, N):
 ...                 x[i,j] -= x[i,k] * x[k,j]
->>> 
->>> 
+... 
+... 
 ```
 
 
