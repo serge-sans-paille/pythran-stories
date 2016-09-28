@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/compilation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-04-18T00:00:00+02:00</updated><entry><title>Identifier Binding Computation</title><link href="http://serge-sans-paille.github.io/pythran-stories/identifier-binding-computation.html" rel="alternate"></link><published>2016-04-18T00:00:00+02:00</published><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-04-18:pythran-stories/identifier-binding-computation.html</id><summary type="html">&lt;div class="section" id="foreword"&gt;
 &lt;h2&gt;Foreword&lt;/h2&gt;
 &lt;p&gt;This is &lt;strong&gt;not&lt;/strong&gt; a &lt;a class="reference external" href="http://jupyter-notebook-beginner-guide.readthedocs.org/en/latest/what_is_jupyter.html"&gt;Jupyter notebook&lt;/a&gt;,
-but it could have be. Instead, the content of this article is mostly taken from
+but it could have been. Instead, the content of this article is mostly taken from
 the &lt;a class="reference external" href="https://docs.python.org/2/library/doctest.html"&gt;Doctest&lt;/a&gt; of the
 &lt;tt class="docutils literal"&gt;pythran.analyses.aliases&lt;/tt&gt; module, and the relevant unit tests in
 &lt;tt class="docutils literal"&gt;test_typing.py&lt;/tt&gt;. So the reader still has a strong warranty that the output
@@ -29,8 +29,8 @@ referenced by identifer &lt;tt class="docutils literal"&gt;c&lt;/tt&gt; (and &lt
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="go"&gt;True&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;In the context of Pythran, the static knowledge of the different values an
-identifier &lt;strong&gt;may&lt;/strong&gt; be bound to is critical. First there is no reason to trust
+&lt;p&gt;In the context of Pythran, the static knowledge of the different values of an
+identifier &lt;strong&gt;may&lt;/strong&gt; be bound to, is critical. First there is no reason to trust
 an identifier, as shown by the following code:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
@@ -57,7 +57,7 @@ identifier share the same property. For instance:&lt;/p&gt;
 &lt;li&gt;…&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;But the single more important use of identifier binding is in fact typing. This
+&lt;p&gt;But the single more important use of identifier binding is in fact, typing. This
 is likely to evolve, but current (clumsy) typing system in Pythran attaches
 some kind of typing properties to functions. For instance for the following
 function:&lt;/p&gt;
@@ -76,7 +76,7 @@ combines this information with the fact that &lt;tt class="docutils literal"&gt;
 integers, to conclude &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; has the type &lt;em&gt;list of integers&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;Identifier binding is used twice in the process. Once to prove that the
 &lt;em&gt;identifier&lt;/em&gt; &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; is bound to the value &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt;, and once to track which
-values the &lt;em&gt;identifier&lt;/em&gt; &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; was bound to, here to compute that the type
+values the &lt;em&gt;identifier&lt;/em&gt; &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; was bound to; here to compute that the type
 information gathered for &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; also impacts &lt;tt class="docutils literal"&gt;b&lt;/tt&gt;, even if &lt;tt class="docutils literal"&gt;b&lt;/tt&gt; was not used
 in the function call, as they share the same value.&lt;/p&gt;
 &lt;/div&gt;
@@ -95,7 +95,7 @@ the others are hidden between the terms of &lt;tt class="docutils literal"&gt;&l
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;passmanager&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;pm&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;passmanager&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;PassManager&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;demo&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Here we basically inject the &lt;tt class="docutils literal"&gt;aliases&lt;/tt&gt; namespace into current namespace for
+&lt;p&gt;Here, we basically inject the &lt;tt class="docutils literal"&gt;aliases&lt;/tt&gt; namespace into current namespace for
 convenience, then create an instance of the object in charge of applying passes
 and gathering analysis results.&lt;/p&gt;
 &lt;div class="section" id="bool-op-expression"&gt;
@@ -197,7 +197,7 @@ the returned value and its first argument.&lt;/p&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Call&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="go"&gt;f(b) =&amp;gt; [&amp;#39;b&amp;#39;]&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;This also works with intrinsics, e.g &lt;tt class="docutils literal"&gt;dict.setdefault&lt;/tt&gt; which
+&lt;p&gt;This also works with intrinsics, e.g. &lt;tt class="docutils literal"&gt;dict.setdefault&lt;/tt&gt; which
 may create alias between its third argument and the return value.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;def foo(a, d): __builtin__.dict.setdefault(d, 0, a)&amp;#39;&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -218,7 +218,7 @@ is already known to alias to various values:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="subscript-expression"&gt;
 &lt;h3&gt;Subscript Expression&lt;/h3&gt;
-&lt;p&gt;Resulting node alias stores the subscript relationship if we don't know
+&lt;p&gt;The resulting node alias only stores the subscript relationship if we don't know
 anything about the subscripted node.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;def foo(a): return a[0]&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
