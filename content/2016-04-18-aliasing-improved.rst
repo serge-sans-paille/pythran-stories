@@ -18,7 +18,7 @@ Foreword
 
 This is **not** a `Jupyter notebook
 <http://jupyter-notebook-beginner-guide.readthedocs.org/en/latest/what_is_jupyter.html>`_,
-but it could have be. Instead, the content of this article is mostly taken from
+but it could have been. Instead, the content of this article is mostly taken from
 the `Doctest <https://docs.python.org/2/library/doctest.html>`_ of the
 ``pythran.analyses.aliases`` module, and the relevant unit tests in
 ``test_typing.py``. So the reader still has a strong warranty that the output
@@ -53,8 +53,8 @@ referenced by identifer ``c`` (and ``a`` and ``d``):
     >>> len(b) == len(c) == len(d) == len(a) == 1
     True
 
-In the context of Pythran, the static knowledge of the different values an
-identifier **may** be bound to is critical. First there is no reason to trust
+In the context of Pythran, the static knowledge of the different values of an
+identifier **may** be bound to, is critical. First there is no reason to trust
 an identifier, as shown by the following code:
 
 .. code-block:: pycon
@@ -86,7 +86,7 @@ identifier share the same property. For instance:
 
     #. …
 
-But the single more important use of identifier binding is in fact typing. This
+But the single more important use of identifier binding is in fact, typing. This
 is likely to evolve, but current (clumsy) typing system in Pythran attaches
 some kind of typing properties to functions. For instance for the following
 function:
@@ -113,7 +113,7 @@ integers, to conclude ``a`` has the type *list of integers*.
 
 Identifier binding is used twice in the process. Once to prove that the
 *identifier* ``foo`` is bound to the value ``foo``, and once to track which
-values the *identifier* ``a`` was bound to, here to compute that the type
+values the *identifier* ``a`` was bound to; here to compute that the type
 information gathered for ``a`` also impacts ``b``, even if ``b`` was not used
 in the function call, as they share the same value.
 
@@ -140,7 +140,7 @@ So let's start to write some simple equations [1]_, with a few test cases demons
     >>> from pythran import passmanager
     >>> pm = passmanager.PassManager('demo')
 
-Here we basically inject the ``aliases`` namespace into current namespace for
+Here, we basically inject the ``aliases`` namespace into current namespace for
 convenience, then create an instance of the object in charge of applying passes
 and gathering analysis results.
 
@@ -266,7 +266,7 @@ the returned value and its first argument.
     >>> Aliases.dump(result, filter=ast.Call)
     f(b) => ['b']
 
-This also works with intrinsics, e.g ``dict.setdefault`` which
+This also works with intrinsics, e.g. ``dict.setdefault`` which
 may create alias between its third argument and the return value.
 
 .. code-block:: pycon
@@ -293,7 +293,7 @@ is already known to alias to various values:
 Subscript Expression
 --------------------
 
-Resulting node alias stores the subscript relationship if we don't know
+The resulting node alias only stores the subscript relationship if we don't know
 anything about the subscripted node.
 
 .. code-block:: pycon
