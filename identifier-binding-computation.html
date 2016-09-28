@@ -133,7 +133,7 @@
                 <div class="section" id="foreword">
 <h2>Foreword</h2>
 <p>This is <strong>not</strong> a <a class="reference external" href="http://jupyter-notebook-beginner-guide.readthedocs.org/en/latest/what_is_jupyter.html">Jupyter notebook</a>,
-but it could have be. Instead, the content of this article is mostly taken from
+but it could have been. Instead, the content of this article is mostly taken from
 the <a class="reference external" href="https://docs.python.org/2/library/doctest.html">Doctest</a> of the
 <tt class="docutils literal">pythran.analyses.aliases</tt> module, and the relevant unit tests in
 <tt class="docutils literal">test_typing.py</tt>. So the reader still has a strong warranty that the output
@@ -160,8 +160,8 @@ referenced by identifer <tt class="docutils literal">c</tt> (and <tt class="docu
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 <span class="go">True</span>
 </pre></div>
-<p>In the context of Pythran, the static knowledge of the different values an
-identifier <strong>may</strong> be bound to is critical. First there is no reason to trust
+<p>In the context of Pythran, the static knowledge of the different values of an
+identifier <strong>may</strong> be bound to, is critical. First, there is no reason to trust
 an identifier, as shown by the following code:</p>
 <div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">id</span> <span class="o">=</span> <span class="nb">len</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">id</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
@@ -188,7 +188,7 @@ identifier share the same property. For instance:</p>
 <li>…</li>
 </ol>
 </blockquote>
-<p>But the single more important use of identifier binding is in fact typing. This
+<p>But the single more important use of identifier binding is in fact, typing. This
 is likely to evolve, but current (clumsy) typing system in Pythran attaches
 some kind of typing properties to functions. For instance for the following
 function:</p>
@@ -207,7 +207,7 @@ combines this information with the fact that <tt class="docutils literal">a</tt>
 integers, to conclude <tt class="docutils literal">a</tt> has the type <em>list of integers</em>.</p>
 <p>Identifier binding is used twice in the process. Once to prove that the
 <em>identifier</em> <tt class="docutils literal">foo</tt> is bound to the value <tt class="docutils literal">foo</tt>, and once to track which
-values the <em>identifier</em> <tt class="docutils literal">a</tt> was bound to, here to compute that the type
+values the <em>identifier</em> <tt class="docutils literal">a</tt> was bound to; here to compute that the type
 information gathered for <tt class="docutils literal">a</tt> also impacts <tt class="docutils literal">b</tt>, even if <tt class="docutils literal">b</tt> was not used
 in the function call, as they share the same value.</p>
 </div>
@@ -226,7 +226,7 @@ the others are hidden between the terms of <tt class="docutils literal"><span cl
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran</span> <span class="kn">import</span> <span class="n">passmanager</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pm</span> <span class="o">=</span> <span class="n">passmanager</span><span class="o">.</span><span class="n">PassManager</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
 </pre></div>
-<p>Here we basically inject the <tt class="docutils literal">aliases</tt> namespace into current namespace for
+<p>Here, we basically inject the <tt class="docutils literal">aliases</tt> namespace into current namespace for
 convenience, then create an instance of the object in charge of applying passes
 and gathering analysis results.</p>
 <div class="section" id="bool-op-expression">
@@ -328,7 +328,7 @@ the returned value and its first argument.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Aliases</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span>
 <span class="go">f(b) =&gt; [&#39;b&#39;]</span>
 </pre></div>
-<p>This also works with intrinsics, e.g <tt class="docutils literal">dict.setdefault</tt> which
+<p>This also works with intrinsics, e.g. <tt class="docutils literal">dict.setdefault</tt> which
 may create alias between its third argument and the return value.</p>
 <div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;def foo(a, d): __builtin__.dict.setdefault(d, 0, a)&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
@@ -349,7 +349,7 @@ is already known to alias to various values:</p>
 </div>
 <div class="section" id="subscript-expression">
 <h3>Subscript Expression</h3>
-<p>Resulting node alias stores the subscript relationship if we don't know
+<p>The resulting node alias only stores the subscript relationship if we don't know
 anything about the subscripted node.</p>
 <div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;def foo(a): return a[0]&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">Aliases</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
