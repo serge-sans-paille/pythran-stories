@@ -76,7 +76,7 @@ duck; That's a kind of ``https://en.wikipedia.org/wiki/Nominal_type_system``.
 Pythran uses a trick to make both world meet: *ad-hoc polymorphism*, as
 supported in C++ through ``template`` meta programing. Upon a template
 instantiation, there's no type name verification, only a check that given
-methods and attributes make sens in current context. And that's exactly what we
+methods and attributes make sense in current context. And that's exactly what we
 need to get closer to Python typing!
 
 This all is very nice, except in case of bad typing. Consider this trivial
@@ -152,12 +152,12 @@ Additionally, Pythran currently infers type inter-procedurally, while MyPy
 requires type annotation on every functions, to keep the problem within
 reasonable bounds.
 
-But wait. MyPy author did its Phd on the subject, and he now works hand in hand
+But wait. MyPy author did his PhD on the subject, and he now works hand in hand
 with Guildo van Rossum on the subject. Is there any chance for us to do a
 better job? Let's be honest. There is not.
 
 What can we do in such a situation? Take advantage of some extra assumptions
-Pythran can afford! We focus on scientific computing, all existing types ar
+Pythran can afford! We focus on scientific computing, all existing types are
 known (no user-defined types in Pythran) and we only need to handle small size
 kernels, so we can spend some extra computing resources in the process.
 
@@ -173,9 +173,9 @@ but *not* for Python, even not for the subset supported by Pythran. The main
 issues comes with overloaded functions. Consider the ``map`` functions: it has
 a varying number of parameters, and for a given number of parameters, two
 possible overloads exist, the first argument being ``None`` or a ``Callable``).
-Some extra stuff are not as critical but also important: it's not possibly to
+Some extra stuff are not as critical but also important: it's not possible to
 infer implicit option types (the one that comes with usage of ``None``). Ocaml
-uses ``Some`` as a counterpart of ``None`` to handling this issue. but there's
+uses ``Some`` as a counterpart of ``None`` to handle this issue. but there's
 no such hint in Python (and we don't want to introduce one).
 
 Still, the whole subject of typing is reaaaaaalllllly difficult, and I wanted
@@ -213,8 +213,8 @@ possibilities go wild, so we had to make a decision. Consider the following code
 The ``in`` operator could be implemented as a ``Multitype``, enumerating the
 possible valid signature (remember we know of all possible types in Pythran):
 
-- ``Callable[[List[T0], T0], bool``, a function that takes a list of ``T0`` and a ``T0`` and returns a boolean,
-- ``Callable[[str, str], bool``, a function that takes two strings and returns a boolean,
+- ``Callable[[List[T0], T0], bool]``, a function that takes a list of ``T0`` and a ``T0`` and returns a boolean,
+- ``Callable[[str, str], bool]``, a function that takes two strings and returns a boolean,
 
 And so on, including for numpy arrays, but more about this later and let us
 assume we only have these two types.  So what is the type of ``foo``? from the
@@ -222,7 +222,7 @@ assume we only have these two types.  So what is the type of ``foo``? from the
 that case ``y`` must be of type ``T0``, **or** ``x`` is a string and so must be
 ``y``. And in both cases, a boolean is returned.
 
-What we could do is consider both alternatives, follow the two type paths and
+We could consider both alternatives, follow the two type paths and
 in the end, compute the signature of ``foo`` as a ``MultiType`` holding the
 outcome of all paths. But that could mean a lot! What we do is an
 over-approximation: what is the common structure between ``List[T0]`` and
@@ -265,7 +265,7 @@ generally described as a parametric type, ``Optional[T0]``. To be able to unify
 ``None``, thus marking ``n`` as ``Optional[int]``, which does not work, because
 ``range`` expects an ``int``!
 
-The solution we adopt is to make type inference control-flow sensitive. When
+The solution we have adopted is to make type inference control-flow sensitive. When
 meeting an ``if``, we generate a new copy of the variable environment for each
 branch, and we *merge* (not *unify*) the environments.
 
@@ -366,20 +366,20 @@ where the number of dimension of an array does not change: it cannot be
 reshaped in place. For instance the C++ type returned by ``numpy.ones((10,
 10))`` is ``types::ndarray<double /*dtype*/, 2 /*nbdim*/>``.
 
-We've extended th ``typing`` module to provide ``NDArray``. For Pythran, the Python equivalent of the above C++ type is ``NDArray[float, :, :]``.
+We've extended the ``typing`` module to provide ``NDArray``. For Pythran, the Python equivalent of the above C++ type is ``NDArray[float, :, :]``.
 
 And as we want it to be compatible with the way we defined an ``Iterable``, an ``NDArray`` is actually a:
 
-- a ``List[T0]`` is considered as ``(List, Sized, int, T0, T0)``
-- a ``Dict[T0, T1]`` is considered as ``(Dict, Sized, T0, T1, T0)``
+- ``List[T0]`` is considered as ``(List, Sized, int, T0, T0)``
+- ``Dict[T0, T1]`` is considered as ``(Dict, Sized, T0, T1, T0)``
 - ...
-- a ``NDArray[complex, :]`` is considered as ``(Array, Sized, T0, complex, complex)``
-- a ``NDArray[complex, :, :]`` is considered as ``(Array, Sized, T0, complex, NDArray[complex, :])``
-- a ``NDArray[complex, :, :, :]`` is considered as ``(Array, Sized, T0, complex, NDArray[complex, :, :])``
+- ``NDArray[complex, :]`` is considered as ``(Array, Sized, T0, complex, complex)``
+- ``NDArray[complex, :, :]`` is considered as ``(Array, Sized, T0, complex, NDArray[complex, :])``
+- ``NDArray[complex, :, :, :]`` is considered as ``(Array, Sized, T0, complex, NDArray[complex, :, :])``
 
 That's a recursive definition, and  that's pretty useful when used with our
 ``MultiType`` resolution. If we need to merge an ``NDArray[complex, :, :]`` and
-a ``NDArray[complex, :, :, :]``, we end up with ``(Array, Sized, T0, complex,
+an ``NDArray[complex, :, :, :]``, we end up with ``(Array, Sized, T0, complex,
 (Array, Sized, T0, complex, T1))`` which actually means *an array of complex
 with at least two dimensions*.
 
@@ -393,7 +393,7 @@ I learned during my bibliography on the subject, but it still falls short in
 various pieces. So in place of a proof, here is some testing result :-)
 
 First, the whole test suite passes without much modifications. it helped
-spotting a few*errors* in the tests, mostly code that was incorrect with
+spotting a few *errors* in the tests, mostly code that was incorrect with
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:
 
 .. code:: python
@@ -426,7 +426,7 @@ correctly typed, while Pythran correctly type checks it without annotation.
 
         return sorted(l)
 
-If we turn the ``1`` into ``"1"``, we gte the following error:
+If we turn the ``1`` into ``"1"``, we get the following error:
 
 .. code:: shell
 
@@ -440,7 +440,7 @@ And if we remove the ``0``, ``d.get(word)`` may return ``None`` and the error me
 
     > pythran wc.py
     CRITICAL You shall not pass!
-    E: Invalid operand for `+`: `Option[str]` and `int` (wc.py, line 5)
+    E: Invalid operand for `+`: `Option[T0]` and `int` (wc.py, line 5)
 
 Great!
 
@@ -486,6 +486,6 @@ Acknowledgments
 As usual, I'd like to thanks Pierrick Brunet for all his help. He keeps feeding
 me with relevant insights, criticisms and great ideas! Thanks to `OpenDreamKit
 <http://opendreamkit.org/>`_ for sponsoring that work, and in particular to
-`Logilab <http://www.logilab.fr/>`_ for their support.
+`Logilab <http://www.logilab.fr/>`_ for their support. Thanks to Lancelot Six for proof reading this post too :-)
 
 And at last, I'm in debt to all Pythran users for keeping the motivation high!
