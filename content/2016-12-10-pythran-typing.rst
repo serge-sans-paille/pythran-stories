@@ -5,7 +5,7 @@ from pythran import typing
 :category: compilation
 :lang: en
 :authors: serge-sans-paille
-:summary: Pythran recently gained a type checking ability. And given the size of the diff, that's not some minor improvement! Let's see what happened :-)
+:summary: Pythran recently gained a type checking ability, called *tog*. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)
 
 Pythran is currently part of `OpenDreamKit <http://opendreamkit.org/>`_,
 a project that aims at improving the open source computational mathematics
@@ -66,14 +66,16 @@ Indeed, the correct declaration for ``z`` was ``z = np.zeros((N, N, 3))``.
 A Quick Glance at Pythran Typing System
 =======================================
 
-As you probably know, Python uses a type system called *duck typing*: what
+As you probably know, Python uses a dynamic type system, often  called *duck typing*: what
 matters is not the type of an object, but its structure, i.e. the available
-methods and fields. *If it walks like a duck and talks like a duck, then it's
-a duck*. That's a kind of `structural typing
-<https://en.wikipedia.org/wiki/Structural_type_system>`_. On the opposite side
-C++ requires an object to derive from the ``Duck`` class to be considered
-a duck; which is closer to the `nominal typing
-<https://en.wikipedia.org/wiki/Nominal_type_system>`.
+methods and fields: *If it walks like a duck and talks like a duck, then it's a
+duck*. That's a kind of `structural typing
+<https://en.wikipedia.org/wiki/Structural_type_system>`_.
+
+On the opposite side C++ uses a static type system, and if you adhere to OOP
+[1]_ you may require an object to derive from the ``Duck`` class to be
+considered a duck; That's a kind of `nominal typing
+<https://en.wikipedia.org/wiki/Nominal_type_system>`_.
 
 Pythran uses a trick to make both world meet: *ad-hoc polymorphism*, as
 supported in C++ through ``template`` meta programing. Upon a template
@@ -89,9 +91,8 @@ Python code:
     def twice(s):
         return s * 2
 
-The ``s`` parameter can be of any type that supports multiplication by an
 integer, for instance ``str``, ``list``, ``int``. The C++ equivalent would
-be:
+be (taking into account move semantics):
 
 .. code:: c++
 
@@ -104,7 +105,7 @@ In Python's case, type checking is done at runtime, during a lookup in ``s`` for
 a ``__mul__`` magic method. In C++ it's done at compile time, when performing
 instantiation of ``twice`` for a given type value of ``T``. What lacked was a
 human-readable error message to warn about the coming winter. And that's
-exactly the topic of this post!
+exactly the topic of this post ;-)
 
 A Few Words About MyPy
 ======================
@@ -124,8 +125,8 @@ of these hints to perform an ahead-of-time check. And that's **great**.
     string and so on.
 
 So, did we trade ``#pythran export twice(str)`` for ``def twice(s: str):``? No.
-Did we consider the option? Yes. First there's an issue with MyPy only running
-on Python3. It can process Python2 code, but itself runs on Python3. We've been
+Did we consider the option? Yes. First there's the issue of MyPy only running
+on Python3. It can process Python2 code, but it runs on Python3. We've been
 struggling so much to keep Python2.7 compatibility in addition to the recent
 addition of broader Python3 support. We're not going to leave it apart without
 good reasons.
@@ -159,7 +160,7 @@ with Guildo van Rossum on the subject. Is there any chance for us to do a
 better job? Let's be honest. There is not.
 
 What can we do in such a situation? Take advantage of some extra assumptions
-Pythran can afford! We focus on scientific computing, all existing types are
+Pythran can afford. We focus on scientific computing, all existing types are
 known (no user-defined types in Pythran) and we only need to handle small size
 kernels, so we can spend some extra computing resources in the process.
 
@@ -171,21 +172,22 @@ A Variant of Hindley-Milner for Pythran
 a relatively easy to understand type system that supports parametric
 polymorphism. A simple implementation has been `written in Python
 <http://smallshire.org.uk/sufficientlysmall/2010/04/11/a-hindley-milner-type-inference-implementation-in-python/>`_,
-but *not* for Python, even not for the subset supported by Pythran. The main
-issue comes with overloaded functions. Consider the ``map`` function: it has
-a varying number of parameters, and for a given number of parameters, two
-possible overload exist, the first argument being ``None`` or a ``Callable``).
-Another important, though not critical problem: it's not possible to infer
-implicit option types (the one that comes with usage of ``None``). Ocaml uses
-``Some`` as a counterpart of ``None`` to handle this issue. but there's no such
-hint in Python (and we don't want to introduce one).
+but *not* for Python, even not for the subset supported by Pythran.
 
-Still, the whole subject of typing is reaaaaaalllllly difficult, and I wanted to
-stick as close as possible to Hindley-Milner because of its simplicity. So what
-got introduced is the concept of ``MultiType``, which is the type of an object
-that can hold several types at the same time. That's not quite a ``UnionType``,
-which is the type of an object that can be of one type among many. The
-difference exists because of the situation described by the following code:
+The main issue comes with overloaded functions. Consider the ``map`` function:
+it has a varying number of parameters, and for a given number of parameters,
+two possible overloads exist (the first argument being ``None`` or a
+``Callable``).  Some extra stuff are not as critical but also important: it's
+not possible to infer implicit option types (the one that comes with usage of
+``None``). Ocaml uses ``Some`` as a counterpart of ``None`` to handle this
+issue. but there's no such hint in Python (and we don't want to introduce one).
+
+Still, the whole subject of typing is reaaaaaalllllly difficult, and I wanted
+to stick as close as possible to Hindley-Milner because of its simplicity. So
+what got introduced is the concept of ``MultiType``, which is the type of an
+object that can hold several types at the same time. So that's not exactly a
+``UnionType`` which is the type of an object that can be of one type among
+many. The difference exists because of the situation described by the following code:
 
 .. code:: python
 
@@ -204,7 +206,7 @@ Handling Overloading
 So we handle overloading through a unique object that has a specific type, a
 ``MultiType`` that is just a list of possible types.
 
-Abusing from ``MultiType`` can quickly make the combinatory of the type
+Abusing from ``Multiype`` can quickly make the combinatorics of the type
 possibilities go wild, so we had to make a decision. Consider the following code:
 
 .. code:: python
@@ -218,27 +220,23 @@ possible valid signature (remember we know of all possible types in Pythran):
 - ``Callable[[List[T0], T0], bool]``, a function that takes a list of ``T0`` and a ``T0`` and returns a boolean,
 - ``Callable[[str, str], bool]``, a function that takes two strings and returns a boolean,
 
-And the list goes on, this also include numpy arrays, but more about this later.
-Let's assume we only have these two types, what will be the type of ``foo``?
-from the ``x in y`` expression, HM we learn that ``x`` can be a list of ``T0``,
-and in that case ``y`` must be of type ``T0``, **or** ``x`` is a string and so
-must be ``y``. And in both cases, a boolean is returned.
+And so on, including for numpy arrays, but we'll comme back to this later and
+assume for now we only have these two types.  So what is the type of ``foo``? From the
+``x in y`` expression, HM tells us that ``x`` can be a list of ``T0``, and in
+that case ``y`` must be of type ``T0``, **or** ``x`` is a string and so must be
+``y``. And in both cases, a boolean is returned.
 
-We could consider both alternatives, follow the two type paths and in the end,
-compute the signature of ``foo`` as a ``MultiType`` holding the outcome of all
-paths. But that could translate to a «lot more that I expected» type situation!
-What we can do, though, is an over-approximation: what is the common structure
-between ``List[T0]`` and ``str``? Both are iterable! Then ``x`` must be
-iterable. Nothing good comes from ``T0`` and ``str``, and ``bool`` compared to
-``bool`` results in a ``bool``, so in the end ``foo`` takes an iterable and any
-value, and returns a boolean. That's not as strict as it could be, but that's
-definitively enough. But our type system is no longer *sound* (it does not
-reject all bad program).
+We could consider both alternatives, follow the two type paths and
+in the end, compute the signature of ``foo`` as a ``MultiType`` holding the
+outcome of all paths. But that could mean a lot! What we do is an
+over-approximation: what is the common structure between ``List[T0]`` and
+``str``? Both are iterable, therefeore ``x`` must be iterable. Nothing good comes
+from ``T0`` and ``str``, and ``bool`` compared to ``bool`` results in a
+``bool``, so in the end ``foo`` takes an iterable and any value, and returns a
+boolean. That's not as strict as it could be, but that's definitively enough.
+However our type system is no longer *sound* (it does not reject all bad program).
 
-In order to make it easier to perform this approximation, we chose a dedicated
-representation for containers. In our type system (oh, it's named *tog* by the
-way, so in the tog type system), containers are roughly described as a tuple of
-``(name, sized, key, value, iter)``:
+In order to make it easier to perform this approximation, we chose a dedicated representation for containers. In our type system (oh, it's named *tog* by the way, so in the tog type system), containers are roughly described as a tuple of ``(name, sized, key, value, iter)``:
 
 - a ``List[T0]`` is considered as ``(List, Sized, int, T0, T0)``
 - a ``Set[T0]`` is considered as ``(Set, Sized, NoKey, T0, T0)``
@@ -270,7 +268,7 @@ to ``None``. How could we make this unification valid? Option types are
 generally described as a parametric type, ``Optional[T0]``. To be able to unify
 ``int`` and ``None``, we would instead need to unify ``Optional[int]`` and
 ``None``, thus marking ``n`` as ``Optional[int]``, which does not work, because
-``range`` expects an ``int``!
+``range`` expects an ``int``.
 
 The solution we have adopted is to make type inference control-flow sensitive. When
 meeting an ``if``, we generate a new copy of the variable environment for each
@@ -285,10 +283,10 @@ Likewise, if the condition is *explicitely* a check for ``None``, as in:
     else:
         return stuff(a)
 
-The environment in the ``True`` branch holds the ``None`` type for ``a``, and
+the environment in the ``True`` branch holds the ``None`` type for ``a``, and
 the ``int`` type in the ``False`` branch. This could be improved, as we support
 only a few patterns as the condition expression, there is something more
-generic to be done there).
+generic to be done there.
 
 This even led to improvement in our test base, as the following code was no longer correct:
 
@@ -336,7 +334,7 @@ Looking back in Python typing history, it seems that `shedskin
 of Pythran test suite would fail with a stricter typing, so let's try to
 achieve the same behavior as Shedskin, within HM.
 
-The trick here is to consider a scalar as a tuple of four elements, one per
+The trick here is to consider a scalar as a tuple of four elements [0]_, one per
 scalar type we want to support. And then apply the following rule: the actual
 type of the scalar is the type of the first non variable type, starting from
 the lower index. Under that assumption,
@@ -368,11 +366,11 @@ Handling NDArray Type
 
 ``numpy.ndarray`` is the corner stone of the ``numpy`` package. And it's
 super-flexible, allowing all kinds of broadcasting, reshaping, up-casting etc.
-Even if Pythran is far from supporting all of its features, it does support
-a wide subset. The good news is that Pythran supports a lower version of
-``ndarray``, where the number of dimension of an array does not change: it
-cannot be reshaped in place. For instance the C++ type returned by
-``numpy.ones((10, 10))`` is ``types::ndarray<double /*dtype*/, 2 /*nbdim*/>``.
+Even if Pythran is far from supporting all of its features, it does support a
+wide set. The good news is that Pythran supports a lower version of ``ndarray``,
+where the number of dimensions of an array does not change: it cannot be
+reshaped in place. For instance the C++ type returned by ``numpy.ones((10,
+10))`` is ``types::ndarray<double /*dtype*/, 2 /*nbdim*/>``.
 
 We've extended the ``typing`` module to provide ``NDArray``. For Pythran, the
 Python equivalent of the above C++ type is ``NDArray[float, :, :]``.
@@ -389,7 +387,7 @@ And as we want it to be compatible with the way we defined an ``Iterable``, an `
 That's a recursive definition, and that's pretty useful when used with our
 ``MultiType`` resolution. If we need to merge an ``NDArray[complex, :, :]`` and
 an ``NDArray[complex, :, :, :]``, we end up with ``(Array, Sized, T0, complex,
-(Array, Sized, T0, complex, T1))`` which actually means *an array of complex
+(Array, Sized, T1, complex, T1))`` which actually means *an array of complex
 with at least two dimensions*.
 
 
@@ -401,10 +399,9 @@ great research. Type systems is a complex field and I did my best to apply what
 I learned during my bibliography on the subject, but it still falls short in
 various places. So instead of a formal proof, here is some testing results :-).
 
-First, the whole test suite passes without much modifications. it helped for
-spotting a few *errors* in the tests, mostly code that was incorrect with
-respect to option types. We also updated the way we specify tests input type to
-rely on PEP484. A typical Pythran unit-test now looks like:
+First, the whole test suite passes without much modifications. It helped
+to spot a few *errors* in the tests, mostly code that was incorrect with
+respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:
 
 .. code:: python
 
@@ -455,9 +452,10 @@ And if we remove the ``0``, ``d.get(word)`` may return ``None`` and the error me
 
 Great!
 
-Considering Numpy functions, we don't model all of them in tog, but we can still
-detect several interesting errors, for instance on a gaussian kernel
-(`error-safe version from stackexchange <http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy>`_):
+Considering Numpy functions, we don't model all of them in tog, but we can
+still detect several interesting errors. For instance on a gaussian kernel
+(`error-safe version from stackexchange
+<http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy>`_):
 
 .. code:: python
 
@@ -482,23 +480,30 @@ Pythran correctly catches the error on ``vectorized_RBF_kernel`` call:
 Conclusion
 ==========
 
-I'm still not satisfied with the tog engine. It's relatively slow, not as
-accurate as I'd like it to be, and is basically a type checker; another
-(simpler) type engine is used to generate the actual C++ code. That's a lot of
-not very enthusiastic concluding remarks, but... I'm French :-)
+I'm still not satisfied with the tog engine: it's relatively slow, not as
+accurate as I'd like it to be, and it's just a type checker: another (simpler)
+type engine is used to generate the actual C++ code. That's a lot of not very
+enthusiastic concluding remarks, but... I'm French :-)
 
-On the good side, while developing this, I happened to learn a *lot* about
-typing and Python. Pythran is in a much better shape now: much more usable and
-easier to maintain too, so that was definitely worth the code :-)
+
+On the good side, I happened to learn a *lot* about typing and about Python, while
+developing this. And Pythran is in a much better shape now, much more usable,
+easier to maintain too, so that was worth the effort :-)
 
 
 Acknowledgments
 ---------------
 
 As usual, I'd like to thanks Pierrick Brunet for all his help. He keeps feeding
-me with relevant insights, criticisms and great ideas! Thanks to `OpenDreamKit
+me with relevant insights, criticisms and great ideas. Thanks to `OpenDreamKit
 <http://opendreamkit.org/>`_ for sponsoring that work, and in particular to
-`Logilab <http://www.logilab.fr/>`_ for their support. Thanks to Lancelot Six
-for proof reading this post too :-)
+`Logilab <http://www.logilab.fr/>`_ for their support. Thanks to Lancelot Six,
+William Gouzier and Nicolas M. Thiéry for proof reading this post too :-)
 
-And at last, I'm in debt to all Pythran users for keeping the motivation high!
+And last, I'm in debt to all Pythran users for keeping the motivation high!
+
+.. [0] That could be more actually, for instance to distinguish single
+       precision float from double prcesion float, the ``float32`` and ``float64``
+       from numpy. But four types is enough for the envisonned type checking.
+
+.. [1] The OOP style in C++ is not enforced by the Standard Library as much as it is in the Java SDK though.
