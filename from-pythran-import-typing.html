@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>from pythran import typing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/examples.html">
+						<i class="icon-folder-open icon-large"></i>examples
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to from pythran import typing">
+                                        from pythran import typing
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2016-12-10T00:00:00+01:00">
+        <i class="icon-calendar"></i>Sat 10 December 2016
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/compilation.html"><i class="icon-folder-open"></i>compilation</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <p>Pythran is currently part of <a class="reference external" href="http://opendreamkit.org/">OpenDreamKit</a>,
+a project that aims at improving the open source computational mathematics
+ecosystem.</p>
+<p>The goal of Pythran is indeed to improve some Python kernel computations, but
+there's something that actually makes Pythran difficult to use for new
+comers. What is it? Let's have a look at the following Python code, inspired by
+a <a class="reference external" href="http://stackoverflow.com/questions/13815719/creating-grid-with-numpy-performance">stack overflow thread</a>:</p>
+<pre class="code python literal-block" id="create-grid-py">
+<span class="c1">#pythran export create_grid(float [])</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">create_grid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+    <span class="n">z</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">z</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">fast_grid</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fast_grid</span>
+</pre>
+<p>An attempt to compile it with Pythran would return a very long C++ template instantiation trace, with very little clue concerning the origin of the problem.</p>
+<pre class="code shell literal-block">
+&gt; pythran create_grid.py
+In file included from /tmp/tmpP0xYa2.cpp:10:
+In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
+In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
+./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large <span class="o">(</span><span class="m">18446744073709551615</span> elements<span class="o">)</span>
+      value_type buffer<span class="o">[</span>N ? N : 1<span class="o">]</span><span class="p">;</span>
+                        ^~~~~~~~~
+./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class <span class="s1">'pythonic::types::array&lt;long, 18446744073709551615&gt;'</span> requested here
+      array&lt;long, value&gt; _shape<span class="p">;</span>
+                         ^
+<span class="o">[</span>...<span class="o">]</span>
+                                    ^
+./pythran/pythonic/include/utils/seq.hpp:19:19: note: use -ftemplate-depth<span class="o">=</span>N to increase recursive template instantiation depth
+    struct gens : gens&lt;N - 1, N - 1, S...&gt; <span class="o">{</span>
+                  ^
+<span class="m">3</span> errors generated.
+CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
+E: <span class="o">(</span><span class="s1">'error: Command &quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&quot; failed with exit status 1'</span>,<span class="o">)</span>
+
+What we now have is a slightly friendlier message:
+</pre>
+<pre class="code shell literal-block">
+&gt; pythran create_grid.py
+CRITICAL You shall not pass!
+E: Dimension mismatch when slicing <span class="sb">`</span>Array<span class="o">[</span>2d, float<span class="o">]</span><span class="sb">`</span> <span class="o">(</span>create_grid.py, line 7<span class="o">)</span>
+</pre>
+<p>Indeed, the correct declaration for <tt class="docutils literal">z</tt> was <tt class="docutils literal">z = <span class="pre">np.zeros((N,</span> N, 3))</tt>.</p>
+<div class="section" id="a-quick-glance-at-pythran-typing-system">
+<h2>A Quick Glance at Pythran Typing System</h2>
+<p>As you probably know, Python uses a dynamic type system, often  called <em>duck typing</em>: what
+matters is not the type of an object, but its structure, i.e. the available
+methods and fields: <em>If it walks like a duck and talks like a duck, then it's a
+duck</em>. That's a kind of <a class="reference external" href="https://en.wikipedia.org/wiki/Structural_type_system">structural typing</a>.</p>
+<p>On the opposite side C++ uses a static type system, and if you adhere to OOP
+<a class="footnote-reference" href="#id5" id="id1">[1]</a> you may require an object to derive from the <tt class="docutils literal">Duck</tt> class to be
+considered a duck; That's a kind of <a class="reference external" href="https://en.wikipedia.org/wiki/Nominal_type_system">nominal typing</a>.</p>
+<p>Pythran uses a trick to make both world meet: <em>ad-hoc polymorphism</em>, as
+supported in C++ through <tt class="docutils literal">template</tt> meta programing. Upon a template
+instantiation, there's no type name verification, only a check that given
+methods and attributes make sense in the current context. And that's exactly
+what we need to get closer to Python typing!</p>
+<p>This all is very nice, except in the case of a bad typing. Consider this trivial
+Python code:</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">twice</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="mi">2</span>
+</pre>
+<p>integer, for instance <tt class="docutils literal">str</tt>, <tt class="docutils literal">list</tt>, <tt class="docutils literal">int</tt>. The C++ equivalent would
+be (taking into account move semantics):</p>
+<pre class="code c++ literal-block">
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">auto</span> <span class="n">twice</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+</pre>
+<p>In Python's case, type checking is done at runtime, during a lookup in <tt class="docutils literal">s</tt> for
+a <tt class="docutils literal">__mul__</tt> magic method. In C++ it's done at compile time, when performing
+instantiation of <tt class="docutils literal">twice</tt> for a given type value of <tt class="docutils literal">T</tt>. What lacked was a
+human-readable error message to warn about the coming winter. And that's
+exactly the topic of this post ;-)</p>
+</div>
+<div class="section" id="a-few-words-about-mypy">
+<h2>A Few Words About MyPy</h2>
+<p>Type hints, as introduced by <a class="reference external" href="https://www.python.org/dev/peps/pep-0484/">PEP484</a>, make it possible to leverage on
+arbitrary function annotations introduced by <a class="reference external" href="https://www.python.org/dev/peps/pep-3107">PEP 3107</a> to specify the expected type of a
+function parameter and its resulting return type. No check occur at runtime, but
+a third party compiler, say <a class="reference external" href="http://mypy-lang.org/">MyPy</a> can take advantage
+of these hints to perform an ahead-of-time check. And that's <strong>great</strong>.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">In this post, we use the type annotation introduced by PEP484 and used in
+MyPy to describe types. <tt class="docutils literal">int</tt> is an integer, <tt class="docutils literal">List[str]</tt> is a list of
+string and so on.</p>
+</div>
+<p>So, did we trade <tt class="docutils literal">#pythran export twice(str)</tt> for <tt class="docutils literal">def twice(s: str):</tt>? No.
+Did we consider the option? Yes. First there's the issue of MyPy only running
+on Python3. It can process Python2 code, but it runs on Python3. We've been
+struggling so much to keep Python2.7 compatibility in addition to the recent
+addition of broader Python3 support. We're not going to leave it apart without
+good reasons.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">It also turns out that the <tt class="docutils literal">typing</tt> module has a different internal API
+between Python2 and Python3. This makes it quite difficult to use for my
+purpose. What a joy to discover this when you think you're done with all
+your tests :-/</p>
+</div>
+<p>No, the main problem is <a class="reference external" href="https://github.com/python/mypy/issues/978">this MyPy issue</a> that basically states that Numpy
+does not fit into the model:</p>
+<blockquote>
+Of course, the best behavior would be to provide a stub for Numpy, but some
+features in Numpy make it difficult to provide a good stub</blockquote>
+<p>Meanwhile, someone that did not read this issue wrote <a class="reference external" href="https://github.com/machinalis/mypy-data/tree/master/numpy-mypy">A Numpy stub for MyPy</a>. It turns
+out that <a class="reference external" href="http://www.machinalis.com/blog/writing-type-stubs-for-numpy/">it' **is** a pain</a>, mostly due to
+the flexibility of many Numpy methods.</p>
+<p>Additionally, Pythran currently infers type inter-procedurally, while MyPy
+requires type annotation on every functions, to keep the problem within
+reasonable bounds.</p>
+<p>But wait. MyPy author did his PhD on the subject, and he now works hand in hand
+with Guildo van Rossum on the subject. Is there any chance for us to do a
+better job? Let's be honest. There is not.</p>
+<p>What can we do in such a situation? Take advantage of some extra assumptions
+Pythran can afford. We focus on scientific computing, all existing types are
+known (no user-defined types in Pythran) and we only need to handle small size
+kernels, so we can spend some extra computing resources in the process.</p>
+</div>
+<div class="section" id="a-variant-of-hindley-milner-for-pythran">
+<h2>A Variant of Hindley-Milner for Pythran</h2>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system">Hindley-Milner (HM)</a> is
+a relatively easy to understand type system that supports parametric
+polymorphism. A simple implementation has been <a class="reference external" href="http://smallshire.org.uk/sufficientlysmall/2010/04/11/a-hindley-milner-type-inference-implementation-in-python/">written in Python</a>,
+but <em>not</em> for Python, even not for the subset supported by Pythran.</p>
+<p>The main issue comes with overloaded functions. Consider the <tt class="docutils literal">map</tt> function:
+it has a varying number of parameters, and for a given number of parameters,
+two possible overloads exist (the first argument being <tt class="docutils literal">None</tt> or a
+<tt class="docutils literal">Callable</tt>).  Some extra stuff are not as critical but also important: it's
+not possible to infer implicit option types (the one that comes with usage of
+<tt class="docutils literal">None</tt>). Ocaml uses <tt class="docutils literal">Some</tt> as a counterpart of <tt class="docutils literal">None</tt> to handle this
+issue. but there's no such hint in Python (and we don't want to introduce one).</p>
+<p>Still, the whole subject of typing is reaaaaaalllllly difficult, and I wanted
+to stick as close as possible to Hindley-Milner because of its simplicity. So
+what got introduced is the concept of <tt class="docutils literal">MultiType</tt>, which is the type of an
+object that can hold several types at the same time. So that's not exactly a
+<tt class="docutils literal">UnionType</tt> which is the type of an object that can be of one type among
+many. The difference exists because of the situation described by the following code:</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">foo</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">foo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre>
+<p>In that case foo really has two types, namely <tt class="docutils literal"><span class="pre">Callable[[Any],</span> None]</tt> and
+<tt class="docutils literal"><span class="pre">Callalble[[Any,</span> Any], None]</tt>. That's what <tt class="docutils literal">MultiType</tt> represents.</p>
+<div class="section" id="handling-overloading">
+<h3>Handling Overloading</h3>
+<p>So we handle overloading through a unique object that has a specific type, a
+<tt class="docutils literal">MultiType</tt> that is just a list of possible types.</p>
+<p>Abusing from <tt class="docutils literal">Multiype</tt> can quickly make the combinatorics of the type
+possibilities go wild, so we had to make a decision. Consider the following code:</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span>
+</pre>
+<p>The <tt class="docutils literal">in</tt> operator could be implemented as a <tt class="docutils literal">MultiType</tt>, enumerating the
+possible valid signature (remember we know of all possible types in Pythran):</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">Callable[[List[T0],</span> T0], bool]</tt>, a function that takes a list of <tt class="docutils literal">T0</tt> and a <tt class="docutils literal">T0</tt> and returns a boolean,</li>
+<li><tt class="docutils literal"><span class="pre">Callable[[str,</span> str], bool]</tt>, a function that takes two strings and returns a boolean,</li>
+</ul>
+<p>And so on, including for numpy arrays, but we'll comme back to this later and
+assume for now we only have these two types.  So what is the type of <tt class="docutils literal">foo</tt>? From the
+<tt class="docutils literal">x in y</tt> expression, HM tells us that <tt class="docutils literal">x</tt> can be a list of <tt class="docutils literal">T0</tt>, and in
+that case <tt class="docutils literal">y</tt> must be of type <tt class="docutils literal">T0</tt>, <strong>or</strong> <tt class="docutils literal">x</tt> is a string and so must be
+<tt class="docutils literal">y</tt>. And in both cases, a boolean is returned.</p>
+<p>We could consider both alternatives, follow the two type paths and
+in the end, compute the signature of <tt class="docutils literal">foo</tt> as a <tt class="docutils literal">MultiType</tt> holding the
+outcome of all paths. But that could mean a lot! What we do is an
+over-approximation: what is the common structure between <tt class="docutils literal">List[T0]</tt> and
+<tt class="docutils literal">str</tt>? Both are iterable, therefeore <tt class="docutils literal">x</tt> must be iterable. Nothing good comes
+from <tt class="docutils literal">T0</tt> and <tt class="docutils literal">str</tt>, and <tt class="docutils literal">bool</tt> compared to <tt class="docutils literal">bool</tt> results in a
+<tt class="docutils literal">bool</tt>, so in the end <tt class="docutils literal">foo</tt> takes an iterable and any value, and returns a
+boolean. That's not as strict as it could be, but that's definitively enough.
+However our type system is no longer <em>sound</em> (it does not reject all bad program).</p>
+<p>In order to make it easier to perform this approximation, we chose a dedicated representation for containers. In our type system (oh, it's named <em>tog</em> by the way, so in the tog type system), containers are roughly described as a tuple of <tt class="docutils literal">(name, sized, key, value, iter)</tt>:</p>
+<ul class="simple">
+<li>a <tt class="docutils literal">List[T0]</tt> is considered as <tt class="docutils literal">(List, Sized, int, T0, T0)</tt></li>
+<li>a <tt class="docutils literal">Set[T0]</tt> is considered as <tt class="docutils literal">(Set, Sized, NoKey, T0, T0)</tt></li>
+<li>a <tt class="docutils literal">Dict[T0, T1]</tt> is considered as <tt class="docutils literal">(Dict, Sized, T0, T1, T0)</tt></li>
+<li>a <tt class="docutils literal">str</tt> is considered as <tt class="docutils literal">(Str, Sized, int, Str, Str)</tt></li>
+<li>a <tt class="docutils literal">Generator[T0]</tt> is considered as <tt class="docutils literal">(Generator, NoSized, NoKey, T0, T0)</tt></li>
+</ul>
+<p>As a consequence, an <tt class="docutils literal">Iterable[T0]</tt>, to be compatible with the
+over-approximation defined above, is a <tt class="docutils literal">(Any, Any, Any, Any, T0)</tt>.</p>
+</div>
+<div class="section" id="handling-option-types">
+<h3>Handling Option Types</h3>
+<p>When HM runs on the following Python code:</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">n</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</pre>
+<p>It runs into some troubles. The <tt class="docutils literal">return</tt> from the <tt class="docutils literal">True</tt> branch sets the
+return type of <tt class="docutils literal">foo</tt> to <tt class="docutils literal">int</tt> but the one from the <tt class="docutils literal">False</tt> branch sets it
+to <tt class="docutils literal">None</tt>. How could we make this unification valid? Option types are
+generally described as a parametric type, <tt class="docutils literal">Optional[T0]</tt>. To be able to unify
+<tt class="docutils literal">int</tt> and <tt class="docutils literal">None</tt>, we would instead need to unify <tt class="docutils literal">Optional[int]</tt> and
+<tt class="docutils literal">None</tt>, thus marking <tt class="docutils literal">n</tt> as <tt class="docutils literal">Optional[int]</tt>, which does not work, because
+<tt class="docutils literal">range</tt> expects an <tt class="docutils literal">int</tt>.</p>
+<p>The solution we have adopted is to make type inference control-flow sensitive. When
+meeting an <tt class="docutils literal">if</tt>, we generate a new copy of the variable environment for each
+branch, and we <em>merge</em> (not <em>unify</em>) the environments.</p>
+<p>Likewise, if the condition is <em>explicitely</em> a check for <tt class="docutils literal">None</tt>, as in:</p>
+<pre class="code python literal-block">
+<span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">stuff</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">stuff</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</pre>
+<p>the environment in the <tt class="docutils literal">True</tt> branch holds the <tt class="docutils literal">None</tt> type for <tt class="docutils literal">a</tt>, and
+the <tt class="docutils literal">int</tt> type in the <tt class="docutils literal">False</tt> branch. This could be improved, as we support
+only a few patterns as the condition expression, there is something more
+generic to be done there.</p>
+<p>This even led to improvement in our test base, as the following code was no longer correct:</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span>
+</pre>
+<p>Type inference computes that v is of type <tt class="docutils literal">Optional[T0]</tt>, which is not compatible with <tt class="docutils literal">v + 1</tt> and a <tt class="docutils literal">PythranTypeError</tt> is raised. A compatible way to write this would be:</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># or do stuff</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span>
+</pre>
+</div>
+<div class="section" id="handling-type-promotion">
+<h3>Handling Type Promotion</h3>
+<p>It's not uncommon to find this kind of code:</p>
+<pre class="code python literal-block">
+<span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">3.14</span><span class="p">)</span>
+</pre>
+<p>And there's nothing wrong with this in Python, but is this a type error for
+Pythran? In classical HM systems, that's a type error: <tt class="docutils literal">[]</tt> is of type
+<tt class="docutils literal">List[TO]</tt>, <tt class="docutils literal">list.append</tt> is of type <tt class="docutils literal"><span class="pre">Callable[[List[T0],</span> T0], None]</tt> so
+unification sets <tt class="docutils literal">T0</tt> to <tt class="docutils literal">int</tt> after first <tt class="docutils literal">append</tt>, and fails upon the
+second <tt class="docutils literal">append</tt> because unification between an <tt class="docutils literal">int</tt> and a <tt class="docutils literal">float</tt> fails.</p>
+<p>Looking back in Python typing history, it seems that <a class="reference external" href="https://shedskin.github.io/">shedskin</a> made the decision to consider it's not an error
+(see the <a class="reference external" href="http://shed-skin.blogspot.fr/2011/09/shed-skin-09.html">blogpost announce on the topic</a>. Several test cases
+of Pythran test suite would fail with a stricter typing, so let's try to
+achieve the same behavior as Shedskin, within HM.</p>
+<p>The trick here is to consider a scalar as a tuple of four elements <a class="footnote-reference" href="#id4" id="id2">[0]</a>, one per
+scalar type we want to support. And then apply the following rule: the actual
+type of the scalar is the type of the first non variable type, starting from
+the lower index. Under that assumption,</p>
+<ul class="simple">
+<li>a <tt class="docutils literal">bool</tt> is a <tt class="docutils literal">(T0, T1, T2, bool)</tt></li>
+<li>an <tt class="docutils literal">int</tt> is a <tt class="docutils literal">(T0, T1, int, T2)</tt></li>
+<li>a <tt class="docutils literal">float</tt> is a <tt class="docutils literal">(T0, float, T1, T2)</tt></li>
+<li>a <tt class="docutils literal">complex</tt> is a <tt class="docutils literal">(complex, T0, T1, T2)</tt></li>
+</ul>
+<p>When unifying an <tt class="docutils literal">int</tt> with a <tt class="docutils literal">float</tt>, regular unification yields <tt class="docutils literal">(T0,
+float, int, T2)</tt> which is a <tt class="docutils literal">float</tt> according to the previous definition.</p>
+<p>If we want to enforce an <tt class="docutils literal">int</tt>, say as argument of <tt class="docutils literal">range</tt>, then we can
+define <tt class="docutils literal">strict_int</tt> as <tt class="docutils literal"><span class="pre">(no-complex,</span> <span class="pre">no-float,</span> int, T0)</tt> which still allows
+up-casting from <tt class="docutils literal">bool</tt> to <tt class="docutils literal">int</tt> but prevents up-casting from <tt class="docutils literal">int</tt> to
+<tt class="docutils literal">float</tt>.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal">numpy</tt> introduces many sized type for integers, floating point numbers
+and complex numbers, with a set of rules to handle conversion between one
+and the other. As these conversions are generally possible in <tt class="docutils literal">numpy</tt>
+(i.e. they dont raise a <tt class="docutils literal">TypeError</tt>), we just use four scalar types:
+<tt class="docutils literal">bool`, ``int</tt>, <tt class="docutils literal">complex</tt> and <tt class="docutils literal">float</tt>. <tt class="docutils literal">long</tt> is merged into
+<tt class="docutils literal">int</tt>, which also makes the Python2/3 compatibility easier.</p>
+</div>
+</div>
+<div class="section" id="handling-ndarray-type">
+<h3>Handling NDArray Type</h3>
+<p><tt class="docutils literal">numpy.ndarray</tt> is the corner stone of the <tt class="docutils literal">numpy</tt> package. And it's
+super-flexible, allowing all kinds of broadcasting, reshaping, up-casting etc.
+Even if Pythran is far from supporting all of its features, it does support a
+wide set. The good news is that Pythran supports a lower version of <tt class="docutils literal">ndarray</tt>,
+where the number of dimensions of an array does not change: it cannot be
+reshaped in place. For instance the C++ type returned by <tt class="docutils literal"><span class="pre">numpy.ones((10,</span>
+10))</tt> is <tt class="docutils literal"><span class="pre">types::ndarray&lt;double</span> <span class="pre">/*dtype*/,</span> 2 <span class="pre">/*nbdim*/&gt;</span></tt>.</p>
+<p>We've extended the <tt class="docutils literal">typing</tt> module to provide <tt class="docutils literal">NDArray</tt>. For Pythran, the
+Python equivalent of the above C++ type is <tt class="docutils literal">NDArray[float, :, :]</tt>.</p>
+<p>And as we want it to be compatible with the way we defined an <tt class="docutils literal">Iterable</tt>, an <tt class="docutils literal">NDArray</tt> is actually a:</p>
+<ul class="simple">
+<li><tt class="docutils literal">List[T0]</tt> is considered as <tt class="docutils literal">(List, Sized, int, T0, T0)</tt></li>
+<li><tt class="docutils literal">Dict[T0, T1]</tt> is considered as <tt class="docutils literal">(Dict, Sized, T0, T1, T0)</tt></li>
+<li>...</li>
+<li><tt class="docutils literal">NDArray[complex, :]</tt> is considered as <tt class="docutils literal">(Array, Sized, T0, complex, complex)</tt></li>
+<li><tt class="docutils literal">NDArray[complex, :, :]</tt> is considered as <tt class="docutils literal">(Array, Sized, T0, complex, NDArray[complex, :])</tt></li>
+<li><tt class="docutils literal">NDArray[complex, :, :, :]</tt> is considered as <tt class="docutils literal">(Array, Sized, T0, complex, NDArray[complex, :, :])</tt></li>
+</ul>
+<p>That's a recursive definition, and that's pretty useful when used with our
+<tt class="docutils literal">MultiType</tt> resolution. If we need to merge an <tt class="docutils literal">NDArray[complex, :, :]</tt> and
+an <tt class="docutils literal">NDArray[complex, :, :, :]</tt>, we end up with <tt class="docutils literal">(Array, Sized, T0, complex,
+(Array, Sized, T1, complex, T1))</tt> which actually means <em>an array of complex
+with at least two dimensions</em>.</p>
+</div>
+</div>
+<div class="section" id="testing-the-brew">
+<h2>Testing the Brew</h2>
+<p>Let's be honest: the <tt class="docutils literal">tog</tt> type system is more the result of tinkering than
+great research. Type systems is a complex field and I did my best to apply what
+I learned during my bibliography on the subject, but it still falls short in
+various places. So instead of a formal proof, here is some testing results :-).</p>
+<p>First, the whole test suite passes without much modifications. It helped
+to spot a few <em>errors</em> in the tests, mostly code that was incorrect with
+respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">test_shadow_import2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span>
+        <span class="sd">'''def shadow_import2(s):
+               for set in s : set.add(1)'''</span><span class="p">,</span>
+        <span class="p">[{</span><span class="mi">1</span><span class="p">},{</span><span class="mi">2</span><span class="p">}],</span>
+        <span class="n">shadow_import2</span><span class="o">=</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span>
+    <span class="p">)</span>
+</pre>
+<p>where the <tt class="docutils literal">List[Set[int]]</tt> expression describes the type for which the code
+must be instantiated.</p>
+<p>The following code sample is adapted from the <a class="reference external" href="http://www.mypy-lang.org/examples.html">MyPy example page</a>. It requires a type comment to be
+correctly typed, while Pythran correctly type checks it without annotation.</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">wc</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="c1"># Use list comprehension</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[(</span><span class="n">freq</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+</pre>
+<p>If we turn the <tt class="docutils literal">1</tt> into <tt class="docutils literal">&quot;1&quot;</tt>, we get the following error:</p>
+<pre class="code shell literal-block">
+&gt; pythran wc.py
+CRITICAL You shall not pass!
+E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>int<span class="sb">`</span> and <span class="sb">`</span>str<span class="sb">`</span> <span class="o">(</span>wc.py, line 5<span class="o">)</span>
+</pre>
+<p>And if we remove the <tt class="docutils literal">0</tt>, <tt class="docutils literal">d.get(word)</tt> may return <tt class="docutils literal">None</tt> and the error message becomes:</p>
+<pre class="code shell literal-block">
+&gt; pythran wc.py
+CRITICAL You shall not pass!
+E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>Option<span class="o">[</span>T0<span class="o">]</span><span class="sb">`</span> and <span class="sb">`</span>int<span class="sb">`</span> <span class="o">(</span>wc.py, line 5<span class="o">)</span>
+</pre>
+<p>Great!</p>
+<p>Considering Numpy functions, we don't model all of them in tog, but we can
+still detect several interesting errors. For instance on a gaussian kernel
+(<a class="reference external" href="http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy">error-safe version from stackexchange</a>):</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">vectorized_RBF_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+    <span class="n">X2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># sum colums of the matrix</span>
+    <span class="n">K0</span> <span class="o">=</span> <span class="n">X2</span> <span class="o">+</span> <span class="n">X2</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">X</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">K0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">K</span>
+
+<span class="k">def</span> <span class="nf">badcall</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">vectorized_RBF_kernel</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</pre>
+<p>Pythran correctly catches the error on <tt class="docutils literal">vectorized_RBF_kernel</tt> call:</p>
+<pre class="code shell literal-block">
+&gt; pythran gaussian.py
+CRITICAL You shall not pass!
+E: Invalid argument <span class="nb">type</span> <span class="k">for</span> <span class="k">function</span> call to <span class="sb">`</span>Callable<span class="o">[[</span>int, T3<span class="o">]</span>, ...<span class="o">]</span><span class="sb">`</span>, tried Callable<span class="o">[[</span>Array<span class="o">[</span><span class="m">1</span> d+, T0<span class="o">]</span>, T1<span class="o">]</span>, Array<span class="o">[</span><span class="m">1</span> d+, T2<span class="o">]]</span> <span class="o">(</span>gaussian.py, line 9<span class="o">)</span>
+</pre>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>I'm still not satisfied with the tog engine: it's relatively slow, not as
+accurate as I'd like it to be, and it's just a type checker: another (simpler)
+type engine is used to generate the actual C++ code. That's a lot of not very
+enthusiastic concluding remarks, but... I'm French :-)</p>
+<p>On the good side, I happened to learn a <em>lot</em> about typing and about Python, while
+developing this. And Pythran is in a much better shape now, much more usable,
+easier to maintain too, so that was worth the effort :-)</p>
+<div class="section" id="acknowledgments">
+<h3>Acknowledgments</h3>
+<p>As usual, I'd like to thanks Pierrick Brunet for all his help. He keeps feeding
+me with relevant insights, criticisms and great ideas. Thanks to <a class="reference external" href="http://opendreamkit.org/">OpenDreamKit</a> for sponsoring that work, and in particular to
+<a class="reference external" href="http://www.logilab.fr/">Logilab</a> for their support. Thanks to Lancelot Six,
+w1gz and Nicolas M. Thiéry for proof reading this post too :-)</p>
+<p>And last, I'm in debt to all Pythran users for keeping the motivation high!</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[0]</a></td><td>That could be more actually, for instance to distinguish single
+precision float from double prcesion float, the <tt class="docutils literal">float32</tt> and <tt class="docutils literal">float64</tt>
+from numpy. But four types is enough for the envisonned type checking.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>The OOP style in C++ is not enforced by the Standard Library as much as it is in the Java SDK though.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/examples.html">
+    <i class="icon-folder-open icon-large"></i>examples
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
