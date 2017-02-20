@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/compilation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-12-10T00:00:00+01:00</updated><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p&gt;Pythran is currently part of &lt;a class="reference external" href="http://opendreamkit.org/"&gt;OpenDreamKit&lt;/a&gt;,
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - compilation</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/compilation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-12-10T00:00:00+01:00</updated><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:/pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a type checking ability, called &lt;em&gt;tog&lt;/em&gt;. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Pythran is currently part of &lt;a class="reference external" href="http://opendreamkit.org/"&gt;OpenDreamKit&lt;/a&gt;,
 a project that aims at improving the open source computational mathematics
 ecosystem.&lt;/p&gt;
 &lt;p&gt;The goal of Pythran is indeed to improve some Python kernel computations, but
@@ -25,7 +26,7 @@ In file included from /tmp/tmpP0xYa2.cpp:10:
 In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
 In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
 ./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;18446744073709551615&lt;/span&gt; elements&lt;span class="o"&gt;)&lt;/span&gt;
-      value_type buffer&lt;span class="o"&gt;[&lt;/span&gt;N ? N : 1&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      value_type buffer&lt;span class="o"&gt;[&lt;/span&gt;N ? N : &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
                         ^~~~~~~~~
 ./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class &lt;span class="s1"&gt;'pythonic::types::array&amp;lt;long, 18446744073709551615&amp;gt;'&lt;/span&gt; requested here
       array&amp;lt;long, value&amp;gt; _shape&lt;span class="p"&gt;;&lt;/span&gt;
@@ -33,7 +34,7 @@ In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
                                     ^
 ./pythran/pythonic/include/utils/seq.hpp:19:19: note: use -ftemplate-depth&lt;span class="o"&gt;=&lt;/span&gt;N to increase recursive template instantiation depth
-    struct gens : gens&amp;lt;N - 1, N - 1, S...&amp;gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    struct gens : gens&amp;lt;N - &lt;span class="m"&gt;1&lt;/span&gt;, N - &lt;span class="m"&gt;1&lt;/span&gt;, S...&amp;gt; &lt;span class="o"&gt;{&lt;/span&gt;
                   ^
 &lt;span class="m"&gt;3&lt;/span&gt; errors generated.
 CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
@@ -44,7 +45,7 @@ What we now have is a slightly friendlier message:
 &lt;pre class="code shell literal-block"&gt;
 &amp;gt; pythran create_grid.py
 CRITICAL You shall not pass!
-E: Dimension mismatch when slicing &lt;span class="sb"&gt;`&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;2d, float&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;create_grid.py, line 7&lt;span class="o"&gt;)&lt;/span&gt;
+E: Dimension mismatch when slicing &lt;span class="sb"&gt;`&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;2d, float&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;create_grid.py, line &lt;span class="m"&gt;7&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;
 &lt;p&gt;Indeed, the correct declaration for &lt;tt class="docutils literal"&gt;z&lt;/tt&gt; was &lt;tt class="docutils literal"&gt;z = &lt;span class="pre"&gt;np.zeros((N,&lt;/span&gt; N, 3))&lt;/tt&gt;.&lt;/p&gt;
 &lt;div class="section" id="a-quick-glance-at-pythran-typing-system"&gt;
@@ -88,7 +89,7 @@ arbitrary function annotations introduced by &lt;a class="reference external" hr
 function parameter and its resulting return type. No check occur at runtime, but
 a third party compiler, say &lt;a class="reference external" href="http://mypy-lang.org/"&gt;MyPy&lt;/a&gt; can take advantage
 of these hints to perform an ahead-of-time check. And that's &lt;strong&gt;great&lt;/strong&gt;.&lt;/p&gt;
-&lt;div class="note"&gt;
+&lt;div class="admonition note"&gt;
 &lt;p class="first admonition-title"&gt;Note&lt;/p&gt;
 &lt;p class="last"&gt;In this post, we use the type annotation introduced by PEP484 and used in
 MyPy to describe types. &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; is an integer, &lt;tt class="docutils literal"&gt;List[str]&lt;/tt&gt; is a list of
@@ -100,7 +101,7 @@ on Python3. It can process Python2 code, but it runs on Python3. We've been
 struggling so much to keep Python2.7 compatibility in addition to the recent
 addition of broader Python3 support. We're not going to leave it apart without
 good reasons.&lt;/p&gt;
-&lt;div class="note"&gt;
+&lt;div class="admonition note"&gt;
 &lt;p class="first admonition-title"&gt;Note&lt;/p&gt;
 &lt;p class="last"&gt;It also turns out that the &lt;tt class="docutils literal"&gt;typing&lt;/tt&gt; module has a different internal API
 between Python2 and Python3. This makes it quite difficult to use for my
@@ -162,7 +163,7 @@ many. The difference exists because of the situation described by the following 
 possibilities go wild, so we had to make a decision. Consider the following code:&lt;/p&gt;
 &lt;pre class="code python literal-block"&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
 &lt;/pre&gt;
 &lt;p&gt;The &lt;tt class="docutils literal"&gt;in&lt;/tt&gt; operator could be implemented as a &lt;tt class="docutils literal"&gt;MultiType&lt;/tt&gt;, enumerating the
 possible valid signature (remember we know of all possible types in Pythran):&lt;/p&gt;
@@ -277,7 +278,7 @@ float, int, T2)&lt;/tt&gt; which is a &lt;tt class="docutils literal"&gt;float&l
 define &lt;tt class="docutils literal"&gt;strict_int&lt;/tt&gt; as &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;(no-complex,&lt;/span&gt; &lt;span class="pre"&gt;no-float,&lt;/span&gt; int, T0)&lt;/tt&gt; which still allows
 up-casting from &lt;tt class="docutils literal"&gt;bool&lt;/tt&gt; to &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; but prevents up-casting from &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; to
 &lt;tt class="docutils literal"&gt;float&lt;/tt&gt;.&lt;/p&gt;
-&lt;div class="note"&gt;
+&lt;div class="admonition note"&gt;
 &lt;p class="first admonition-title"&gt;Note&lt;/p&gt;
 &lt;p class="last"&gt;&lt;tt class="docutils literal"&gt;numpy&lt;/tt&gt; introduces many sized type for integers, floating point numbers
 and complex numbers, with a set of rules to handle conversion between one
@@ -352,13 +353,13 @@ correctly typed, while Pythran correctly type checks it without annotation.&lt;/
 &lt;pre class="code shell literal-block"&gt;
 &amp;gt; pythran wc.py
 CRITICAL You shall not pass!
-E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;str&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line 5&lt;span class="o"&gt;)&lt;/span&gt;
+E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;str&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;
 &lt;p&gt;And if we remove the &lt;tt class="docutils literal"&gt;0&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;d.get(word)&lt;/tt&gt; may return &lt;tt class="docutils literal"&gt;None&lt;/tt&gt; and the error message becomes:&lt;/p&gt;
 &lt;pre class="code shell literal-block"&gt;
 &amp;gt; pythran wc.py
 CRITICAL You shall not pass!
-E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;Option&lt;span class="o"&gt;[&lt;/span&gt;T0&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line 5&lt;span class="o"&gt;)&lt;/span&gt;
+E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;Option&lt;span class="o"&gt;[&lt;/span&gt;T0&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;
 &lt;p&gt;Great!&lt;/p&gt;
 &lt;p&gt;Considering Numpy functions, we don't model all of them in tog, but we can
@@ -379,7 +380,7 @@ still detect several interesting errors. For instance on a gaussian kernel
 &lt;pre class="code shell literal-block"&gt;
 &amp;gt; pythran gaussian.py
 CRITICAL You shall not pass!
-E: Invalid argument &lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; call to &lt;span class="sb"&gt;`&lt;/span&gt;Callable&lt;span class="o"&gt;[[&lt;/span&gt;int, T3&lt;span class="o"&gt;]&lt;/span&gt;, ...&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;, tried Callable&lt;span class="o"&gt;[[&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T0&lt;span class="o"&gt;]&lt;/span&gt;, T1&lt;span class="o"&gt;]&lt;/span&gt;, Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T2&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;gaussian.py, line 9&lt;span class="o"&gt;)&lt;/span&gt;
+E: Invalid argument &lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; call to &lt;span class="sb"&gt;`&lt;/span&gt;Callable&lt;span class="o"&gt;[[&lt;/span&gt;int, T3&lt;span class="o"&gt;]&lt;/span&gt;, ...&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;, tried Callable&lt;span class="o"&gt;[[&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T0&lt;span class="o"&gt;]&lt;/span&gt;, T1&lt;span class="o"&gt;]&lt;/span&gt;, Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T2&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;gaussian.py, line &lt;span class="m"&gt;9&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;div class="section" id="conclusion"&gt;
@@ -414,7 +415,14 @@ from numpy. But four types is enough for the envisonned type checking.&lt;/td&gt
 &lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-</summary></entry><entry><title>Identifier Binding Computation</title><link href="http://serge-sans-paille.github.io/pythran-stories/identifier-binding-computation.html" rel="alternate"></link><published>2016-04-18T00:00:00+02:00</published><updated>2016-04-18T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-04-18:pythran-stories/identifier-binding-computation.html</id><summary type="html">&lt;div class="section" id="foreword"&gt;
+</content></entry><entry><title>Identifier Binding Computation</title><link href="http://serge-sans-paille.github.io/pythran-stories/identifier-binding-computation.html" rel="alternate"></link><published>2016-04-18T00:00:00+02:00</published><updated>2016-04-18T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-04-18:/pythran-stories/identifier-binding-computation.html</id><summary type="html">&lt;p class="first last"&gt;Alias analysis is a poor term to describe the processing done by
+Pythran that is going to be described here. It could rather be named
+&lt;em&gt;static computation of identifier binding&lt;/em&gt;, in the sense that it
+tries to give an over-approximation of which values an identifier can
+be bound to, at a given point of the program execution. Still,
+whatever its name, the process plays a key role in Pythran, so let's
+have a look to its internals.&lt;/p&gt;
+</summary><content type="html">&lt;div class="section" id="foreword"&gt;
 &lt;h2&gt;Foreword&lt;/h2&gt;
 &lt;p&gt;This is &lt;strong&gt;not&lt;/strong&gt; a &lt;a class="reference external" href="http://jupyter-notebook-beginner-guide.readthedocs.org/en/latest/what_is_jupyter.html"&gt;Jupyter notebook&lt;/a&gt;,
 but it could have been. Instead, the content of this article is mostly taken from
@@ -524,24 +532,21 @@ and gathering analysis results.&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This code snippet requires a few explanations:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;ol class="arabic"&gt;
-&lt;li&gt;&lt;p class="first"&gt;First, it parses a code snippet and turns it into an Abstract Syntax Tree (AST).&lt;/p&gt;
-&lt;/li&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;First, it parses a code snippet and turns it into an Abstract Syntax Tree (AST).&lt;/li&gt;
 &lt;li&gt;&lt;dl class="first docutils"&gt;
 &lt;dt&gt;Second, it computes the alias information at every point of the program.&lt;/dt&gt;
-&lt;dd&gt;&lt;p class="first last"&gt;&lt;tt class="docutils literal"&gt;result&lt;/tt&gt; is a dictionary that maps nodes from the AST to set of
+&lt;dd&gt;&lt;tt class="docutils literal"&gt;result&lt;/tt&gt; is a dictionary that maps nodes from the AST to set of
 identifiers (remember that for Pythran, a node can only alias to
 bounded values. These values are represented by the first identifier
-they are bound to).&lt;/p&gt;
-&lt;/dd&gt;
+they are bound to).&lt;/dd&gt;
 &lt;/dl&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;dl class="first docutils"&gt;
 &lt;dt&gt;Finally, it pretty prints the result of the analysis, using a filter to&lt;/dt&gt;
-&lt;dd&gt;&lt;p class="first last"&gt;only dump the part we are interested in. In that case it dumps a
+&lt;dd&gt;only dump the part we are interested in. In that case it dumps a
 textual representation of the alias set of the &lt;tt class="docutils literal"&gt;ast.BoolOp&lt;/tt&gt; nodes,
-which turns out to be &lt;tt class="docutils literal"&gt;['a', 'b']&lt;/tt&gt;.&lt;/p&gt;
-&lt;/dd&gt;
+which turns out to be &lt;tt class="docutils literal"&gt;['a', 'b']&lt;/tt&gt;.&lt;/dd&gt;
 &lt;/dl&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -832,7 +837,8 @@ we can remove the whole instruction:&lt;/p&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;/div&gt;
-</summary></entry><entry><title>Compiler Flags</title><link href="http://serge-sans-paille.github.io/pythran-stories/compiler-flags.html" rel="alternate"></link><published>2016-03-29T00:00:00+02:00</published><updated>2016-03-29T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-29:pythran-stories/compiler-flags.html</id><summary type="html">&lt;div class="section" id="when-size-matters"&gt;
+</content></entry><entry><title>Compiler Flags</title><link href="http://serge-sans-paille.github.io/pythran-stories/compiler-flags.html" rel="alternate"></link><published>2016-03-29T00:00:00+02:00</published><updated>2016-03-29T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-29:/pythran-stories/compiler-flags.html</id><summary type="html">&lt;p class="first last"&gt;Playing with compiler forwarded by Pythran to GCC (or Clang) can yield surprising results, let's explore this!&lt;/p&gt;
+</summary><content type="html">&lt;div class="section" id="when-size-matters"&gt;
 &lt;h2&gt;When Size Matters&lt;/h2&gt;
 &lt;p&gt;Everything started a few days ago with a Pythran user complaining about the
 size of the binaries generated by Pythran. In essence, take the following code
@@ -853,17 +859,17 @@ size of the binaries generated by Pythran. In essence, take the following code
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It doesn't even weight a kilobyte, and when benchmarked, it runs in a few milliseconds:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;100&lt;/span&gt; loops, best of 3: 1.95 msec per loop
+&lt;span class="m"&gt;100&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.95 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Thanks to the &lt;tt class="docutils literal"&gt;#pythran export&lt;/tt&gt; annotation, Pythran can turn it into a native
 library that runs slightly faster than the Python version:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py
 &amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.17 msec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.17 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It is, however, a very big binary:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; ls -lh cda.so
--rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 1.3M Mar &lt;span class="m"&gt;29&lt;/span&gt; 18:10 cda.so*
+-rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton &lt;span class="m"&gt;1&lt;/span&gt;.3M Mar &lt;span class="m"&gt;29&lt;/span&gt; &lt;span class="m"&gt;18&lt;/span&gt;:10 cda.so*
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Who wants to multiply the binary size by &lt;tt class="docutils literal"&gt;2e3&lt;/tt&gt; to get less than a &lt;tt class="docutils literal"&gt;x2&lt;/tt&gt; speedup?&lt;/p&gt;
 &lt;/div&gt;
@@ -910,7 +916,7 @@ wrote a (passionating) article about it for Quarkslab &lt;a class="footnote-refe
 strip the binary, we get back to a decent size:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; strip cda.so
 &amp;gt; ls -lh cda.so
--rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 151K Mar &lt;span class="m"&gt;29&lt;/span&gt; 18:26 cda.so
+-rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 151K Mar &lt;span class="m"&gt;29&lt;/span&gt; &lt;span class="m"&gt;18&lt;/span&gt;:26 cda.so
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;As Pythran users generally don't want the debug info on the generated native
 code, we chose to strip them by default, using the linker flag
@@ -960,9 +966,9 @@ different optimization path that gives us a significantly smaller binary, that
 runs slightly faster:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all
 &amp;gt; ls -lh cda.so
--rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 31K Mar &lt;span class="m"&gt;29&lt;/span&gt; 18:52 cda.so*
+-rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 31K Mar &lt;span class="m"&gt;29&lt;/span&gt; &lt;span class="m"&gt;18&lt;/span&gt;:52 cda.so*
 &amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.15 msec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.15 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;All these flags are now the default on Linux.&lt;/p&gt;
 &lt;/div&gt;
@@ -972,19 +978,19 @@ runs slightly faster:&lt;/p&gt;
 On &lt;tt class="docutils literal"&gt;cda.py&lt;/tt&gt;, using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O3&lt;/span&gt;&lt;/tt&gt; does not give much change (gcc 4.9):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.14 msec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.14 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Asking for code specific to my CPU using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-march=native&lt;/span&gt;&lt;/tt&gt; actually gives some improvments&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.11 msec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.11 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;But the best speedup has a price: relaxing standard compliance with &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Ofast&lt;/span&gt;&lt;/tt&gt;
 can be beneficial if you're not using denormalized numbers, infinity and the
 monstrosity that lies with &lt;tt class="docutils literal"&gt;NaN&lt;/tt&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.02 msec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.02 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;If you're really into compiler flags tuning, you can try out &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-funroll-loops&lt;/span&gt;&lt;/tt&gt;
 or try to tune the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-finline-limit=N&lt;/span&gt;&lt;/tt&gt; parameter (that actually get mets dow
@@ -1002,7 +1008,7 @@ triggers some hard-coded vectorization based on &lt;tt class="docutils literal"&
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; &lt;span class="c1"&gt;# esod mumixam&lt;/span&gt;
 &amp;gt; python -m pythran.run cda.cpp -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native -funroll-loops -finline-limit&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;100000000&lt;/span&gt; -DUSE_BOOST_SIMD
 &amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;462&lt;/span&gt; usec per loo
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;462&lt;/span&gt; usec per loo
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And that's woth 63 kilobytes :-)&lt;/p&gt;
 &lt;/div&gt;
@@ -1038,4 +1044,4 @@ changing the original code.&lt;/p&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;/div&gt;
-</summary></entry></feed>
+</content></entry></feed>

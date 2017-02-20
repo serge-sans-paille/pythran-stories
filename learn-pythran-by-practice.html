@@ -177,9 +177,9 @@ or <a href="https://github.com/nayuki/Project-Euler-solutions/blob/master/python
 As Pythran can't handle non constant globals, we will pass this variable as a second argument</p>
 <p>Now time it</p>
 <div class="highlight"><pre><span></span>$ python -c <span class="s2">&quot;import prob_14; print prob_14.run()&quot;</span>
-837799
+<span class="m">837799</span>
 $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span class="s2">&quot;prob_14.run()&quot;</span>
-<span class="m">10</span> loops, best of 3: 1.26 msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">1</span>.26 msec per loop
 </pre></div>
 
 
@@ -202,9 +202,9 @@ $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span c
 
 <p>Now time it</p>
 <div class="highlight"><pre><span></span>$ python -c <span class="s2">&quot;import prob_14; print prob_14.run()&quot;</span>
-837799
+<span class="m">837799</span>
 $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span class="s2">&quot;prob_14.run()&quot;</span>
-<span class="m">10</span> loops, best of 3: 12.8 sec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">12</span>.8 sec per loop
 </pre></div>
 
 
@@ -214,9 +214,9 @@ $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span c
 <p><code># pythran export run()</code></p>
 <div class="highlight"><pre><span></span>$ python -m pythran.run prob_14.py
 $ python -c <span class="s2">&quot;import prob_14; print prob_14.run()&quot;</span>
-837799
+<span class="m">837799</span>
 $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span class="s2">&quot;prob_14.run()&quot;</span>
-<span class="m">10</span> loops, best of 3: <span class="m">626</span> msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">626</span> msec per loop
 </pre></div>
 
 
@@ -238,9 +238,9 @@ and use Pythran OpenMP extension:</p>
 
 <div class="highlight"><pre><span></span>$ python -m pythran.run prob_14.py -fopenmp
 $ python -c <span class="s2">&quot;import prob_14; print prob_14.run()&quot;</span>
-837799
+<span class="m">837799</span>
 $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span class="s2">&quot;prob_14.run()&quot;</span>
-<span class="m">10</span> loops, best of 3: <span class="m">210</span> msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">210</span> msec per loop
 </pre></div>
 
 
@@ -249,9 +249,9 @@ It is good but still slower than the recursive function as it doesn't cache valu
 <p>Let's look at the recursive solution.</p>
 <div class="highlight"><pre><span></span>$ python -m pythran.run prob_14.py
 $ python -c <span class="s2">&quot;import prob_14; print prob_14.run()&quot;</span>
-837799
+<span class="m">837799</span>
 $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span class="s2">&quot;prob_14.run()&quot;</span>
-<span class="m">10</span> loops, best of 3: <span class="m">968</span> msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">968</span> msec per loop
 </pre></div>
 
 
@@ -274,9 +274,9 @@ code solution while a <em>fast</em> Python solution may be a <em>slow</em> nativ
 
 <div class="highlight"><pre><span></span>$ python -m pythran.run prob_14.py
 $ python -c <span class="s2">&quot;import prob_14; print prob_14.dummy()&quot;</span>
-837799
+<span class="m">837799</span>
 $ python -m timeit -s <span class="s2">&quot;import prob_14&quot;</span> <span class="s2">&quot;prob_14.dummy()&quot;</span>
-<span class="m">10000000</span> loops, best of 3: 0.0415 usec per loop
+<span class="m">10000000</span> loops, best of <span class="m">3</span>: <span class="m">0</span>.0415 usec per loop
 </pre></div>
 
 
@@ -316,7 +316,7 @@ compute the result at compile time and <code>dummy()</code> only give the pre-co
 
 <p>First, we time the original solution.</p>
 <div class="highlight"><pre><span></span>$ python -m timeit -s <span class="s2">&quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&quot;</span> <span class="s2">&quot;origin.rbf_network(X, beta, theta)&quot;</span>
-<span class="m">10</span> loops, best of 3: 4.09 sec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">4</span>.09 sec per loop
 </pre></div>
 
 
@@ -335,7 +335,7 @@ True
 
 <p>Then, we can time it:</p>
 <div class="highlight"><pre><span></span>$ python -m timeit -s <span class="s2">&quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&quot;</span> <span class="s2">&quot;origin.rbf_network_numpy(X, beta, theta)&quot;</span>
-<span class="m">10</span> loops, best of 3: 73.6 msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">73</span>.6 msec per loop
 </pre></div>
 
 
@@ -353,7 +353,7 @@ True
 
 <p>And we time it</p>
 <div class="highlight"><pre><span></span>$ python -m timeit -s <span class="s2">&quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&quot;</span> <span class="s2">&quot;origin.rbf_network_numpy(X, beta, theta)&quot;</span>
-<span class="m">10</span> loops, best of 3: 67.4 msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">67</span>.4 msec per loop
 </pre></div>
 
 
@@ -361,14 +361,14 @@ True
 <p>To be even faster, we generate beta version to vectorize code:</p>
 <div class="highlight"><pre><span></span>$ python -m pythran.run origin.py -Ofast -march<span class="o">=</span>native -DUSE_BOOST_SIMD
 $ python -m timeit -s <span class="s2">&quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&quot;</span> <span class="s2">&quot;origin.rbf_network_numpy(X, beta, theta)&quot;</span>
-<span class="m">10</span> loops, best of 3: 26.1 msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">26</span>.1 msec per loop
 </pre></div>
 
 
 <h2>Scipy.rbf</h2>
 <p>Scipy also provide rbf function but if we time it, we have:</p>
 <div class="highlight"><pre><span></span>$ python -m timeit -s <span class="s2">&quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;from scipy.interpolate import Rbf;rbf = Rbf(X[:,0], X[:,1], X[:,2], X[:,3], X[:, 4], beta);Xtuple = tuple([X[:, i] for i in range(D)]);&quot;</span> <span class="s2">&quot;rbf(Xtuple)&quot;</span>
-<span class="m">10</span> loops, best of 3: <span class="m">258</span> msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">258</span> msec per loop
 </pre></div>
 
 
@@ -459,7 +459,7 @@ sys 0m0.016s
 <p>After using Pythran on it, we have:</p>
 <div class="highlight"><pre><span></span>$ python -m pythran.run my_module.py
 $ python -m timeit -s <span class="s2">&quot;import numpy as np;X = np.arange(-2, .5, .002);Y = np.arange(-1,  1, .002); import my_module&quot;</span> <span class="s2">&quot;my_module.mandel(X, Y)&quot;</span>
-<span class="m">10</span> loops, best of 3: <span class="m">538</span> msec per loop
+<span class="m">10</span> loops, best of <span class="m">3</span>: <span class="m">538</span> msec per loop
 </pre></div>
 
 

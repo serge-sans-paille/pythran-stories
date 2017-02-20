@@ -155,7 +155,7 @@ But the day before I discovered Pythran so why not test both?</p>
 <span class="n">Iteration</span> <span class="o">=</span> <span class="mi">257</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">9.71604e-08</span>
 
 <span class="n">My</span> <span class="n">check</span> <span class="o">=</span> <span class="mf">0.146549</span>
-<span class="n">Elapsed</span> <span class="n">time</span> <span class="nb">is</span>   <span class="o">=</span> <span class="mf">2.40271</span>
+<span class="n">Elapsed</span> <span class="n">time</span> <span class="n">is</span>   <span class="o">=</span> <span class="mf">2.40271</span>
 </pre></div>
 </div>
 <div class="section" id="julia-results">
@@ -163,7 +163,7 @@ But the day before I discovered Pythran so why not test both?</p>
 <p>The Julia code:</p>
 <p>we run <cite>julia</cite>:</p>
 <div class="highlight"><pre><span></span><span class="n">include</span><span class="p">(</span><span class="s">&quot;RBC_Julia.jl&quot;</span><span class="p">)</span>
-<span class="n">julia</span><span class="o">&gt;</span> <span class="p">@</span><span class="n">time</span> <span class="n">main</span><span class="p">()</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">main</span><span class="p">()</span>
 <span class="n">Output</span> <span class="o">=</span> <span class="mf">0.5627314338711378</span> <span class="n">Capital</span> <span class="o">=</span> <span class="mf">0.178198287392527</span> <span class="n">Consumption</span> <span class="o">=</span> <span class="mf">0.3845331464786108</span>
 <span class="n">Iteration</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.05274159340733661</span>
 <span class="n">Iteration</span> <span class="o">=</span> <span class="mi">10</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.031346949265852075</span>
@@ -175,7 +175,7 @@ But the day before I discovered Pythran so why not test both?</p>
 <span class="n">Iteration</span> <span class="o">=</span> <span class="mi">257</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">9.716035642703957e-8</span>
 
 <span class="n">My</span> <span class="n">check</span> <span class="o">=</span> <span class="mf">0.1465491436962635</span>
-<span class="mf">3.001183</span> <span class="n">seconds</span> <span class="p">(</span><span class="mf">3.84</span> <span class="n">k</span> <span class="n">allocations</span><span class="p">:</span> <span class="mf">703.276</span> <span class="n">MB</span><span class="p">,</span> <span class="mf">0.68</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="p">)</span>
+<span class="mf">3.001183</span> <span class="n">seconds</span> <span class="p">(</span><span class="mf">3.84</span> <span class="n">k</span> <span class="n">allocations</span><span class="o">:</span> <span class="mf">703.276</span> <span class="n">MB</span><span class="p">,</span> <span class="mf">0.68</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="p">)</span>
 </pre></div>
 <p>Not bad!</p>
 </div>
@@ -199,31 +199,31 @@ new file and run Pythran on it then calling it from the main code.</p>
 <p>The function is in <tt class="docutils literal">je.py</tt> and the main code is <tt class="docutils literal">run_je.py</tt></p>
 <p>Let's run the code:</p>
 <div class="highlight"><pre><span></span>% <span class="nb">time</span> python2 run_je.py
-<span class="nv">Output</span> <span class="o">=</span>  0.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  0.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  0.384533146479
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0527415934073
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0313469492659
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0187034598934
+<span class="nv">Output</span> <span class="o">=</span>  <span class="m">0</span>.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  <span class="m">0</span>.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  <span class="m">0</span>.384533146479
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0527415934073
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0313469492659
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0187034598934
 <span class="o">[</span>...<span class="o">]</span>
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  3.87636194032e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  2.32196579297e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  1.39087209527e-07
-python2 run_je.py  2,45s user 0,08s system 94% cpu 2,666 total
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">3</span>.87636194032e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">2</span>.32196579297e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">1</span>.39087209527e-07
+python2 run_je.py  <span class="m">2</span>,45s user <span class="m">0</span>,08s system <span class="m">94</span>% cpu <span class="m">2</span>,666 total
 </pre></div>
 <p>And it is very nice!</p>
 <p>And just for fun, the <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py">Numba version</a>:</p>
 <div class="highlight"><pre><span></span>% <span class="nb">time</span> python2 RBC_Python_Numba.py
-<span class="nv">Output</span> <span class="o">=</span>  0.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  0.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  0.384533146479
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0527415934073
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0313469492659
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  0.0187034598934
+<span class="nv">Output</span> <span class="o">=</span>  <span class="m">0</span>.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  <span class="m">0</span>.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  <span class="m">0</span>.384533146479
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0527415934073
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0313469492659
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0187034598934
 <span class="o">[</span>...<span class="o">]</span>
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  3.87636194032e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  2.32196579297e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  1.39087209527e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">257</span> , Sup <span class="nv">Duff</span> <span class="o">=</span>  9.71603566491e-08
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">3</span>.87636194032e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">2</span>.32196579297e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">1</span>.39087209527e-07
+<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">257</span> , Sup <span class="nv">Duff</span> <span class="o">=</span>  <span class="m">9</span>.71603566491e-08
 
-My <span class="nv">Check</span> <span class="o">=</span>  0.146549143696
-Elapse <span class="nb">time</span> <span class="o">=</span> is  3.00302290916
+My <span class="nv">Check</span> <span class="o">=</span>  <span class="m">0</span>.146549143696
+Elapse <span class="nb">time</span> <span class="o">=</span> is  <span class="m">3</span>.00302290916
 </pre></div>
 <p>So in the end we have:</p>
 <table border="1" class="docutils">

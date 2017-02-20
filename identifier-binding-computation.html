@@ -239,24 +239,21 @@ and gathering analysis results.</p>
 </pre></div>
 <p>This code snippet requires a few explanations:</p>
 <blockquote>
-<ol class="arabic">
-<li><p class="first">First, it parses a code snippet and turns it into an Abstract Syntax Tree (AST).</p>
-</li>
+<ol class="arabic simple">
+<li>First, it parses a code snippet and turns it into an Abstract Syntax Tree (AST).</li>
 <li><dl class="first docutils">
 <dt>Second, it computes the alias information at every point of the program.</dt>
-<dd><p class="first last"><tt class="docutils literal">result</tt> is a dictionary that maps nodes from the AST to set of
+<dd><tt class="docutils literal">result</tt> is a dictionary that maps nodes from the AST to set of
 identifiers (remember that for Pythran, a node can only alias to
 bounded values. These values are represented by the first identifier
-they are bound to).</p>
-</dd>
+they are bound to).</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt>Finally, it pretty prints the result of the analysis, using a filter to</dt>
-<dd><p class="first last">only dump the part we are interested in. In that case it dumps a
+<dd>only dump the part we are interested in. In that case it dumps a
 textual representation of the alias set of the <tt class="docutils literal">ast.BoolOp</tt> nodes,
-which turns out to be <tt class="docutils literal">['a', 'b']</tt>.</p>
-</dd>
+which turns out to be <tt class="docutils literal">['a', 'b']</tt>.</dd>
 </dl>
 </li>
 </ol>

@@ -155,7 +155,7 @@ In file included from /tmp/tmpP0xYa2.cpp:10:
 In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
 In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
 ./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large <span class="o">(</span><span class="m">18446744073709551615</span> elements<span class="o">)</span>
-      value_type buffer<span class="o">[</span>N ? N : 1<span class="o">]</span><span class="p">;</span>
+      value_type buffer<span class="o">[</span>N ? N : <span class="m">1</span><span class="o">]</span><span class="p">;</span>
                         ^~~~~~~~~
 ./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class <span class="s1">'pythonic::types::array&lt;long, 18446744073709551615&gt;'</span> requested here
       array&lt;long, value&gt; _shape<span class="p">;</span>
@@ -163,7 +163,7 @@ In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
 <span class="o">[</span>...<span class="o">]</span>
                                     ^
 ./pythran/pythonic/include/utils/seq.hpp:19:19: note: use -ftemplate-depth<span class="o">=</span>N to increase recursive template instantiation depth
-    struct gens : gens&lt;N - 1, N - 1, S...&gt; <span class="o">{</span>
+    struct gens : gens&lt;N - <span class="m">1</span>, N - <span class="m">1</span>, S...&gt; <span class="o">{</span>
                   ^
 <span class="m">3</span> errors generated.
 CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
@@ -174,7 +174,7 @@ What we now have is a slightly friendlier message:
 <pre class="code shell literal-block">
 &gt; pythran create_grid.py
 CRITICAL You shall not pass!
-E: Dimension mismatch when slicing <span class="sb">`</span>Array<span class="o">[</span>2d, float<span class="o">]</span><span class="sb">`</span> <span class="o">(</span>create_grid.py, line 7<span class="o">)</span>
+E: Dimension mismatch when slicing <span class="sb">`</span>Array<span class="o">[</span>2d, float<span class="o">]</span><span class="sb">`</span> <span class="o">(</span>create_grid.py, line <span class="m">7</span><span class="o">)</span>
 </pre>
 <p>Indeed, the correct declaration for <tt class="docutils literal">z</tt> was <tt class="docutils literal">z = <span class="pre">np.zeros((N,</span> N, 3))</tt>.</p>
 <div class="section" id="a-quick-glance-at-pythran-typing-system">
@@ -218,7 +218,7 @@ arbitrary function annotations introduced by <a class="reference external" href=
 function parameter and its resulting return type. No check occur at runtime, but
 a third party compiler, say <a class="reference external" href="http://mypy-lang.org/">MyPy</a> can take advantage
 of these hints to perform an ahead-of-time check. And that's <strong>great</strong>.</p>
-<div class="note">
+<div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">In this post, we use the type annotation introduced by PEP484 and used in
 MyPy to describe types. <tt class="docutils literal">int</tt> is an integer, <tt class="docutils literal">List[str]</tt> is a list of
@@ -230,7 +230,7 @@ on Python3. It can process Python2 code, but it runs on Python3. We've been
 struggling so much to keep Python2.7 compatibility in addition to the recent
 addition of broader Python3 support. We're not going to leave it apart without
 good reasons.</p>
-<div class="note">
+<div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">It also turns out that the <tt class="docutils literal">typing</tt> module has a different internal API
 between Python2 and Python3. This makes it quite difficult to use for my
@@ -292,7 +292,7 @@ many. The difference exists because of the situation described by the following 
 possibilities go wild, so we had to make a decision. Consider the following code:</p>
 <pre class="code python literal-block">
 <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span>
+    <span class="k">return</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span>
 </pre>
 <p>The <tt class="docutils literal">in</tt> operator could be implemented as a <tt class="docutils literal">MultiType</tt>, enumerating the
 possible valid signature (remember we know of all possible types in Pythran):</p>
@@ -407,7 +407,7 @@ float, int, T2)</tt> which is a <tt class="docutils literal">float</tt> accordin
 define <tt class="docutils literal">strict_int</tt> as <tt class="docutils literal"><span class="pre">(no-complex,</span> <span class="pre">no-float,</span> int, T0)</tt> which still allows
 up-casting from <tt class="docutils literal">bool</tt> to <tt class="docutils literal">int</tt> but prevents up-casting from <tt class="docutils literal">int</tt> to
 <tt class="docutils literal">float</tt>.</p>
-<div class="note">
+<div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><tt class="docutils literal">numpy</tt> introduces many sized type for integers, floating point numbers
 and complex numbers, with a set of rules to handle conversion between one
@@ -482,13 +482,13 @@ correctly typed, while Pythran correctly type checks it without annotation.</p>
 <pre class="code shell literal-block">
 &gt; pythran wc.py
 CRITICAL You shall not pass!
-E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>int<span class="sb">`</span> and <span class="sb">`</span>str<span class="sb">`</span> <span class="o">(</span>wc.py, line 5<span class="o">)</span>
+E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>int<span class="sb">`</span> and <span class="sb">`</span>str<span class="sb">`</span> <span class="o">(</span>wc.py, line <span class="m">5</span><span class="o">)</span>
 </pre>
 <p>And if we remove the <tt class="docutils literal">0</tt>, <tt class="docutils literal">d.get(word)</tt> may return <tt class="docutils literal">None</tt> and the error message becomes:</p>
 <pre class="code shell literal-block">
 &gt; pythran wc.py
 CRITICAL You shall not pass!
-E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>Option<span class="o">[</span>T0<span class="o">]</span><span class="sb">`</span> and <span class="sb">`</span>int<span class="sb">`</span> <span class="o">(</span>wc.py, line 5<span class="o">)</span>
+E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>Option<span class="o">[</span>T0<span class="o">]</span><span class="sb">`</span> and <span class="sb">`</span>int<span class="sb">`</span> <span class="o">(</span>wc.py, line <span class="m">5</span><span class="o">)</span>
 </pre>
 <p>Great!</p>
 <p>Considering Numpy functions, we don't model all of them in tog, but we can
@@ -509,7 +509,7 @@ still detect several interesting errors. For instance on a gaussian kernel
 <pre class="code shell literal-block">
 &gt; pythran gaussian.py
 CRITICAL You shall not pass!
-E: Invalid argument <span class="nb">type</span> <span class="k">for</span> <span class="k">function</span> call to <span class="sb">`</span>Callable<span class="o">[[</span>int, T3<span class="o">]</span>, ...<span class="o">]</span><span class="sb">`</span>, tried Callable<span class="o">[[</span>Array<span class="o">[</span><span class="m">1</span> d+, T0<span class="o">]</span>, T1<span class="o">]</span>, Array<span class="o">[</span><span class="m">1</span> d+, T2<span class="o">]]</span> <span class="o">(</span>gaussian.py, line 9<span class="o">)</span>
+E: Invalid argument <span class="nb">type</span> <span class="k">for</span> <span class="k">function</span> call to <span class="sb">`</span>Callable<span class="o">[[</span>int, T3<span class="o">]</span>, ...<span class="o">]</span><span class="sb">`</span>, tried Callable<span class="o">[[</span>Array<span class="o">[</span><span class="m">1</span> d+, T0<span class="o">]</span>, T1<span class="o">]</span>, Array<span class="o">[</span><span class="m">1</span> d+, T2<span class="o">]]</span> <span class="o">(</span>gaussian.py, line <span class="m">9</span><span class="o">)</span>
 </pre>
 </div>
 <div class="section" id="conclusion">

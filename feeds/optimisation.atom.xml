@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/optimisation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-05-25T00:00:00+02:00</updated><entry><title>Costless Abstraction with Pythran: Broadcasting</title><link href="http://serge-sans-paille.github.io/pythran-stories/costless-abstraction-with-pythran-broadcasting.html" rel="alternate"></link><published>2016-05-25T00:00:00+02:00</published><updated>2016-05-25T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-05-25:pythran-stories/costless-abstraction-with-pythran-broadcasting.html</id><summary type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/broadcasting.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - optimisation</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/optimisation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-05-25T00:00:00+02:00</updated><entry><title>Costless Abstraction with Pythran: Broadcasting</title><link href="http://serge-sans-paille.github.io/pythran-stories/costless-abstraction-with-pythran-broadcasting.html" rel="alternate"></link><published>2016-05-25T00:00:00+02:00</published><updated>2016-05-25T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-05-25:/pythran-stories/costless-abstraction-with-pythran-broadcasting.html</id><summary type="html">&lt;p&gt;Broadcasting is a neat feature of Numpy array, but it was not trivial
+to implement at the C++ level, while keeping a high-level interface. after
+weeks of effort, here is a showcase of how good it runs, compared to the Numpy
+version and lower-level Cython and Numba version!&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/broadcasting.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
 &lt;h1&gt;Numpy's Broadcasting&lt;/h1&gt;
 &lt;p&gt;Broadcasting is a neat feature of Numpy (and other similar array-oriented languages like Matlab). It makes it possible to avoid explicit loops on arrays (they are particularly inefficient in Numpy), and improves the abstraction level of your code, which is a good thing if you share the same abstraction.&lt;/p&gt;
 &lt;p&gt;For instance, the addition between two 1D array when one of them only holds a single element is well defined: the single element is repeated along the axis:&lt;/p&gt;
@@ -390,7 +393,8 @@ numba 19.3255679156
 Copyright (C) 2015 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-&lt;/pre&gt;&lt;/div&gt;</summary></entry><entry><title>Pythran Case: Resampling</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-case-resampling.html" rel="alternate"></link><published>2016-03-09T00:00:00+01:00</published><updated>2016-03-09T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-09:pythran-stories/pythran-case-resampling.html</id><summary type="html">&lt;p&gt;While hanging on &lt;a class="reference external" href="http://stackoverflow.com"&gt;Stackoverflow&lt;/a&gt; (everybody does
+&lt;/pre&gt;&lt;/div&gt;</content></entry><entry><title>Pythran Case: Resampling</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-case-resampling.html" rel="alternate"></link><published>2016-03-09T00:00:00+01:00</published><updated>2016-03-09T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-09:/pythran-stories/pythran-case-resampling.html</id><summary type="html">&lt;p class="first last"&gt;Optimizing an algorithm found on Stack Overflow with Pythran, getting a x2 speedup with a single line, a x4 speedup with two lines and much more while switching our brain on!&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;While hanging on &lt;a class="reference external" href="http://stackoverflow.com"&gt;Stackoverflow&lt;/a&gt; (everybody does
 this, no?) I found this &lt;a class="reference external" href="http://stackoverflow.com/questions/21468170/numba-code-slower-than-pure-python"&gt;Numpy code snippet&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;resample&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;qs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rands&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -403,7 +407,7 @@ this, no?) I found this &lt;a class="reference external" href="http://stackoverf
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;When running it through &lt;a class="reference external" href="https://docs.python.org/2/library/timeit.html"&gt;timeit&lt;/a&gt;, we get:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;100&lt;/span&gt; loops, best of 3: 3.02 msec per loop
+&lt;span class="m"&gt;100&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;3&lt;/span&gt;.02 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The initialization code, after the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-s&lt;/span&gt;&lt;/tt&gt; switch, is run only once, and includes a call to &lt;tt class="docutils literal"&gt;np.random.seed&lt;/tt&gt; so that further comparisons hold.&lt;/p&gt;
 &lt;div class="section" id="first-step-pythran"&gt;
@@ -437,7 +441,7 @@ the top-level function:&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This turns the Python file into a native extension, namely &lt;tt class="docutils literal"&gt;resample.so&lt;/tt&gt; on Linux. Running it yields a nice speedup:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: 1.23 msec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.23 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="second-step-pythran-openmp"&gt;
@@ -462,7 +466,7 @@ trivial stuff also, but that's not the point here) called &lt;a class="reference
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;We get an extra speedup (only two cores there, sorry about this :-/):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;693&lt;/span&gt; usec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;693&lt;/span&gt; usec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="third-step-pythran-brain"&gt;
@@ -497,12 +501,12 @@ trivial stuff also, but that's not the point here) called &lt;a class="reference
 &lt;p&gt;And a last benchmark, without OpenMP:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% pythran resample.py
 % python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;491&lt;/span&gt; usec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;491&lt;/span&gt; usec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And with OpenMP:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% pythran resample.py -fopenmp
 % python -m timeit &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0) ; n = 1000; xs = np.arange(n, dtype=np.float64); qs = np.array([1.0/n,]*n); rands = np.random.rand(n); from resample import resample&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;resample(qs, xs, rands)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;326&lt;/span&gt; usec per loop
+&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;326&lt;/span&gt; usec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="the-stack-overflow-solution"&gt;
@@ -526,7 +530,7 @@ trivial stuff also, but that's not the point here) called &lt;a class="reference
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;On my laptop, it runs in:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;419&lt;/span&gt; usec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;419&lt;/span&gt; usec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The equivalent implementation in Pythran does not need type annotation for &lt;tt class="docutils literal"&gt;np.cumsum&lt;/tt&gt; as it's already supported:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export resample(float[], float[], float[])&lt;/span&gt;
@@ -544,7 +548,7 @@ trivial stuff also, but that's not the point here) called &lt;a class="reference
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And once compiled with Pythran it runs (no OpenMP) in:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;350&lt;/span&gt; usec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;350&lt;/span&gt; usec per loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Pythran and Numba timings are within the same range. Numba is still easier to
 integrate (Just In Time Compilation is really nice!) but it implies lower level
@@ -559,4 +563,4 @@ facilities, but one still need to understand some of its internal to rip the
 best of it. And using Pythran you can do so while keeping a relatively good
 abstraction!&lt;/p&gt;
 &lt;/div&gt;
-</summary></entry></feed>
+</content></entry></feed>

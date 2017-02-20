@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/examples.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-07-18T00:00:00+02:00</updated><entry><title>Pythran Tutorial</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-tutorial.html" rel="alternate"></link><published>2016-07-18T00:00:00+02:00</published><updated>2016-07-18T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-07-18:pythran-stories/pythran-tutorial.html</id><summary type="html">&lt;p&gt;Pythran presentation hold on Université Lyon1 on Monday 27th June together with a Julia presentation, and later at &lt;a href="http://compas2016.sciencesconf.org/"&gt;Compas'2016&lt;/a&gt;.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - examples</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/examples.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-07-18T00:00:00+02:00</updated><entry><title>Pythran Tutorial</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-tutorial.html" rel="alternate"></link><published>2016-07-18T00:00:00+02:00</published><updated>2016-07-18T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-07-18:/pythran-stories/pythran-tutorial.html</id><summary type="html">&lt;p&gt;Learn how to use Pythran, in a notebook or in a shell. Including some unusual Pythran tricks ;-)&lt;/p&gt;</summary><content type="html">&lt;p&gt;Pythran presentation hold on Université Lyon1 on Monday 27th June together with a Julia presentation, and later at &lt;a href="http://compas2016.sciencesconf.org/"&gt;Compas'2016&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/Pythran Tutorial.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
 &lt;h2&gt;Prelude&lt;/h2&gt;
 &lt;p&gt;Pythran is a compiler that turns numerical kernels into native modules.&lt;/p&gt;
@@ -431,7 +431,7 @@ extra options: &amp;#39;-std=c++11 -fno-math-errno -w -fwhole-program -fvisibili
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;scrabble&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__file__&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;scrabble&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="vm"&gt;__file__&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -614,7 +614,7 @@ demo-1.0/setup.cfg
 
 &lt;h3&gt;Cleanup before you leave the room ;-)&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;rm&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;rf&lt;/span&gt; &lt;span class="n"&gt;build&lt;/span&gt; &lt;span class="n"&gt;dist&lt;/span&gt; &lt;span class="n"&gt;scrabble&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt; &lt;span class="n"&gt;setup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt; &lt;span class="n"&gt;scrabble&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;so&lt;/span&gt; &lt;span class="c1"&gt;# cleanup&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</summary></entry><entry><title>Learn Pythran by practice</title><link href="http://serge-sans-paille.github.io/pythran-stories/learn-pythran-by-practice.html" rel="alternate"></link><published>2016-07-04T00:00:00+02:00</published><updated>2016-07-04T00:00:00+02:00</updated><author><name>pbrunet</name></author><id>tag:serge-sans-paille.github.io,2016-07-04:pythran-stories/learn-pythran-by-practice.html</id><summary type="html">&lt;p&gt;Pythran presentation hold on Université Lyon1 on Monday 27th June together with a Julia presentation.&lt;/p&gt;
+&lt;/pre&gt;&lt;/div&gt;</content></entry><entry><title>Learn Pythran by practice</title><link href="http://serge-sans-paille.github.io/pythran-stories/learn-pythran-by-practice.html" rel="alternate"></link><published>2016-07-04T00:00:00+02:00</published><updated>2016-07-04T00:00:00+02:00</updated><author><name>pbrunet</name></author><id>tag:serge-sans-paille.github.io,2016-07-04:/pythran-stories/learn-pythran-by-practice.html</id><summary type="html">&lt;p&gt;Show Pythran usage on multiple kernels with its strengths and its weaknesses&lt;/p&gt;</summary><content type="html">&lt;p&gt;Pythran presentation hold on Université Lyon1 on Monday 27th June together with a Julia presentation.&lt;/p&gt;
 &lt;p&gt;You can get slides shown by serge-sans-paille &lt;a href="http://serge-sans-paille.github.io/talks/python-perf-2016-06-27.html"&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;After this presentation, some examples were proposed to see Pythran usage.&lt;/p&gt;
 &lt;h1&gt;First example: Euler project N°14&lt;/h1&gt;
@@ -662,9 +662,9 @@ or &lt;a href="https://github.com/nayuki/Project-Euler-solutions/blob/master/pyt
 As Pythran can't handle non constant globals, we will pass this variable as a second argument&lt;/p&gt;
 &lt;p&gt;Now time it&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -c &lt;span class="s2"&gt;&amp;quot;import prob_14; print prob_14.run()&amp;quot;&lt;/span&gt;
-837799
+&lt;span class="m"&gt;837799&lt;/span&gt;
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;prob_14.run()&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: 1.26 msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.26 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -687,9 +687,9 @@ $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&
 
 &lt;p&gt;Now time it&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -c &lt;span class="s2"&gt;&amp;quot;import prob_14; print prob_14.run()&amp;quot;&lt;/span&gt;
-837799
+&lt;span class="m"&gt;837799&lt;/span&gt;
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;prob_14.run()&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: 12.8 sec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;12&lt;/span&gt;.8 sec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -699,9 +699,9 @@ $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&
 &lt;p&gt;&lt;code&gt;# pythran export run()&lt;/code&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m pythran.run prob_14.py
 $ python -c &lt;span class="s2"&gt;&amp;quot;import prob_14; print prob_14.run()&amp;quot;&lt;/span&gt;
-837799
+&lt;span class="m"&gt;837799&lt;/span&gt;
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;prob_14.run()&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;626&lt;/span&gt; msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;626&lt;/span&gt; msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -723,9 +723,9 @@ and use Pythran OpenMP extension:&lt;/p&gt;
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m pythran.run prob_14.py -fopenmp
 $ python -c &lt;span class="s2"&gt;&amp;quot;import prob_14; print prob_14.run()&amp;quot;&lt;/span&gt;
-837799
+&lt;span class="m"&gt;837799&lt;/span&gt;
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;prob_14.run()&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;210&lt;/span&gt; msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;210&lt;/span&gt; msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -734,9 +734,9 @@ It is good but still slower than the recursive function as it doesn't cache valu
 &lt;p&gt;Let's look at the recursive solution.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m pythran.run prob_14.py
 $ python -c &lt;span class="s2"&gt;&amp;quot;import prob_14; print prob_14.run()&amp;quot;&lt;/span&gt;
-837799
+&lt;span class="m"&gt;837799&lt;/span&gt;
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;prob_14.run()&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;968&lt;/span&gt; msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;968&lt;/span&gt; msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -759,9 +759,9 @@ code solution while a &lt;em&gt;fast&lt;/em&gt; Python solution may be a &lt;em&
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m pythran.run prob_14.py
 $ python -c &lt;span class="s2"&gt;&amp;quot;import prob_14; print prob_14.dummy()&amp;quot;&lt;/span&gt;
-837799
+&lt;span class="m"&gt;837799&lt;/span&gt;
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import prob_14&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;prob_14.dummy()&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10000000&lt;/span&gt; loops, best of 3: 0.0415 usec per loop
+&lt;span class="m"&gt;10000000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;0&lt;/span&gt;.0415 usec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -801,7 +801,7 @@ compute the result at compile time and &lt;code&gt;dummy()&lt;/code&gt; only giv
 
 &lt;p&gt;First, we time the original solution.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;origin.rbf_network(X, beta, theta)&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: 4.09 sec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;4&lt;/span&gt;.09 sec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -820,7 +820,7 @@ True
 
 &lt;p&gt;Then, we can time it:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;origin.rbf_network_numpy(X, beta, theta)&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: 73.6 msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;73&lt;/span&gt;.6 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -838,7 +838,7 @@ True
 
 &lt;p&gt;And we time it&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;origin.rbf_network_numpy(X, beta, theta)&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: 67.4 msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;67&lt;/span&gt;.4 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -846,14 +846,14 @@ True
 &lt;p&gt;To be even faster, we generate beta version to vectorize code:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m pythran.run origin.py -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native -DUSE_BOOST_SIMD
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;import origin&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;origin.rbf_network_numpy(X, beta, theta)&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: 26.1 msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;26&lt;/span&gt;.1 msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;Scipy.rbf&lt;/h2&gt;
 &lt;p&gt;Scipy also provide rbf function but if we time it, we have:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import numpy as np;D = 5;N = 1000;X = np.array([np.random.rand(D) for d in range(N)]);beta = np.random.rand(N);theta = 10;from scipy.interpolate import Rbf;rbf = Rbf(X[:,0], X[:,1], X[:,2], X[:,3], X[:, 4], beta);Xtuple = tuple([X[:, i] for i in range(D)]);&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;rbf(Xtuple)&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;258&lt;/span&gt; msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;258&lt;/span&gt; msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -944,7 +944,7 @@ sys 0m0.016s
 &lt;p&gt;After using Pythran on it, we have:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m pythran.run my_module.py
 $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import numpy as np;X = np.arange(-2, .5, .002);Y = np.arange(-1,  1, .002); import my_module&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;my_module.mandel(X, Y)&amp;quot;&lt;/span&gt;
-&lt;span class="m"&gt;10&lt;/span&gt; loops, best of 3: &lt;span class="m"&gt;538&lt;/span&gt; msec per loop
+&lt;span class="m"&gt;10&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;538&lt;/span&gt; msec per loop
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -952,4 +952,4 @@ $ python -m timeit -s &lt;span class="s2"&gt;&amp;quot;import numpy as np;X = np
 &lt;p&gt;There is no need to try with SIMD as it doesn't work on complex numbers.&lt;/p&gt;
 &lt;h1&gt;Conclusion&lt;/h1&gt;
 &lt;p&gt;I hope these examples show what performance can be reach using Python/Numpy and
-when you need to use an accelerator to generate faster native code.&lt;/p&gt;</summary></entry></feed>
+when you need to use an accelerator to generate faster native code.&lt;/p&gt;</content></entry></feed>

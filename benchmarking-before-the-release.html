@@ -229,7 +229,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_10_1.png" /></p>
+<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_10_1.png"></p>
 <p>That's unexpected! The reason why we go faster than Cython is the <code>cos</code> routine, as we use <a href="http://nt2.numscale.com/">nt2</a> implementation that proves to be very efficient (it has a few shortpaths). Switching back to <code>std::cos</code> gives the same execution time has Cython.</p>
 <h1>Grayscott</h1>
 <p><em>source: <a href="http://stackoverflow.com/questions/26823312/numba-or-cython-acceleration-in-reaction-diffusion-algorithm">stackoverflow</a></em></p>
@@ -368,7 +368,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_18_1.png" /></p>
+<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_18_1.png"></p>
 <p>We have a small issue there. Need to investigate! Still a decent speedup though.</p>
 <h1>clip</h1>
 <p><em>source: <a href="https://github.com/serge-sans-paille/pythran/issues/433">pythran issue</a></em></p>
@@ -432,7 +432,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_26_1.png" /></p>
+<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_26_1.png"></p>
 <p>Nice! Brest! Slightly worse than Cython, but we could improve this by implementing common subexpression elimination at the array level.</p>
 <h1>Pariwise distance</h1>
 <p><em>sources: <a href="http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/">jakevdp blog</a> and
@@ -495,7 +495,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_34_1.png" /></p>
+<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_34_1.png"></p>
 <p>Wooo! Being able to compile this expression down to something that matches Cython's generated code is an achivement :-)</p>
 <h1>lu factorization</h1>
 <p><em>source: <a href="https://www.ibm.com/developerworks/community/blogs/jfp/entry/A_Comparison_Of_C_Julia_Python_Numba_Cython_Scipy_and_BLAS_on_LU_Factorization">jfp blog</a></em></p>
@@ -575,7 +575,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_42_1.png" /></p>
+<p><img alt="png" src="Benchmarking%20Before%20the%20Release_files/Benchmarking%20Before%20the%20Release_42_1.png"></p>
 <p>On par with Cython, checked! Note that both Cython and Pythran kernel don't handle errors as Numpy kernel does…</p>
 <h1>Conclusion</h1>
 <p>Ready for release? Looks like everything is ok, we're most of the time not far from cython, while keeping the Numpy high-level calls <code>\o/</code></p>
