@@ -212,7 +212,7 @@ possibilities go wild, so we had to make a decision. Consider the following code
 .. code:: python
 
     def foo(x, y):
-        return x in y
+        return y in x
 
 The ``in`` operator could be implemented as a ``MultiType``, enumerating the
 possible valid signature (remember we know of all possible types in Pythran):
