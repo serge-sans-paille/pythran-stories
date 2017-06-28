@@ -10,7 +10,7 @@ Toward a Simpler and faster Pythran Compiler
 Over the last six months, I've been working on improving Pythran for the
 `OpenDreamKit <http://opendreamkit.org>`__ project. The inital goal was to add
 some basic support for classes, but as it quickly turns out, that would break a
-central assumption of Pythran « everything can be modeld in a procedural way »,
+central assumption of Pythran « everything can be modeled in a procedural way »,
 and breaking this assumptions implies a lot of code changes. Instead of turning
 Pythran into an Idol with Feet of Clay, I began to cleanup the codebase, making
 it slimmer, faster, and still generating efficient code. This brings me to this
@@ -21,8 +21,8 @@ and a recent commit, namely `3ec043e5ce
 <https://github.com/serge-sans-paille/pythran/commit/3ec043e5ce0cb5b9292fa92e9fd38a01cf8122b5>`_,
 used as ``HEAD`` for this post.
 
-This blogpost is split in two sections: one concerning codebase improvment to
-achieve faster compilation time, and one considering performance improvment, to
+This blogpost is split in two sections: one concerning codebase improvement to
+achieve faster compilation time, and one considering performance improvement, to
 generate code that runs faster; So In the end, we get faster code, faster!
 
 But first some statistics:
@@ -120,7 +120,7 @@ See commit `58d62de77e <https://github.com/serge-sans-paille/pythran/commit/58d6
 Sanitize Pass Pipeline
 ----------------------
 
-The optimization pipeline of Pythran is driven by a passmanager that schedules
+The optimization pipeline of Pythran is driven by a pass manager that schedules
 optimization passes and take care of analyse recomputation and such.
 
 The pass manager used to call ``ast.fix_missing_location`` after each
@@ -128,14 +128,14 @@ transformation, to maintain node location information, which can be useful for
 error reporting and running calls to ``compile`` on ast nodes. It's now only
 done if the pass actually did something.
 
-Still in the passmanagment stuff, Pythran begins with a few normalization
+Still in the pass management stuff, Pythran begins with a few normalization
 passes to reduce the Ptthon AST (in fact the `gast
 <https://github.com/serge-sans-paille/gast>`_ one) to a friendlier IR. It turns
 out this normalization pipelin had some redundant steps, that got pruned, which
 avoids a few AST walk.
 
-In the same spirit of removing uselss stuff, some Pythran passes did declare
-dependecies to analyse that were not used. Removing this dependencies avoids
+In the same spirit of removing useless stuff, some Pythran passes did declare
+dependencies to analyse that were not used. Removing this dependencies avoids
 some extra computation!
 
 See commits `6c9f5630f4 <https://github.com/serge-sans-paille/pythran/commit/6c9f5630f406ec178a62eddb302445d5057c0557>`_ and `b8a8a11e22 <https://github.com/serge-sans-paille/pythran/commit/b8a8a11e2216cafa1bebdf0a029b1adbd27d6179>`_.
@@ -156,7 +156,7 @@ Beware of IPython
 Pythran can be integrated to Jupyter notebooks and to the IPython console
 through the use of ``IPython.core.magic``. This used to be imported by default
 in the Pythran package, which slows down the startup process because the
-dependency is huge. It's now still available, but one needs to explicitely
+dependency is huge. It's now still available, but one needs to explicitly
 import ``pythran.magic``.
 
 See commit `1e6c7b3a5f <https://github.com/serge-sans-paille/pythran/commit/1e6c7b3a5fcd0004224dcb991740b5444e70e805>`_.
@@ -181,7 +181,7 @@ Constant Fold Wisely
 
 Pythran implements a very generic constant folding pass that basically goes
 through each node of the AST, check if it's a constant node and if so evaluate
-the expression and put the result in the AST in palce of the original
+the expression and put the result in the AST in place of the original
 expression. We did this a lot, even for literals, which was obviously useless.
 
 See commit `fa0b98b3cc <https://github.com/serge-sans-paille/pythran/commit/fa0b98b3cc0b9b5fc42c5d346c73c39196d59628>`_.
@@ -194,8 +194,8 @@ The original motivation of Pythran is speed of the generated code, and speed rem
 Avoid the Leaks
 ---------------
 
-Memory managment in ``pythonic`` is deletgated to a shared reference counter,
-which is generally ok. We still need some manual managments at the boundaries,
+Memory management in ``pythonic`` is delegated to a shared reference counter,
+which is generally ok. We still need some manual managements at the boundaries,
 when memory gets allocated by a third-part library, or when it comes from a
 ``PyObject``. In the latter case, we keep a reference on the original
 ``PyObject`` and when ``pythonic`` shared reference dies, we decrease the
@@ -203,7 +203,7 @@ when memory gets allocated by a third-part library, or when it comes from a
 
 When the memory comes from a third-part library, we have a bunch of ways to
 state what to do when the reference dies, but this was not part of the
-constructor API. And then comes this ``numpy.zeros`` implemetnation that makes
+constructor API. And then comes this ``numpy.zeros`` implementation that makes
 a call to ``calloc`` but forgets to set the proper destructor. Everything is
 now part of the constructor API, which prevents such stupid mistakes. And
 **Yes** I really feel ashamed of this one; *really*; **reaalyyyyyy**.
@@ -213,7 +213,7 @@ See commit `f294143ca4 <https://github.com/serge-sans-paille/pythran/commit/f294
 Lazy numpy.where
 ----------------
 
-Consider the foillowing Numpy expression:
+Consider the following Numpy expression:
 
 .. code:: python
 
@@ -226,7 +226,7 @@ depending on the value of ``a > 1``. What we need here is lazy evaluation of
 the operands, something that was not part of our expression template engine and
 is now built-in!
 
-Said otherwise, the previous entrypoint for an expression template was
+Said otherwise, the previous entry point for an expression template was
 
 .. code::
 
@@ -251,7 +251,7 @@ See commit `757795fdc9 <https://github.com/serge-sans-paille/pythran/commit/7577
 Update Operator
 ---------------
 
-For some internal operations, I've been lazy and implemnted update operator like this:
+For some internal operations, I've been lazy and implemented update operator like this:
 
 .. code::
 
@@ -261,7 +261,7 @@ For some internal operations, I've been lazy and implemnted update operator like
     } /**/
 
 Being lazy rarely pays off, the extra object created had a performance impact
-on 3D data staructures, everything is now done properly using in-place
+on 3D data structures, everything is now done properly using in-place
 computations.
 
 See commit `2b151e8ec5 <https://github.com/serge-sans-paille/pythran/commit/2b151e8ec501a8cdf10c9543befd2de7e81d4c52>`_.
@@ -270,12 +270,12 @@ Range and Python3
 -----------------
 
 Python3 support is still experimental in Pythran, as showcased by this bug...
-In the backedn code, when translating Pythran IR to C++, we have a special case
+In the backend code, when translating Pythran IR to C++, we have a special case
 for plain old loops. Basically if we meet a for loop iterating over an
 ``xrange`` object, we generate a plain old C loop, even if our ``xrange``
 implementation is very light, it pleases the C++ compiler to find this kind of
 pattern. Yes, ``xrange``, see the issue? We know correctly lower ``range``
-loops from Python3, but there's probably plainty of such details hanging around
+loops from Python3, but there's probably plenty of such details hanging around
 :-/
 
 See commit `0f5f10c62f <https://github.com/serge-sans-paille/pythran/commit/0f5f10c62fd35a7ddbc6bd2d699a4ed59592c35b>`_.
@@ -324,7 +324,7 @@ Avoid usless conversions
 In C++ (and C) when one adds a ``uint8`` with a ``uint8``, he ends up with an
 ``int``. This is not the default behavior of numpy arrays, so we did hit a bug
 here. I still think that delegating type inference to C++ was a good choice,
-because the C++ implementation autoamtically documents and provides the
+because the C++ implementation automatically documents and provides the
 function type without the need of manually filling each function type
 description has we did for the type checker, but it still requires some care.
 
