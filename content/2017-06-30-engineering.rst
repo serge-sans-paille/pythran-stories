@@ -333,5 +333,7 @@ See commit `fae8ba1bbc <https://github.com/serge-sans-paille/pythran/commit/fae8
 Conclusion
 ==========
 
-Pythran did improve a lot thanks to the OpenDreamKit project, I cannot find ways to thank them enough for their trust. I'd also like to thank `Yann Diorcet <https://github.com/diorcety>`_, `Ashwin Vishnu <https://github.com/ashwinvis>`_ and `Adrien Guinet <https://github.com/aguinet>`_ for stepping into the Pythran codebase and providing useful bug reports *and* commits!
+Pythran did improve a lot thanks to the OpenDreamKit project, I cannot find ways to thank them enough for their trust. I'm also in debt to `Logilab <https://www.logilab.fr/>`_, for their help thoughout the whole project.
+
+Finally, I'd also like to thank `Yann Diorcet <https://github.com/diorcety>`_, `Ashwin Vishnu <https://github.com/ashwinvis>`_ and `Adrien Guinet <https://github.com/aguinet>`_ for stepping into the Pythran codebase and providing useful bug reports *and* commits!
 
