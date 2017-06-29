@@ -121,7 +121,7 @@ Sanitize Pass Pipeline
 ----------------------
 
 The optimization pipeline of Pythran is driven by a pass manager that schedules
-optimization passes and take care of analyse recomputation and such.
+optimization passes and takes care of maintiaing the analyse cache.
 
 The pass manager used to call ``ast.fix_missing_location`` after each
 transformation, to maintain node location information, which can be useful for
@@ -129,7 +129,7 @@ error reporting and running calls to ``compile`` on ast nodes. It's now only
 done if the pass actually did something.
 
 Still in the pass management stuff, Pythran begins with a few normalization
-passes to reduce the Ptthon AST (in fact the `gast
+passes to reduce the Python AST (in fact the `gast
 <https://github.com/serge-sans-paille/gast>`_ one) to a friendlier IR. It turns
 out this normalization pipelin had some redundant steps, that got pruned, which
 avoids a few AST walk.
