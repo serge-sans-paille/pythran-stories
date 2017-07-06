@@ -1,5 +1,270 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-12-10T00:00:00+01:00</updated><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:/pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a type checking ability, called &lt;em&gt;tog&lt;/em&gt;. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2017-06-30T00:00:00+02:00</updated><entry><title>Toward a Simpler and faster Pythran Compiler</title><link href="http://serge-sans-paille.github.io/pythran-stories/toward-a-simpler-and-faster-pythran-compiler.html" rel="alternate"></link><published>2017-06-30T00:00:00+02:00</published><updated>2017-06-30T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2017-06-30:/pythran-stories/toward-a-simpler-and-faster-pythran-compiler.html</id><summary type="html">&lt;p class="first last"&gt;6 months of tireless efforts to speedup pythran compilation time, and make the code easier to maintain.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Over the last six months, I've been working on improving Pythran for the
+&lt;a class="reference external" href="http://opendreamkit.org"&gt;OpenDreamKit&lt;/a&gt; project. The inital goal was to add
+some basic support for classes, but as it quickly turns out, that would break a
+central assumption of Pythran « everything can be modeled in a procedural way »,
+and breaking this assumptions implies a lot of code changes. Instead of turning
+Pythran into an Idol with Feet of Clay, I began to cleanup the codebase, making
+it slimmer, faster, and still generating efficient code. This brings me to this
+blog post, that details various aspects of the development starting from last
+stable version at &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/6428e526ec414cc79a1d2b7399137aa5e1656a2a"&gt;6428e526ec&lt;/a&gt;
+and a recent commit, namely &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/3ec043e5ce0cb5b9292fa92e9fd38a01cf8122b5"&gt;3ec043e5ce&lt;/a&gt;,
+used as &lt;tt class="docutils literal"&gt;HEAD&lt;/tt&gt; for this post.&lt;/p&gt;
+&lt;p&gt;This blogpost is split in two sections: one concerning codebase improvement to
+achieve faster compilation time, and one considering performance improvement, to
+generate code that runs faster; So In the end, we get faster code, faster!&lt;/p&gt;
+&lt;p&gt;But first some statistics:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p class="first"&gt;During this period, &lt;em&gt;24&lt;/em&gt; issues &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues?utf8=%E2%9C%93&amp;amp;q=is%3Aissue%20is%3Aclosed%20closed%3A%3E2017-01-01"&gt;have been closed&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p class="first"&gt;There has been more than a hundred of commits.&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+$ git rev-list --count 6428e526ec..
+118
+&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p class="first"&gt;If we exclude the two Boost.Simd updates, the code base has not grown much,
+which is great news, because we did fix a lot of issues, without making the
+code grow too much.&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+$ git diff --shortstat 6428e526ec.. -- pythran
+203 files changed, 3185 insertions(+), 3119 deletions(-)
+&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p class="first"&gt;And finally, the codebase is still within my reach, as reported by sloccount,
+roughly 45kSLOC of C++ runtime, 15kSLOC of python tests and 15kSLOC of actual
+compiler code.&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+$ sloccount pythran
+[...]
+SLOC        Directory       SLOC-by-Language (Sorted)
+43984   pythonic        cpp=43984
+15004   tests           python=14738,cpp=232,sh=34
+7955    top_dir         python=7955
+2435    analyses        python=2435
+1923    types           python=1923
+1390    transformations python=1390
+720     optimizations   python=720
+&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="section" id="faster-compilation"&gt;
+&lt;h2&gt;Faster Compilation&lt;/h2&gt;
+&lt;p&gt;If I try to compile the &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/master/pythran/tests/cases/kmeans.py"&gt;kmeans.py&lt;/a&gt; code from the Pythran test bed, using g++-6.3, at revision &lt;tt class="docutils literal"&gt;6428e526ec&lt;/tt&gt;, I roughly get (with hot file system caches):&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+$ time pythran kmeans.py
+5.69s user 0.46s system 102% cpu 5.975 total
+&lt;/pre&gt;
+&lt;p&gt;The very same command using the &lt;tt class="docutils literal"&gt;HEAD&lt;/tt&gt; revision outputs:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+$ time pythran kmeans.py
+4.47s user 0.43s system 103% cpu 4.723 total
+&lt;/pre&gt;
+&lt;p&gt;Wow, that's something around one second faster. Not incredible, but still 20% faster. How did this happen? (What an intro!)&lt;/p&gt;
+&lt;div class="section" id="optional-typing"&gt;
+&lt;h3&gt;Optional Typing&lt;/h3&gt;
+&lt;p&gt;« The fastest program is the one that does nothing. » Inspired by this motto (and by the advices of &lt;a class="reference external" href="https://github.com/pbrunet"&gt;pbrunet&lt;/a&gt;), I realized that current compilation flow, illustrated below:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+ir = parse(code)
+if not type_check(ir):
+    raise CompileError(...)
+cxx = generate_cxx(ir)
+compile_cxx(cxx)
+&lt;/pre&gt;
+&lt;p&gt;could be rewritten like this:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+ir = parse(code)
+cxx = generate_cxx(ir)
+try:
+    compile_cxx(cxx)
+except SystemError:
+    if not type_check(ir):
+        raise CompileError(...)
+    raise
+&lt;/pre&gt;
+&lt;p&gt;Basically, the type checker is only used to produce smarter error output (see
+&lt;a class="reference external" href="../2016-12-10-pythran-typing.rst"&gt;Previous BlogPost on the subject&lt;/a&gt;
+for more details), there's already a typing mechanism in Pythran that delegates
+as much work as possible to C++. So the idea here is to compile things without
+type checking, and if compilation fails, try hard to find the origin.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/58d62de77e14eca7210f470b5c3e851c5167e175"&gt;58d62de77e&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="sanitize-pass-pipeline"&gt;
+&lt;h3&gt;Sanitize Pass Pipeline&lt;/h3&gt;
+&lt;p&gt;The optimization pipeline of Pythran is driven by a pass manager that schedules
+optimization passes and takes care of maintiaing the analyse cache.&lt;/p&gt;
+&lt;p&gt;The pass manager used to call &lt;tt class="docutils literal"&gt;ast.fix_missing_location&lt;/tt&gt; after each
+transformation, to maintain node location information, which can be useful for
+error reporting and running calls to &lt;tt class="docutils literal"&gt;compile&lt;/tt&gt; on ast nodes. It's now only
+done if the pass actually did something.&lt;/p&gt;
+&lt;p&gt;Still in the pass management stuff, Pythran begins with a few normalization
+passes to reduce the Python AST (in fact the &lt;a class="reference external" href="https://github.com/serge-sans-paille/gast"&gt;gast&lt;/a&gt; one) to a friendlier IR. It turns
+out this normalization pipelin had some redundant steps, that got pruned, which
+avoids a few AST walk.&lt;/p&gt;
+&lt;p&gt;In the same spirit of removing useless stuff, some Pythran passes did declare
+dependencies to analyse that were not used. Removing this dependencies avoids
+some extra computation!&lt;/p&gt;
+&lt;p&gt;See commits &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/6c9f5630f406ec178a62eddb302445d5057c0557"&gt;6c9f5630f4&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/b8a8a11e2216cafa1bebdf0a029b1adbd27d6179"&gt;b8a8a11e22&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="use-slots"&gt;
+&lt;h3&gt;Use __slots__&lt;/h3&gt;
+&lt;p&gt;The &lt;a class="reference external" href="../2016-04-18-aliasing-improved.rst"&gt;Binds To&lt;/a&gt; analysis is
+relatively costly in some cases, as it (roughly) creates a tiny object for many
+AST nodes. The associated class now uses &lt;tt class="docutils literal"&gt;__slots__&lt;/tt&gt; to declare its member,
+which speeds up the object creation.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/39c8c3bdd4e93c068240adc46fdd723074a3f90f"&gt;39c8c3bdd4&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="beware-of-ipython"&gt;
+&lt;h3&gt;Beware of IPython&lt;/h3&gt;
+&lt;p&gt;Pythran can be integrated to Jupyter notebooks and to the IPython console
+through the use of &lt;tt class="docutils literal"&gt;IPython.core.magic&lt;/tt&gt;. This used to be imported by default
+in the Pythran package, which slows down the startup process because the
+dependency is huge. It's now still available, but one needs to explicitly
+import &lt;tt class="docutils literal"&gt;pythran.magic&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/1e6c7b3a5fcd0004224dcb991740b5444e70e805"&gt;1e6c7b3a5f&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="boost-your-compilation-time"&gt;
+&lt;h3&gt;Boost your Compilation Time&lt;/h3&gt;
+&lt;p&gt;Reinventing the wheel is generally not a good thing, so the C++ runtime of
+Pythran, &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; had some dependencies on &lt;a class="reference external" href="http://www.boost.org/"&gt;boost&lt;/a&gt;. We got rid on &lt;tt class="docutils literal"&gt;Boost.Python&lt;/tt&gt; a while ago because
+of the compilation time overhead, we now got rid of &lt;tt class="docutils literal"&gt;Boost.UnorderedMap&lt;/tt&gt;
+(&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::unordered_map&lt;/span&gt;&lt;/tt&gt; is generally ok, even if running slower on some
+benchmarks). We keep the dependency on &lt;tt class="docutils literal"&gt;Boost.Format&lt;/tt&gt; but limit it to some
+header files that are only included for the &lt;tt class="docutils literal"&gt;%&lt;/tt&gt; operator of &lt;tt class="docutils literal"&gt;str&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;Oh, and include &lt;tt class="docutils literal"&gt;&amp;lt;ostream&amp;gt;&lt;/tt&gt; instead of &lt;tt class="docutils literal"&gt;&amp;lt;iostream&amp;gt;&lt;/tt&gt; when input is not needed is also a good idea!&lt;/p&gt;
+&lt;p&gt;See commits &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/88a16dc631ff1481051e3a721b679a71b74b20e5"&gt;88a16dc631&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/1489f799a42a3b07f295a8e671be441a4e84e443"&gt;1489f799a4&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/15e1fbaaa801721ac0b9a28c62d24afd1a8a93db"&gt;15e1fbaaa8&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="constant-fold-wisely"&gt;
+&lt;h3&gt;Constant Fold Wisely&lt;/h3&gt;
+&lt;p&gt;Pythran implements a very generic constant folding pass that basically goes
+through each node of the AST, check if it's a constant node and if so evaluate
+the expression and put the result in the AST in place of the original
+expression. We did this a lot, even for literals, which was obviously useless.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/fa0b98b3cc0b9b5fc42c5d346c73c39196d59628"&gt;fa0b98b3cc&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="faster-generated-code"&gt;
+&lt;h2&gt;Faster Generated Code&lt;/h2&gt;
+&lt;p&gt;The original motivation of Pythran is speed of the generated code, and speed remains the primary focus. So, what's new?&lt;/p&gt;
+&lt;div class="section" id="avoid-the-leaks"&gt;
+&lt;h3&gt;Avoid the Leaks&lt;/h3&gt;
+&lt;p&gt;Memory management in &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; is delegated to a shared reference counter,
+which is generally ok. We still need some manual managements at the boundaries,
+when memory gets allocated by a third-part library, or when it comes from a
+&lt;tt class="docutils literal"&gt;PyObject&lt;/tt&gt;. In the latter case, we keep a reference on the original
+&lt;tt class="docutils literal"&gt;PyObject&lt;/tt&gt; and when &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; shared reference dies, we decrease the
+&lt;tt class="docutils literal"&gt;PyObject&lt;/tt&gt; reference counter.&lt;/p&gt;
+&lt;p&gt;When the memory comes from a third-part library, we have a bunch of ways to
+state what to do when the reference dies, but this was not part of the
+constructor API. And then comes this &lt;tt class="docutils literal"&gt;numpy.zeros&lt;/tt&gt; implementation that makes
+a call to &lt;tt class="docutils literal"&gt;calloc&lt;/tt&gt; but forgets to set the proper destructor. Everything is
+now part of the constructor API, which prevents such stupid mistakes. And
+&lt;strong&gt;Yes&lt;/strong&gt; I really feel ashamed of this one; &lt;em&gt;really&lt;/em&gt;; &lt;strong&gt;reaalyyyyyy&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/f294143ca440c788c76af2e3e1f73bc3c439a895"&gt;f294143ca4&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="lazy-numpy-where"&gt;
+&lt;h3&gt;Lazy numpy.where&lt;/h3&gt;
+&lt;p&gt;Consider the following Numpy expression:&lt;/p&gt;
+&lt;pre class="code python literal-block"&gt;
+&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;where&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;
+&lt;p&gt;Python evaluates the three operands before calling &lt;tt class="docutils literal"&gt;numpy.where&lt;/tt&gt;, which
+creates three temporary arrays, and runs the computation of &lt;tt class="docutils literal"&gt;**2&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;+ 2&lt;/tt&gt;
+for each element of the array, while these computations are only needed
+depending on the value of &lt;tt class="docutils literal"&gt;a &amp;gt; 1&lt;/tt&gt;. What we need here is lazy evaluation of
+the operands, something that was not part of our expression template engine and
+is now built-in!&lt;/p&gt;
+&lt;p&gt;Said otherwise, the previous entry point for an expression template was&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+template&amp;lt;class T0, class T1, class T2&amp;gt;
+auto operator()(T0 const&amp;amp; arg0, T0 const&amp;amp; arg1, T2 const&amp;amp; arg2) {
+  // every argument is evaluated at that point
+  return arg0 ? arg1 : arg2;
+}
+&lt;/pre&gt;
+&lt;p&gt;And it can now be&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+template&amp;lt;class T0, class T1, class T2&amp;gt;
+auto operator()(T0 const&amp;amp; iter0, T0 const&amp;amp; iter1, T2 const&amp;amp; iter2) {
+  // no argument is evaluated at that point, dereferencing triggers the computation
+  return *arg0 ? *arg1 : *arg2; /**/
+}
+&lt;/pre&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/757795fdc91a2cfafd2e6c8af75a6eb2f64a5db1"&gt;757795fdc9&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="update-operator"&gt;
+&lt;h3&gt;Update Operator&lt;/h3&gt;
+&lt;p&gt;For some internal operations, I've been lazy and implemented update operator like this:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+template&amp;lt;class T&amp;gt;
+auto operator+=(T const&amp;amp; val) {
+    return (*this) = (*this) + val;
+} /**/
+&lt;/pre&gt;
+&lt;p&gt;Being lazy rarely pays off, the extra object created had a performance impact
+on 3D data structures, everything is now done properly using in-place
+computations.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/2b151e8ec501a8cdf10c9543befd2de7e81d4c52"&gt;2b151e8ec5&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="range-and-python3"&gt;
+&lt;h3&gt;Range and Python3&lt;/h3&gt;
+&lt;p&gt;Python3 support is still experimental in Pythran, as showcased by this bug...
+In the backend code, when translating Pythran IR to C++, we have a special case
+for plain old loops. Basically if we meet a for loop iterating over an
+&lt;tt class="docutils literal"&gt;xrange&lt;/tt&gt; object, we generate a plain old C loop, even if our &lt;tt class="docutils literal"&gt;xrange&lt;/tt&gt;
+implementation is very light, it pleases the C++ compiler to find this kind of
+pattern. Yes, &lt;tt class="docutils literal"&gt;xrange&lt;/tt&gt;, see the issue? We know correctly lower &lt;tt class="docutils literal"&gt;range&lt;/tt&gt;
+loops from Python3, but there's probably plenty of such details hanging around
+:-/&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/0f5f10c62fd35a7ddbc6bd2d699a4ed59592c35b"&gt;0f5f10c62f&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="avoid-the-div"&gt;
+&lt;h3&gt;Avoid the Div&lt;/h3&gt;
+&lt;p&gt;At the assembly level, performing an integer division is generally costly, much more than a multiplication.&lt;/p&gt;
+&lt;p&gt;So instead of doing:&lt;/p&gt;
+&lt;pre class="code c++ literal-block"&gt;
+&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;nbiter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;size0&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;size1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;nbiter&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+   &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;
+&lt;p&gt;Doing (it's not generally equivalent, but in our context it is because &lt;tt class="docutils literal"&gt;size0&lt;/tt&gt; is a multiple of &lt;tt class="docutils literal"&gt;size1&lt;/tt&gt;)&lt;/p&gt;
+&lt;pre class="code c++ literal-block"&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;size0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;size1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+   &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;
+&lt;p&gt;Is generally faster.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/79293c937869082e97409c68db5ecfd4b8540315"&gt;79293c9378&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="transposed-array"&gt;
+&lt;h3&gt;Transposed Array&lt;/h3&gt;
+&lt;p&gt;Even at the C API level, Numpy array have the notion of data layout built-in,
+to cope with FORTRAN-style and C-style memory layout. This is used as a trick
+to get transposition for free, but we did not implement this when converting
+transposed array from C++ to Python, which led in a costly and useless
+computation. Setting the proper flag did the job.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/6f27ac391675b2941988cfcce1ab25819cecdc70"&gt;6f27ac3916&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="avoid-usless-conversions"&gt;
+&lt;h3&gt;Avoid usless conversions&lt;/h3&gt;
+&lt;p&gt;In C++ (and C) when one adds a &lt;tt class="docutils literal"&gt;uint8&lt;/tt&gt; with a &lt;tt class="docutils literal"&gt;uint8&lt;/tt&gt;, he ends up with an
+&lt;tt class="docutils literal"&gt;int&lt;/tt&gt;. This is not the default behavior of numpy arrays, so we did hit a bug
+here. I still think that delegating type inference to C++ was a good choice,
+because the C++ implementation automatically documents and provides the
+function type without the need of manually filling each function type
+description has we did for the type checker, but it still requires some care.&lt;/p&gt;
+&lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/fae8ba1bbc92ac3a9e610d1eb9d1eb76f09f5fa0"&gt;fae8ba1bbc&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="conclusion"&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Pythran did improve a lot thanks to the OpenDreamKit project, I cannot find ways to thank them enough for their trust. I'm also in debt to &lt;a class="reference external" href="https://www.logilab.fr/"&gt;Logilab&lt;/a&gt;, for their help thoughout the whole project.&lt;/p&gt;
+&lt;p&gt;As usual, I'm in debt to &lt;a class="reference external" href="https://github.com/lsix"&gt;Lancelot Six&lt;/a&gt; for his careful review of this post.&lt;/p&gt;
+&lt;p&gt;Finally, I'd like to thank &lt;a class="reference external" href="https://github.com/diorcety"&gt;Yann Diorcet&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/ashwinvis"&gt;Ashwin Vishnu&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/aguinet"&gt;Adrien Guinet&lt;/a&gt; for stepping into the Pythran codebase and providing useful bug reports &lt;em&gt;and&lt;/em&gt; commits!&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:/pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a type checking ability, called &lt;em&gt;tog&lt;/em&gt;. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;Pythran is currently part of &lt;a class="reference external" href="http://opendreamkit.org/"&gt;OpenDreamKit&lt;/a&gt;,
 a project that aims at improving the open source computational mathematics
 ecosystem.&lt;/p&gt;

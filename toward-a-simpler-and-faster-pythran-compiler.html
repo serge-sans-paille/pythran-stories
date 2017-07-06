@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Toward a Simpler and faster Pythran Compiler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/engineering.html">
+						<i class="icon-folder-open icon-large"></i>engineering
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/examples.html">
+						<i class="icon-folder-open icon-large"></i>examples
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Toward a Simpler and faster Pythran Compiler">
+                                        Toward a Simpler and faster Pythran Compiler
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2017-06-30T00:00:00+02:00">
+        <i class="icon-calendar"></i>Fri 30 June 2017
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/engineering.html"><i class="icon-folder-open"></i>engineering</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <p>Over the last six months, I've been working on improving Pythran for the
+<a class="reference external" href="http://opendreamkit.org">OpenDreamKit</a> project. The inital goal was to add
+some basic support for classes, but as it quickly turns out, that would break a
+central assumption of Pythran « everything can be modeled in a procedural way »,
+and breaking this assumptions implies a lot of code changes. Instead of turning
+Pythran into an Idol with Feet of Clay, I began to cleanup the codebase, making
+it slimmer, faster, and still generating efficient code. This brings me to this
+blog post, that details various aspects of the development starting from last
+stable version at <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/6428e526ec414cc79a1d2b7399137aa5e1656a2a">6428e526ec</a>
+and a recent commit, namely <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/3ec043e5ce0cb5b9292fa92e9fd38a01cf8122b5">3ec043e5ce</a>,
+used as <tt class="docutils literal">HEAD</tt> for this post.</p>
+<p>This blogpost is split in two sections: one concerning codebase improvement to
+achieve faster compilation time, and one considering performance improvement, to
+generate code that runs faster; So In the end, we get faster code, faster!</p>
+<p>But first some statistics:</p>
+<ul>
+<li><p class="first">During this period, <em>24</em> issues <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues?utf8=%E2%9C%93&amp;q=is%3Aissue%20is%3Aclosed%20closed%3A%3E2017-01-01">have been closed</a>.</p>
+</li>
+<li><p class="first">There has been more than a hundred of commits.</p>
+<pre class="code literal-block">
+$ git rev-list --count 6428e526ec..
+118
+</pre>
+</li>
+<li><p class="first">If we exclude the two Boost.Simd updates, the code base has not grown much,
+which is great news, because we did fix a lot of issues, without making the
+code grow too much.</p>
+<pre class="code literal-block">
+$ git diff --shortstat 6428e526ec.. -- pythran
+203 files changed, 3185 insertions(+), 3119 deletions(-)
+</pre>
+</li>
+<li><p class="first">And finally, the codebase is still within my reach, as reported by sloccount,
+roughly 45kSLOC of C++ runtime, 15kSLOC of python tests and 15kSLOC of actual
+compiler code.</p>
+<pre class="code literal-block">
+$ sloccount pythran
+[...]
+SLOC        Directory       SLOC-by-Language (Sorted)
+43984   pythonic        cpp=43984
+15004   tests           python=14738,cpp=232,sh=34
+7955    top_dir         python=7955
+2435    analyses        python=2435
+1923    types           python=1923
+1390    transformations python=1390
+720     optimizations   python=720
+</pre>
+</li>
+</ul>
+<div class="section" id="faster-compilation">
+<h2>Faster Compilation</h2>
+<p>If I try to compile the <a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/master/pythran/tests/cases/kmeans.py">kmeans.py</a> code from the Pythran test bed, using g++-6.3, at revision <tt class="docutils literal">6428e526ec</tt>, I roughly get (with hot file system caches):</p>
+<pre class="code literal-block">
+$ time pythran kmeans.py
+5.69s user 0.46s system 102% cpu 5.975 total
+</pre>
+<p>The very same command using the <tt class="docutils literal">HEAD</tt> revision outputs:</p>
+<pre class="code literal-block">
+$ time pythran kmeans.py
+4.47s user 0.43s system 103% cpu 4.723 total
+</pre>
+<p>Wow, that's something around one second faster. Not incredible, but still 20% faster. How did this happen? (What an intro!)</p>
+<div class="section" id="optional-typing">
+<h3>Optional Typing</h3>
+<p>« The fastest program is the one that does nothing. » Inspired by this motto (and by the advices of <a class="reference external" href="https://github.com/pbrunet">pbrunet</a>), I realized that current compilation flow, illustrated below:</p>
+<pre class="code literal-block">
+ir = parse(code)
+if not type_check(ir):
+    raise CompileError(...)
+cxx = generate_cxx(ir)
+compile_cxx(cxx)
+</pre>
+<p>could be rewritten like this:</p>
+<pre class="code literal-block">
+ir = parse(code)
+cxx = generate_cxx(ir)
+try:
+    compile_cxx(cxx)
+except SystemError:
+    if not type_check(ir):
+        raise CompileError(...)
+    raise
+</pre>
+<p>Basically, the type checker is only used to produce smarter error output (see
+<a class="reference external" href="../2016-12-10-pythran-typing.rst">Previous BlogPost on the subject</a>
+for more details), there's already a typing mechanism in Pythran that delegates
+as much work as possible to C++. So the idea here is to compile things without
+type checking, and if compilation fails, try hard to find the origin.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/58d62de77e14eca7210f470b5c3e851c5167e175">58d62de77e</a>.</p>
+</div>
+<div class="section" id="sanitize-pass-pipeline">
+<h3>Sanitize Pass Pipeline</h3>
+<p>The optimization pipeline of Pythran is driven by a pass manager that schedules
+optimization passes and takes care of maintiaing the analyse cache.</p>
+<p>The pass manager used to call <tt class="docutils literal">ast.fix_missing_location</tt> after each
+transformation, to maintain node location information, which can be useful for
+error reporting and running calls to <tt class="docutils literal">compile</tt> on ast nodes. It's now only
+done if the pass actually did something.</p>
+<p>Still in the pass management stuff, Pythran begins with a few normalization
+passes to reduce the Python AST (in fact the <a class="reference external" href="https://github.com/serge-sans-paille/gast">gast</a> one) to a friendlier IR. It turns
+out this normalization pipelin had some redundant steps, that got pruned, which
+avoids a few AST walk.</p>
+<p>In the same spirit of removing useless stuff, some Pythran passes did declare
+dependencies to analyse that were not used. Removing this dependencies avoids
+some extra computation!</p>
+<p>See commits <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/6c9f5630f406ec178a62eddb302445d5057c0557">6c9f5630f4</a> and <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/b8a8a11e2216cafa1bebdf0a029b1adbd27d6179">b8a8a11e22</a>.</p>
+</div>
+<div class="section" id="use-slots">
+<h3>Use __slots__</h3>
+<p>The <a class="reference external" href="../2016-04-18-aliasing-improved.rst">Binds To</a> analysis is
+relatively costly in some cases, as it (roughly) creates a tiny object for many
+AST nodes. The associated class now uses <tt class="docutils literal">__slots__</tt> to declare its member,
+which speeds up the object creation.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/39c8c3bdd4e93c068240adc46fdd723074a3f90f">39c8c3bdd4</a>.</p>
+</div>
+<div class="section" id="beware-of-ipython">
+<h3>Beware of IPython</h3>
+<p>Pythran can be integrated to Jupyter notebooks and to the IPython console
+through the use of <tt class="docutils literal">IPython.core.magic</tt>. This used to be imported by default
+in the Pythran package, which slows down the startup process because the
+dependency is huge. It's now still available, but one needs to explicitly
+import <tt class="docutils literal">pythran.magic</tt>.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/1e6c7b3a5fcd0004224dcb991740b5444e70e805">1e6c7b3a5f</a>.</p>
+</div>
+<div class="section" id="boost-your-compilation-time">
+<h3>Boost your Compilation Time</h3>
+<p>Reinventing the wheel is generally not a good thing, so the C++ runtime of
+Pythran, <tt class="docutils literal">pythonic</tt> had some dependencies on <a class="reference external" href="http://www.boost.org/">boost</a>. We got rid on <tt class="docutils literal">Boost.Python</tt> a while ago because
+of the compilation time overhead, we now got rid of <tt class="docutils literal">Boost.UnorderedMap</tt>
+(<tt class="docutils literal"><span class="pre">std::unordered_map</span></tt> is generally ok, even if running slower on some
+benchmarks). We keep the dependency on <tt class="docutils literal">Boost.Format</tt> but limit it to some
+header files that are only included for the <tt class="docutils literal">%</tt> operator of <tt class="docutils literal">str</tt>.</p>
+<p>Oh, and include <tt class="docutils literal">&lt;ostream&gt;</tt> instead of <tt class="docutils literal">&lt;iostream&gt;</tt> when input is not needed is also a good idea!</p>
+<p>See commits <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/88a16dc631ff1481051e3a721b679a71b74b20e5">88a16dc631</a>, <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/1489f799a42a3b07f295a8e671be441a4e84e443">1489f799a4</a> and <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/15e1fbaaa801721ac0b9a28c62d24afd1a8a93db">15e1fbaaa8</a>.</p>
+</div>
+<div class="section" id="constant-fold-wisely">
+<h3>Constant Fold Wisely</h3>
+<p>Pythran implements a very generic constant folding pass that basically goes
+through each node of the AST, check if it's a constant node and if so evaluate
+the expression and put the result in the AST in place of the original
+expression. We did this a lot, even for literals, which was obviously useless.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/fa0b98b3cc0b9b5fc42c5d346c73c39196d59628">fa0b98b3cc</a>.</p>
+</div>
+</div>
+<div class="section" id="faster-generated-code">
+<h2>Faster Generated Code</h2>
+<p>The original motivation of Pythran is speed of the generated code, and speed remains the primary focus. So, what's new?</p>
+<div class="section" id="avoid-the-leaks">
+<h3>Avoid the Leaks</h3>
+<p>Memory management in <tt class="docutils literal">pythonic</tt> is delegated to a shared reference counter,
+which is generally ok. We still need some manual managements at the boundaries,
+when memory gets allocated by a third-part library, or when it comes from a
+<tt class="docutils literal">PyObject</tt>. In the latter case, we keep a reference on the original
+<tt class="docutils literal">PyObject</tt> and when <tt class="docutils literal">pythonic</tt> shared reference dies, we decrease the
+<tt class="docutils literal">PyObject</tt> reference counter.</p>
+<p>When the memory comes from a third-part library, we have a bunch of ways to
+state what to do when the reference dies, but this was not part of the
+constructor API. And then comes this <tt class="docutils literal">numpy.zeros</tt> implementation that makes
+a call to <tt class="docutils literal">calloc</tt> but forgets to set the proper destructor. Everything is
+now part of the constructor API, which prevents such stupid mistakes. And
+<strong>Yes</strong> I really feel ashamed of this one; <em>really</em>; <strong>reaalyyyyyy</strong>.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/f294143ca440c788c76af2e3e1f73bc3c439a895">f294143ca4</a>.</p>
+</div>
+<div class="section" id="lazy-numpy-where">
+<h3>Lazy numpy.where</h3>
+<p>Consider the following Numpy expression:</p>
+<pre class="code python literal-block">
+<span class="n">a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+</pre>
+<p>Python evaluates the three operands before calling <tt class="docutils literal">numpy.where</tt>, which
+creates three temporary arrays, and runs the computation of <tt class="docutils literal">**2</tt> and <tt class="docutils literal">+ 2</tt>
+for each element of the array, while these computations are only needed
+depending on the value of <tt class="docutils literal">a &gt; 1</tt>. What we need here is lazy evaluation of
+the operands, something that was not part of our expression template engine and
+is now built-in!</p>
+<p>Said otherwise, the previous entry point for an expression template was</p>
+<pre class="code literal-block">
+template&lt;class T0, class T1, class T2&gt;
+auto operator()(T0 const&amp; arg0, T0 const&amp; arg1, T2 const&amp; arg2) {
+  // every argument is evaluated at that point
+  return arg0 ? arg1 : arg2;
+}
+</pre>
+<p>And it can now be</p>
+<pre class="code literal-block">
+template&lt;class T0, class T1, class T2&gt;
+auto operator()(T0 const&amp; iter0, T0 const&amp; iter1, T2 const&amp; iter2) {
+  // no argument is evaluated at that point, dereferencing triggers the computation
+  return *arg0 ? *arg1 : *arg2; /**/
+}
+</pre>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/757795fdc91a2cfafd2e6c8af75a6eb2f64a5db1">757795fdc9</a>.</p>
+</div>
+<div class="section" id="update-operator">
+<h3>Update Operator</h3>
+<p>For some internal operations, I've been lazy and implemented update operator like this:</p>
+<pre class="code literal-block">
+template&lt;class T&gt;
+auto operator+=(T const&amp; val) {
+    return (*this) = (*this) + val;
+} /**/
+</pre>
+<p>Being lazy rarely pays off, the extra object created had a performance impact
+on 3D data structures, everything is now done properly using in-place
+computations.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/2b151e8ec501a8cdf10c9543befd2de7e81d4c52">2b151e8ec5</a>.</p>
+</div>
+<div class="section" id="range-and-python3">
+<h3>Range and Python3</h3>
+<p>Python3 support is still experimental in Pythran, as showcased by this bug...
+In the backend code, when translating Pythran IR to C++, we have a special case
+for plain old loops. Basically if we meet a for loop iterating over an
+<tt class="docutils literal">xrange</tt> object, we generate a plain old C loop, even if our <tt class="docutils literal">xrange</tt>
+implementation is very light, it pleases the C++ compiler to find this kind of
+pattern. Yes, <tt class="docutils literal">xrange</tt>, see the issue? We know correctly lower <tt class="docutils literal">range</tt>
+loops from Python3, but there's probably plenty of such details hanging around
+:-/</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/0f5f10c62fd35a7ddbc6bd2d699a4ed59592c35b">0f5f10c62f</a>.</p>
+</div>
+<div class="section" id="avoid-the-div">
+<h3>Avoid the Div</h3>
+<p>At the assembly level, performing an integer division is generally costly, much more than a multiplication.</p>
+<p>So instead of doing:</p>
+<pre class="code c++ literal-block">
+<span class="kt">size_t</span> <span class="n">nbiter</span> <span class="o">=</span> <span class="n">size0</span> <span class="o">/</span> <span class="n">size1</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nbiter</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+   <span class="p">...</span>
+<span class="p">}</span>
+</pre>
+<p>Doing (it's not generally equivalent, but in our context it is because <tt class="docutils literal">size0</tt> is a multiple of <tt class="docutils literal">size1</tt>)</p>
+<pre class="code c++ literal-block">
+<span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size0</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">size1</span><span class="p">)</span> <span class="p">{</span>
+   <span class="p">...</span>
+<span class="p">}</span>
+</pre>
+<p>Is generally faster.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/79293c937869082e97409c68db5ecfd4b8540315">79293c9378</a>.</p>
+</div>
+<div class="section" id="transposed-array">
+<h3>Transposed Array</h3>
+<p>Even at the C API level, Numpy array have the notion of data layout built-in,
+to cope with FORTRAN-style and C-style memory layout. This is used as a trick
+to get transposition for free, but we did not implement this when converting
+transposed array from C++ to Python, which led in a costly and useless
+computation. Setting the proper flag did the job.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/6f27ac391675b2941988cfcce1ab25819cecdc70">6f27ac3916</a>.</p>
+</div>
+<div class="section" id="avoid-usless-conversions">
+<h3>Avoid usless conversions</h3>
+<p>In C++ (and C) when one adds a <tt class="docutils literal">uint8</tt> with a <tt class="docutils literal">uint8</tt>, he ends up with an
+<tt class="docutils literal">int</tt>. This is not the default behavior of numpy arrays, so we did hit a bug
+here. I still think that delegating type inference to C++ was a good choice,
+because the C++ implementation automatically documents and provides the
+function type without the need of manually filling each function type
+description has we did for the type checker, but it still requires some care.</p>
+<p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/fae8ba1bbc92ac3a9e610d1eb9d1eb76f09f5fa0">fae8ba1bbc</a>.</p>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>Pythran did improve a lot thanks to the OpenDreamKit project, I cannot find ways to thank them enough for their trust. I'm also in debt to <a class="reference external" href="https://www.logilab.fr/">Logilab</a>, for their help thoughout the whole project.</p>
+<p>As usual, I'm in debt to <a class="reference external" href="https://github.com/lsix">Lancelot Six</a> for his careful review of this post.</p>
+<p>Finally, I'd like to thank <a class="reference external" href="https://github.com/diorcety">Yann Diorcet</a>, <a class="reference external" href="https://github.com/ashwinvis">Ashwin Vishnu</a> and <a class="reference external" href="https://github.com/aguinet">Adrien Guinet</a> for stepping into the Pythran codebase and providing useful bug reports <em>and</em> commits!</p>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/engineering.html">
+    <i class="icon-folder-open icon-large"></i>engineering
+</a>
+</li>
+<li>
+<a href="./category/examples.html">
+    <i class="icon-folder-open icon-large"></i>examples
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
