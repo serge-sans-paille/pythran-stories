@@ -1,4 +1,4 @@
-Toward a Simpler and faster Pythran Compiler
+Toward a Simpler and Faster Pythran Compiler
 ############################################
 
 :date: 2017-06-30
