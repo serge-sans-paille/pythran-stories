@@ -107,6 +107,79 @@ Then we can run the same benchmark as above:
 
 Cool, the same performance, while keeping Python-compatible code ``\o/``.
 
+Capsule and Numpy
+=================
+
+There is another interesting usage example in the `SciPy documentation
+<https://docs.scipy.org/doc/scipy/reference/tutorial/ndimage.html#ndimage-ccallbacks>`_.
+In that example, the capsule creation is purely done in C, using the Python C
+API. Let's see how we can achieve the same result with Pythran. The original C routine is the following:
+
+.. code:: C
+
+    static int
+    _transform(npy_intp *output_coordinates, double *input_coordinates, int output_rank, int input_rank, void *user_data)
+    {
+        npy_intp i;
+        double shift = *(double *)user_data;
+
+        for (i = 0; i < input_rank; i++) {
+            input_coordinates[i] = output_coordinates[i] - shift;
+        }
+        return 1;
+    }
+
+Using Pythran and Numpy, it is possible to write a portable version like this:
+
+.. code:: python
+
+    from numpy.ctypeslib import as_array
+    def transform(output_coordinates, input_coordinates, output_rank, input_rank, user_data):
+        shift = user_data[0]
+        input_data = as_array(input_coordinates, input_rank)
+        output_data = as_array(output_coordinates, output_rank)
+        input_data[:] = output_data - shift
+        return 1
+
+    def transform_basic(output_coordinates, input_coordinates, output_rank, input_rank, user_data):
+        shift = user_data[0]
+        for i in range(input_rank):
+            input_coordinates[i] = output_coordinates[i] - shift;
+        return 1
+
+Note that thanks to ``numpy.ctypeslib`` that's still 100% pure Python code, using official APIs.
+
+The export line to create a capsule is:
+
+.. code:: python
+
+    #pythran export capsule transform(int64*, float64*, int32, int32, float64*)
+    #pythran export capsule transform_basic(int64*, float64*, int32, int32, float64*)
+
+Once compiled with Pythran, we get a native library that can be imported and used in a Python script:
+
+.. code:: python
+
+    import ctypes
+    import numpy as np
+    from scipy import ndimage, LowLevelCallable
+
+    from example import transform
+
+    shift = 0.5
+
+    user_data = ctypes.c_double(shift)
+    ptr = ctypes.cast(ctypes.pointer(user_data), ctypes.c_void_p)
+    callback = LowLevelCallable(transform, ptr, "int (npy_intp *, double *, int, int, void *)")
+    im = np.arange(12).reshape(4, 3).astype(np.float64)
+    print(ndimage.geometric_transform(im, callback))
+
+Performance wise, the version based on Numpy array is still slightly lagging
+behind because of the extra array creation (it initializes a here useless
+memory management part), and the other version is equivalent to the one written
+in C.
+
+
 Pitfalls and Booby Traps
 ========================
 
@@ -118,7 +191,9 @@ Using a ``PyCapsule`` requires some care, as the user (**you**) needs to take ca
 
 3. The pointer types in the Pythran annotation are only meaningful within a capsule. There is *currently* no way to use them in regular Pythran functions.
 
-4. There is no way to put an overloaded function into a capsule (a capsule wraps a function pointer, which is incompatible with overloads)
+4. There is no way to put an overloaded function into a capsule (a capsule wraps a function pointer, which is incompatible with overloads).
+
+5. Wrapping a pointer into an ``ndarray`` using ``numpy.ctypeslib.as_array`` currently implies a slight overhead :/.
 
 Apart from that, I'm glad this new feature landed, thanks a lot to `@maartenbreddels <https://github.com/maartenbreddels>`_ for opening the `related issue <https://github.com/serge-sans-paille/pythran/issues/732>`_!
 
