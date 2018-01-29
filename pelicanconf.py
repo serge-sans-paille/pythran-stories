@@ -8,7 +8,7 @@ SITENAME = 'Pythran stories'
 SITEURL = 'http://serge-sans-paille.github.io/pythran-stories'
 
 PATH = 'content'
-STATIC_PATHS = ['notebooks'] + [os.path.basename(p) for p in glob.glob(os.path.join(PATH, "*_files"))]
+STATIC_PATHS = ['notebooks', 'images'] + [os.path.basename(p) for p in glob.glob(os.path.join(PATH, "*_files"))]
 
 TIMEZONE = 'Europe/Paris'
 
