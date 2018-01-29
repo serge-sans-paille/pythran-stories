@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Shrinking Pythran-Generated Binaries</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/engineering.html">
+						<i class="icon-folder-open icon-large"></i>engineering
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/examples.html">
+						<i class="icon-folder-open icon-large"></i>examples
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Shrinking Pythran-Generated Binaries">
+                                        Shrinking Pythran-Generated Binaries
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-01-29T00:00:00+01:00">
+        <i class="icon-calendar"></i>Mon 29 January 2018
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/optimisation.html"><i class="icon-folder-open"></i>optimisation</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <div class="section" id="testbed">
+<h2>Testbed</h2>
+<p>So the question was: do Pythran-generated binaries use more disk space than Cython generated binaries?</p>
+<p>I first pick a few Cython files from the Scipy code base. Those are files that can easily be converted back to Python so that Pythran can process them (remember, Pythran only processes pure Python code).</p>
+<ul class="simple">
+<li><tt class="docutils literal">directed_hausdorff</tt>: [<a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/spatial/_hausdorff.pyx">_hausdorff.pyx</a>] [<a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/hausdorff.py">hausdorff.py</a>]</li>
+<li><tt class="docutils literal">max_len_seq_inner</tt>: [<a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/signal/_max_len_seq_inner.pyx">max_len_seq_inner.pyx</a>] [<a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/max_len_seq_inner.py">max_len_seq_inner.py</a>]</li>
+<li><tt class="docutils literal">levinson</tt>, Solves a linear Toeplitz system using Levinson recursion: [<a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/linalg/_solve_toeplitz.pyx">_solve_toeplitz.pyx</a>] [<a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/solve_toeplitz.py">solve_toeplitz.py</a>]</li>
+<li><tt class="docutils literal">lombscargle</tt>, Computes the Lomb-Scargle periodogram: [<a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/signal/_spectral.pyx">_spectral.pyx</a>] [<a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/spectral.py">spectral.py</a>]</li>
+</ul>
+<p>To the notable exception of <tt class="docutils literal">spectral.py</tt> that uses high level <tt class="docutils literal">numpy.sum(x, axis=1)</tt> construct, the Pythran code is generally a rewrite of the Cython code with types and annotation pruned, plus a few syntactic sugar from Python like the <tt class="docutils literal">for: ... <span class="pre">else:..</span></tt> statement used in <tt class="docutils literal">hausdorff.py</tt>.</p>
+<p>For reference, I compiled the Cython code using the rather old school <tt class="docutils literal">cython
+src.pyx &amp;&amp; gcc <span class="pre">-shared</span> <span class="pre">-fPIC</span> <span class="pre">`python-config</span> <span class="pre">--cflags</span> <span class="pre">--libs`</span> <span class="pre">-o</span> src.so <span class="pre">-O2</span></tt>
+command line, then stripped the resulting binary using <tt class="docutils literal">strip src.so</tt>. The
+later command is used to be fair with Pythran, that automatically adds
+<tt class="docutils literal"><span class="pre">-Wl,-strip-all</span></tt> flag during compilation (both have the same effect of
+stripping the binary from debug information and useless ELF sections).</p>
+</div>
+<div class="section" id="commit-history">
+<h2>Commit History</h2>
+<p>The following figures illustrate the history of binary size throughout the recent Pythran commit history, using the Cython binary as a base line.</p>
+<img alt="Evolution of binary size for 'spectral.so'" class="align-center" src="./images/2018-01-29-spectral.so.png" style="height: 20em;" />
+<img alt="Evolution of binary size for 'hausdorff.so'" class="align-center" src="images/2018-01-29-hausdorff.so.png" style="height: 20em;" />
+<img alt="Evolution of binary size for 'max_len_seq_inner.so'" class="align-center" src="images/2018-01-29-max_len_seq_inner.so.png" style="height: 20em;" />
+<img alt="Evolution of binary size for 'solve_toeplitz.so'" class="align-center" src="images/2018-01-29-solve_toeplitz.so.png" style="height: 20em;" />
+<p>So a lot of things actually happened :-) Let me explain that.</p>
+<div class="section" id="controlling-symbols">
+<h3>Controlling Symbols</h3>
+<p>The first commit around <tt class="docutils literal">HEAD~12</tt> was the most relevant one. Digging through the output of <tt class="docutils literal">nm
+<span class="pre">-C</span></tt> on Pythran generated binaries, I noticed quite a lot of symbols that were
+of no use for the generated binaries; But they were present because Pythran
+uses the <tt class="docutils literal">pythonic</tt> header only libraries and as such, when it includes some
+headers, the symbol defined end up in the binary. They are actually marked as
+<tt class="docutils literal">hidden</tt> because of the <tt class="docutils literal"><span class="pre">-fvisibility=hidden</span></tt> flag, but they are still
+there (this flag mostly affects the linker. I ended up adding an (optional)
+anonymous namespace right below the <tt class="docutils literal">pythonic</tt> namespace, which effectively
+marks all symbols as internal symbols, so the compiler can remove them
+relatively early in the compilation process.</p>
+<p>There's also a small shrink around <tt class="docutils literal">HEAD~9</tt>. This is due to some symbols that
+were just hanging around in the global namespace, but they happened to be
+useless :-)</p>
+</div>
+<div class="section" id="avoiding-copies">
+<h3>Avoiding Copies</h3>
+<p>The stats for <tt class="docutils literal">spectral.py</tt> were not so good, even after the initial
+reduction. While digging through the generated assembly code, I noticed a lot
+of register spill, ended up with a lot of <tt class="docutils literal">mov</tt>. It turns out my expression
+template code was making a bunch of copies of its argument, which is sometimes
+necessary (when the expression template <em>owns</em> its argument) but sometimes not.
+Not a big deal as pythonic object use a shared reference counter, but still,
+avoiding that would certainly shrink the generated binaries. Turns out that was
+a correct guess. And it also speeds up the execution of the code, less spilling
+is generally a good thing :-)</p>
+</div>
+<div class="section" id="about-specialization">
+<h3>About Specialization</h3>
+<p>It may looks strange to have all Pythran binaries thiner that Cython's, except
+<tt class="docutils literal">spectral.so</tt>. This is explained by the fact that Pythran generates code to
+handle broadcasting, actually generating two versions for each complex
+expression: one with broadcasting and one without. Twice the code, twice the
+fat :-)</p>
+<p>That gives me an optimization hint: being able to symbolically compute
+expression size may turn dynamic broadcasting into static broadcasting, I need
+to dig on that idea.</p>
+</div>
+</div>
+<div class="section" id="going-further">
+<h2>Going Further</h2>
+<p>Let's have a look to the two version of <tt class="docutils literal">hausdorff</tt> binaries:</p>
+<pre class="code literal-block">
+$ readelf -SW hausdorff.so _hausdorff.so
+
+File: hausdorff.so
+There are 28 section headers, starting at offset 0x17490:
+
+Section Headers:
+  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0
+  [ 1] .note.gnu.build-id NOTE           00000000000001c8 0001c8 000024 00   A  0   0  4
+  [ 2] .gnu.hash         GNU_HASH        00000000000001f0 0001f0 00006c 00   A  3   0  8
+  [ 3] .dynsym           DYNSYM          0000000000000260 000260 000618 18   A  4   1  8
+  [ 4] .dynstr           STRTAB          0000000000000878 000878 000818 00   A  0   0  1
+  [ 5] .gnu.version      VERSYM          0000000000001090 001090 000082 02   A  3   0  2
+  [ 6] .gnu.version_r    VERNEED         0000000000001118 001118 0000a0 00   A  4   3  8
+  [ 7] .rela.dyn         RELA            00000000000011b8 0011b8 000378 18   A  3   0  8
+  [ 8] .rela.plt         RELA            0000000000001530 001530 000378 18  AI  3  23  8
+  [ 9] .init             PROGBITS        00000000000018a8 0018a8 000017 00  AX  0   0  4
+  [10] .plt              PROGBITS        00000000000018c0 0018c0 000260 10  AX  0   0 16
+  [11] .plt.got          PROGBITS        0000000000001b20 001b20 000008 08  AX  0   0  8
+  [12] .text             PROGBITS        0000000000001b30 001b30 004c78 00  AX  0   0 16
+  [13] .fini             PROGBITS        00000000000067a8 0067a8 000009 00  AX  0   0  4
+  [14] .rodata           PROGBITS        00000000000067c0 0067c0 000900 00   A  0   0 32
+  [15] .eh_frame_hdr     PROGBITS        00000000000070c0 0070c0 0000e4 00   A  0   0  4
+  [16] .eh_frame         PROGBITS        00000000000071a8 0071a8 000650 00   A  0   0  8
+  [17] .gcc_except_table PROGBITS        00000000000077f8 0077f8 0001d1 00   A  0   0  4
+  [18] .init_array       INIT_ARRAY      0000000000207cf0 007cf0 000010 08  WA  0   0  8
+  [19] .fini_array       FINI_ARRAY      0000000000207d00 007d00 000008 08  WA  0   0  8
+  [20] .data.rel.ro      PROGBITS        0000000000207d08 007d08 000060 00  WA  0   0  8
+  [21] .dynamic          DYNAMIC         0000000000207d68 007d68 000230 10  WA  4   0  8
+  [22] .got              PROGBITS        0000000000207f98 007f98 000068 08  WA  0   0  8
+  [23] .got.plt          PROGBITS        0000000000208000 008000 000140 08  WA  0   0  8
+  [24] .data             PROGBITS        0000000000208140 008140 000088 00  WA  0   0 32
+  [25] .bss              NOBITS          00000000002081e0 0081c8 002758 00  WA  0   0 32
+  [26] .comment          PROGBITS        0000000000000000 0081c8 00001d 01  MS  0   0  1
+  [27] .shstrtab         STRTAB          0000000000000000 0081e5 000100 00      0   0  1
+
+(...)
+
+File: _hausdorff.so
+There are 26 section headers, starting at offset 0x2d6e8:
+
+Section Headers:
+  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0
+  [ 1] .note.gnu.build-id NOTE           00000000000001c8 0001c8 000024 00   A  0   0  4
+  [ 2] .gnu.hash         GNU_HASH        00000000000001f0 0001f0 000040 00   A  3   0  8
+  [ 3] .dynsym           DYNSYM          0000000000000230 000230 000f00 18   A  4   1  8
+  [ 4] .dynstr           STRTAB          0000000000001130 001130 000aec 00   A  0   0  1
+  [ 5] .gnu.version      VERSYM          0000000000001c1c 001c1c 000140 02   A  3   0  2
+  [ 6] .gnu.version_r    VERNEED         0000000000001d60 001d60 000070 00   A  4   2  8
+  [ 7] .rela.dyn         RELA            0000000000001dd0 001dd0 0026b8 18   A  3   0  8
+  [ 8] .rela.plt         RELA            0000000000004488 004488 000a98 18  AI  3  21  8
+  [ 9] .init             PROGBITS        0000000000004f20 004f20 000017 00  AX  0   0  4
+  [10] .plt              PROGBITS        0000000000004f40 004f40 000720 10  AX  0   0 16
+  [11] .plt.got          PROGBITS        0000000000005660 005660 000008 08  AX  0   0  8
+  [12] .text             PROGBITS        0000000000005670 005670 01f753 00  AX  0   0 16
+  [13] .fini             PROGBITS        0000000000024dc4 024dc4 000009 00  AX  0   0  4
+  [14] .rodata           PROGBITS        0000000000024de0 024de0 002e48 00   A  0   0 32
+  [15] .eh_frame_hdr     PROGBITS        0000000000027c28 027c28 000444 00   A  0   0  4
+  [16] .eh_frame         PROGBITS        0000000000028070 028070 002508 00   A  0   0  8
+  [17] .init_array       INIT_ARRAY      000000000022aca0 02aca0 000008 08  WA  0   0  8
+  [18] .fini_array       FINI_ARRAY      000000000022aca8 02aca8 000008 08  WA  0   0  8
+  [19] .dynamic          DYNAMIC         000000000022acb0 02acb0 000210 10  WA  4   0  8
+  [20] .got              PROGBITS        000000000022aec0 02aec0 000140 08  WA  0   0  8
+  [21] .got.plt          PROGBITS        000000000022b000 02b000 0003a0 08  WA  0   0  8
+  [22] .data             PROGBITS        000000000022b3a0 02b3a0 002248 00  WA  0   0 32
+  [23] .bss              NOBITS          000000000022d600 02d5e8 000768 00  WA  0   0 32
+  [24] .comment          PROGBITS        0000000000000000 02d5e8 00001d 01  MS  0   0  1
+  [25] .shstrtab         STRTAB          0000000000000000 02d605 0000e1 00      0   0  1
+</pre>
+<p>Special <a class="reference external" href="http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=639">glasses</a> help to read through these numbers, but basically:</p>
+<ul class="simple">
+<li>The <cite>.text</cite> section, <em>i.e.</em> where code lies, is larger on Cython-generated binary, by a factor of ~4 on that binary.</li>
+<li>The <cite>.plt</cite> and <cite>.plt.got</cite> sections, <em>i.e.</em> relocation informations are also larger. This is because Cython uses a lot of symbols fro the <tt class="docutils literal">libpython</tt> while Pythran only uses some Python &lt;&gt; Native converters. This is confirmed by the number of dynamic symbols collected by `` nm -D _hausdorff.so | wc -l``: <strong>159</strong> in the case of Cython-generated binary and <strong>64</strong> for the Pythran version.</li>
+<li>The <cite>.rodata</cite> section also contains more information in Cython case. A quick look at its content with <tt class="docutils literal">objdump <span class="pre">-s</span> <span class="pre">-j.rodata</span> _hausdorff.so</tt> outputs a lot of documentation, error message etc. Looks like Cython takes more care on error message than Pythran :-)</li>
+</ul>
+<p>Note that some sections could be removed using <tt class="docutils literal">strip <span class="pre">-r</span></tt>: I suspect <tt class="docutils literal"><span class="pre">.note.gnu.build-id</span></tt> and <tt class="docutils literal">.comment</tt> are not critical.</p>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>Pythran generates code that does not make any call to the Python C API. Cython
+does. Even when the user does its best to remove them for computation
+critical-parts, it's just not the same guarantee. This has an impact on code
+size.</p>
+<p>But Cython is also more mature, so it's probable that some of its checks that
+make the code larger may find their way into Pythran generated code too.</p>
+<p>Oh, and thanks to the reduction of number of copies, the expression template engine of Pythran got better. That's an unexpected but pleasant side-effect <tt class="docutils literal">\o/</tt></p>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/engineering.html">
+    <i class="icon-folder-open icon-large"></i>engineering
+</a>
+</li>
+<li>
+<a href="./category/examples.html">
+    <i class="icon-folder-open icon-large"></i>examples
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>

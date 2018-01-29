@@ -1,5 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2018-01-12T00:00:00+01:00</updated><entry><title>Being more than a translator</title><link href="http://serge-sans-paille.github.io/pythran-stories/being-more-than-a-translator.html" rel="alternate"></link><published>2018-01-12T00:00:00+01:00</published><updated>2018-01-12T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-01-12:/pythran-stories/being-more-than-a-translator.html</id><summary type="html">&lt;p&gt;Starting from a Cython blog post by &lt;a href="http://jakevdp.github.io/pages/about.html"&gt;Jake VanderPlas&lt;/a&gt;, a trip in compiler optimisation, with a special glance at modulo operation!&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/Being more than a Python translator.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2018-01-29T00:00:00+01:00</updated><entry><title>Shrinking Pythran-Generated Binaries</title><link href="http://serge-sans-paille.github.io/pythran-stories/shrinking-pythran-generated-binaries.html" rel="alternate"></link><published>2018-01-29T00:00:00+01:00</published><updated>2018-01-29T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-01-29:/pythran-stories/shrinking-pythran-generated-binaries.html</id><summary type="html">&lt;p class="first last"&gt;Following a &lt;a class="reference external" href="https://mail.python.org/pipermail/scipy-dev/2018-January/022325.html"&gt;thread on scipy-dev&lt;/a&gt;, I've started to work on reducing the size of Pythran-generated binaries. Here is the outcome of my work.&lt;/p&gt;
+</summary><content type="html">&lt;div class="section" id="testbed"&gt;
+&lt;h2&gt;Testbed&lt;/h2&gt;
+&lt;p&gt;So the question was: do Pythran-generated binaries use more disk space than Cython generated binaries?&lt;/p&gt;
+&lt;p&gt;I first pick a few Cython files from the Scipy code base. Those are files that can easily be converted back to Python so that Pythran can process them (remember, Pythran only processes pure Python code).&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;directed_hausdorff&lt;/tt&gt;: [&lt;a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/spatial/_hausdorff.pyx"&gt;_hausdorff.pyx&lt;/a&gt;] [&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/hausdorff.py"&gt;hausdorff.py&lt;/a&gt;]&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;max_len_seq_inner&lt;/tt&gt;: [&lt;a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/signal/_max_len_seq_inner.pyx"&gt;max_len_seq_inner.pyx&lt;/a&gt;] [&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/max_len_seq_inner.py"&gt;max_len_seq_inner.py&lt;/a&gt;]&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;levinson&lt;/tt&gt;, Solves a linear Toeplitz system using Levinson recursion: [&lt;a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/linalg/_solve_toeplitz.pyx"&gt;_solve_toeplitz.pyx&lt;/a&gt;] [&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/solve_toeplitz.py"&gt;solve_toeplitz.py&lt;/a&gt;]&lt;/li&gt;
+&lt;li&gt;&lt;tt class="docutils literal"&gt;lombscargle&lt;/tt&gt;, Computes the Lomb-Scargle periodogram: [&lt;a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/signal/_spectral.pyx"&gt;_spectral.pyx&lt;/a&gt;] [&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/spectral.py"&gt;spectral.py&lt;/a&gt;]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To the notable exception of &lt;tt class="docutils literal"&gt;spectral.py&lt;/tt&gt; that uses high level &lt;tt class="docutils literal"&gt;numpy.sum(x, axis=1)&lt;/tt&gt; construct, the Pythran code is generally a rewrite of the Cython code with types and annotation pruned, plus a few syntactic sugar from Python like the &lt;tt class="docutils literal"&gt;for: ... &lt;span class="pre"&gt;else:..&lt;/span&gt;&lt;/tt&gt; statement used in &lt;tt class="docutils literal"&gt;hausdorff.py&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;For reference, I compiled the Cython code using the rather old school &lt;tt class="docutils literal"&gt;cython
+src.pyx &amp;amp;&amp;amp; gcc &lt;span class="pre"&gt;-shared&lt;/span&gt; &lt;span class="pre"&gt;-fPIC&lt;/span&gt; &lt;span class="pre"&gt;`python-config&lt;/span&gt; &lt;span class="pre"&gt;--cflags&lt;/span&gt; &lt;span class="pre"&gt;--libs`&lt;/span&gt; &lt;span class="pre"&gt;-o&lt;/span&gt; src.so &lt;span class="pre"&gt;-O2&lt;/span&gt;&lt;/tt&gt;
+command line, then stripped the resulting binary using &lt;tt class="docutils literal"&gt;strip src.so&lt;/tt&gt;. The
+later command is used to be fair with Pythran, that automatically adds
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Wl,-strip-all&lt;/span&gt;&lt;/tt&gt; flag during compilation (both have the same effect of
+stripping the binary from debug information and useless ELF sections).&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="commit-history"&gt;
+&lt;h2&gt;Commit History&lt;/h2&gt;
+&lt;p&gt;The following figures illustrate the history of binary size throughout the recent Pythran commit history, using the Cython binary as a base line.&lt;/p&gt;
+&lt;img alt="Evolution of binary size for 'spectral.so'" class="align-center" src="./images/2018-01-29-spectral.so.png" style="height: 20em;" /&gt;
+&lt;img alt="Evolution of binary size for 'hausdorff.so'" class="align-center" src="images/2018-01-29-hausdorff.so.png" style="height: 20em;" /&gt;
+&lt;img alt="Evolution of binary size for 'max_len_seq_inner.so'" class="align-center" src="images/2018-01-29-max_len_seq_inner.so.png" style="height: 20em;" /&gt;
+&lt;img alt="Evolution of binary size for 'solve_toeplitz.so'" class="align-center" src="images/2018-01-29-solve_toeplitz.so.png" style="height: 20em;" /&gt;
+&lt;p&gt;So a lot of things actually happened :-) Let me explain that.&lt;/p&gt;
+&lt;div class="section" id="controlling-symbols"&gt;
+&lt;h3&gt;Controlling Symbols&lt;/h3&gt;
+&lt;p&gt;The first commit around &lt;tt class="docutils literal"&gt;HEAD~12&lt;/tt&gt; was the most relevant one. Digging through the output of &lt;tt class="docutils literal"&gt;nm
+&lt;span class="pre"&gt;-C&lt;/span&gt;&lt;/tt&gt; on Pythran generated binaries, I noticed quite a lot of symbols that were
+of no use for the generated binaries; But they were present because Pythran
+uses the &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; header only libraries and as such, when it includes some
+headers, the symbol defined end up in the binary. They are actually marked as
+&lt;tt class="docutils literal"&gt;hidden&lt;/tt&gt; because of the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fvisibility=hidden&lt;/span&gt;&lt;/tt&gt; flag, but they are still
+there (this flag mostly affects the linker. I ended up adding an (optional)
+anonymous namespace right below the &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; namespace, which effectively
+marks all symbols as internal symbols, so the compiler can remove them
+relatively early in the compilation process.&lt;/p&gt;
+&lt;p&gt;There's also a small shrink around &lt;tt class="docutils literal"&gt;HEAD~9&lt;/tt&gt;. This is due to some symbols that
+were just hanging around in the global namespace, but they happened to be
+useless :-)&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="avoiding-copies"&gt;
+&lt;h3&gt;Avoiding Copies&lt;/h3&gt;
+&lt;p&gt;The stats for &lt;tt class="docutils literal"&gt;spectral.py&lt;/tt&gt; were not so good, even after the initial
+reduction. While digging through the generated assembly code, I noticed a lot
+of register spill, ended up with a lot of &lt;tt class="docutils literal"&gt;mov&lt;/tt&gt;. It turns out my expression
+template code was making a bunch of copies of its argument, which is sometimes
+necessary (when the expression template &lt;em&gt;owns&lt;/em&gt; its argument) but sometimes not.
+Not a big deal as pythonic object use a shared reference counter, but still,
+avoiding that would certainly shrink the generated binaries. Turns out that was
+a correct guess. And it also speeds up the execution of the code, less spilling
+is generally a good thing :-)&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="about-specialization"&gt;
+&lt;h3&gt;About Specialization&lt;/h3&gt;
+&lt;p&gt;It may looks strange to have all Pythran binaries thiner that Cython's, except
+&lt;tt class="docutils literal"&gt;spectral.so&lt;/tt&gt;. This is explained by the fact that Pythran generates code to
+handle broadcasting, actually generating two versions for each complex
+expression: one with broadcasting and one without. Twice the code, twice the
+fat :-)&lt;/p&gt;
+&lt;p&gt;That gives me an optimization hint: being able to symbolically compute
+expression size may turn dynamic broadcasting into static broadcasting, I need
+to dig on that idea.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="going-further"&gt;
+&lt;h2&gt;Going Further&lt;/h2&gt;
+&lt;p&gt;Let's have a look to the two version of &lt;tt class="docutils literal"&gt;hausdorff&lt;/tt&gt; binaries:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+$ readelf -SW hausdorff.so _hausdorff.so
+
+File: hausdorff.so
+There are 28 section headers, starting at offset 0x17490:
+
+Section Headers:
+  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0
+  [ 1] .note.gnu.build-id NOTE           00000000000001c8 0001c8 000024 00   A  0   0  4
+  [ 2] .gnu.hash         GNU_HASH        00000000000001f0 0001f0 00006c 00   A  3   0  8
+  [ 3] .dynsym           DYNSYM          0000000000000260 000260 000618 18   A  4   1  8
+  [ 4] .dynstr           STRTAB          0000000000000878 000878 000818 00   A  0   0  1
+  [ 5] .gnu.version      VERSYM          0000000000001090 001090 000082 02   A  3   0  2
+  [ 6] .gnu.version_r    VERNEED         0000000000001118 001118 0000a0 00   A  4   3  8
+  [ 7] .rela.dyn         RELA            00000000000011b8 0011b8 000378 18   A  3   0  8
+  [ 8] .rela.plt         RELA            0000000000001530 001530 000378 18  AI  3  23  8
+  [ 9] .init             PROGBITS        00000000000018a8 0018a8 000017 00  AX  0   0  4
+  [10] .plt              PROGBITS        00000000000018c0 0018c0 000260 10  AX  0   0 16
+  [11] .plt.got          PROGBITS        0000000000001b20 001b20 000008 08  AX  0   0  8
+  [12] .text             PROGBITS        0000000000001b30 001b30 004c78 00  AX  0   0 16
+  [13] .fini             PROGBITS        00000000000067a8 0067a8 000009 00  AX  0   0  4
+  [14] .rodata           PROGBITS        00000000000067c0 0067c0 000900 00   A  0   0 32
+  [15] .eh_frame_hdr     PROGBITS        00000000000070c0 0070c0 0000e4 00   A  0   0  4
+  [16] .eh_frame         PROGBITS        00000000000071a8 0071a8 000650 00   A  0   0  8
+  [17] .gcc_except_table PROGBITS        00000000000077f8 0077f8 0001d1 00   A  0   0  4
+  [18] .init_array       INIT_ARRAY      0000000000207cf0 007cf0 000010 08  WA  0   0  8
+  [19] .fini_array       FINI_ARRAY      0000000000207d00 007d00 000008 08  WA  0   0  8
+  [20] .data.rel.ro      PROGBITS        0000000000207d08 007d08 000060 00  WA  0   0  8
+  [21] .dynamic          DYNAMIC         0000000000207d68 007d68 000230 10  WA  4   0  8
+  [22] .got              PROGBITS        0000000000207f98 007f98 000068 08  WA  0   0  8
+  [23] .got.plt          PROGBITS        0000000000208000 008000 000140 08  WA  0   0  8
+  [24] .data             PROGBITS        0000000000208140 008140 000088 00  WA  0   0 32
+  [25] .bss              NOBITS          00000000002081e0 0081c8 002758 00  WA  0   0 32
+  [26] .comment          PROGBITS        0000000000000000 0081c8 00001d 01  MS  0   0  1
+  [27] .shstrtab         STRTAB          0000000000000000 0081e5 000100 00      0   0  1
+
+(...)
+
+File: _hausdorff.so
+There are 26 section headers, starting at offset 0x2d6e8:
+
+Section Headers:
+  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0
+  [ 1] .note.gnu.build-id NOTE           00000000000001c8 0001c8 000024 00   A  0   0  4
+  [ 2] .gnu.hash         GNU_HASH        00000000000001f0 0001f0 000040 00   A  3   0  8
+  [ 3] .dynsym           DYNSYM          0000000000000230 000230 000f00 18   A  4   1  8
+  [ 4] .dynstr           STRTAB          0000000000001130 001130 000aec 00   A  0   0  1
+  [ 5] .gnu.version      VERSYM          0000000000001c1c 001c1c 000140 02   A  3   0  2
+  [ 6] .gnu.version_r    VERNEED         0000000000001d60 001d60 000070 00   A  4   2  8
+  [ 7] .rela.dyn         RELA            0000000000001dd0 001dd0 0026b8 18   A  3   0  8
+  [ 8] .rela.plt         RELA            0000000000004488 004488 000a98 18  AI  3  21  8
+  [ 9] .init             PROGBITS        0000000000004f20 004f20 000017 00  AX  0   0  4
+  [10] .plt              PROGBITS        0000000000004f40 004f40 000720 10  AX  0   0 16
+  [11] .plt.got          PROGBITS        0000000000005660 005660 000008 08  AX  0   0  8
+  [12] .text             PROGBITS        0000000000005670 005670 01f753 00  AX  0   0 16
+  [13] .fini             PROGBITS        0000000000024dc4 024dc4 000009 00  AX  0   0  4
+  [14] .rodata           PROGBITS        0000000000024de0 024de0 002e48 00   A  0   0 32
+  [15] .eh_frame_hdr     PROGBITS        0000000000027c28 027c28 000444 00   A  0   0  4
+  [16] .eh_frame         PROGBITS        0000000000028070 028070 002508 00   A  0   0  8
+  [17] .init_array       INIT_ARRAY      000000000022aca0 02aca0 000008 08  WA  0   0  8
+  [18] .fini_array       FINI_ARRAY      000000000022aca8 02aca8 000008 08  WA  0   0  8
+  [19] .dynamic          DYNAMIC         000000000022acb0 02acb0 000210 10  WA  4   0  8
+  [20] .got              PROGBITS        000000000022aec0 02aec0 000140 08  WA  0   0  8
+  [21] .got.plt          PROGBITS        000000000022b000 02b000 0003a0 08  WA  0   0  8
+  [22] .data             PROGBITS        000000000022b3a0 02b3a0 002248 00  WA  0   0 32
+  [23] .bss              NOBITS          000000000022d600 02d5e8 000768 00  WA  0   0 32
+  [24] .comment          PROGBITS        0000000000000000 02d5e8 00001d 01  MS  0   0  1
+  [25] .shstrtab         STRTAB          0000000000000000 02d605 0000e1 00      0   0  1
+&lt;/pre&gt;
+&lt;p&gt;Special &lt;a class="reference external" href="http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=639"&gt;glasses&lt;/a&gt; help to read through these numbers, but basically:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;The &lt;cite&gt;.text&lt;/cite&gt; section, &lt;em&gt;i.e.&lt;/em&gt; where code lies, is larger on Cython-generated binary, by a factor of ~4 on that binary.&lt;/li&gt;
+&lt;li&gt;The &lt;cite&gt;.plt&lt;/cite&gt; and &lt;cite&gt;.plt.got&lt;/cite&gt; sections, &lt;em&gt;i.e.&lt;/em&gt; relocation informations are also larger. This is because Cython uses a lot of symbols fro the &lt;tt class="docutils literal"&gt;libpython&lt;/tt&gt; while Pythran only uses some Python &amp;lt;&amp;gt; Native converters. This is confirmed by the number of dynamic symbols collected by `` nm -D _hausdorff.so | wc -l``: &lt;strong&gt;159&lt;/strong&gt; in the case of Cython-generated binary and &lt;strong&gt;64&lt;/strong&gt; for the Pythran version.&lt;/li&gt;
+&lt;li&gt;The &lt;cite&gt;.rodata&lt;/cite&gt; section also contains more information in Cython case. A quick look at its content with &lt;tt class="docutils literal"&gt;objdump &lt;span class="pre"&gt;-s&lt;/span&gt; &lt;span class="pre"&gt;-j.rodata&lt;/span&gt; _hausdorff.so&lt;/tt&gt; outputs a lot of documentation, error message etc. Looks like Cython takes more care on error message than Pythran :-)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Note that some sections could be removed using &lt;tt class="docutils literal"&gt;strip &lt;span class="pre"&gt;-r&lt;/span&gt;&lt;/tt&gt;: I suspect &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;.note.gnu.build-id&lt;/span&gt;&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;.comment&lt;/tt&gt; are not critical.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="conclusion"&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Pythran generates code that does not make any call to the Python C API. Cython
+does. Even when the user does its best to remove them for computation
+critical-parts, it's just not the same guarantee. This has an impact on code
+size.&lt;/p&gt;
+&lt;p&gt;But Cython is also more mature, so it's probable that some of its checks that
+make the code larger may find their way into Pythran generated code too.&lt;/p&gt;
+&lt;p&gt;Oh, and thanks to the reduction of number of copies, the expression template engine of Pythran got better. That's an unexpected but pleasant side-effect &lt;tt class="docutils literal"&gt;\o/&lt;/tt&gt;&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>Being more than a translator</title><link href="http://serge-sans-paille.github.io/pythran-stories/being-more-than-a-translator.html" rel="alternate"></link><published>2018-01-12T00:00:00+01:00</published><updated>2018-01-12T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-01-12:/pythran-stories/being-more-than-a-translator.html</id><summary type="html">&lt;p&gt;Starting from a Cython blog post by &lt;a href="http://jakevdp.github.io/pages/about.html"&gt;Jake VanderPlas&lt;/a&gt;, a trip in compiler optimisation, with a special glance at modulo operation!&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/Being more than a Python translator.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
 &lt;p&gt;Special thanks to w1gz for his review btw &lt;code&gt;o/&lt;/code&gt;&lt;/p&gt;
 &lt;h1&gt;Optimizing with Cython&lt;/h1&gt;
 &lt;p&gt;&lt;a href="http://jakevdp.github.io/pages/about.html"&gt;Jake VanderPlas&lt;/a&gt; recently wrote a &lt;a href="http://jakevdp.github.io/blog/2017/12/11/live-coding-cython-ising-model/"&gt;blogpost about Cython&lt;/a&gt;, where the following piece of Python code and the associated benchmark can be found:&lt;/p&gt;
