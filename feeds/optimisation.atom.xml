@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - optimisation</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/optimisation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2018-01-29T00:00:00+01:00</updated><entry><title>Shrinking Pythran-Generated Binaries</title><link href="http://serge-sans-paille.github.io/pythran-stories/shrinking-pythran-generated-binaries.html" rel="alternate"></link><published>2018-01-29T00:00:00+01:00</published><updated>2018-01-29T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-01-29:/pythran-stories/shrinking-pythran-generated-binaries.html</id><summary type="html">&lt;p class="first last"&gt;Following a &lt;a class="reference external" href="https://mail.python.org/pipermail/scipy-dev/2018-January/022325.html"&gt;thread on scipy-dev&lt;/a&gt;, I've started to work on reducing the size of Pythran-generated binaries. Here is the outcome of my work.&lt;/p&gt;
 </summary><content type="html">&lt;div class="section" id="testbed"&gt;
 &lt;h2&gt;Testbed&lt;/h2&gt;
-&lt;p&gt;So the question was: do Pythran-generated binaries use more disk space than Cython generated binaries?&lt;/p&gt;
+&lt;p&gt;So the question was: do Pythran-generated binaries use more disk space than Cython ones?&lt;/p&gt;
 &lt;p&gt;I first pick a few Cython files from the Scipy code base. Those are files that can easily be converted back to Python so that Pythran can process them (remember, Pythran only processes pure Python code).&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;&lt;tt class="docutils literal"&gt;directed_hausdorff&lt;/tt&gt;: [&lt;a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/spatial/_hausdorff.pyx"&gt;_hausdorff.pyx&lt;/a&gt;] [&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/hausdorff.py"&gt;hausdorff.py&lt;/a&gt;]&lt;/li&gt;
@@ -34,7 +34,7 @@ of no use for the generated binaries; But they were present because Pythran
 uses the &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; header only libraries and as such, when it includes some
 headers, the symbol defined end up in the binary. They are actually marked as
 &lt;tt class="docutils literal"&gt;hidden&lt;/tt&gt; because of the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fvisibility=hidden&lt;/span&gt;&lt;/tt&gt; flag, but they are still
-there (this flag mostly affects the linker. I ended up adding an (optional)
+there (this flag mostly affects the linker). I ended up adding an (optional)
 anonymous namespace right below the &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; namespace, which effectively
 marks all symbols as internal symbols, so the compiler can remove them
 relatively early in the compilation process.&lt;/p&gt;

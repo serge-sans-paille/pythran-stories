@@ -136,7 +136,7 @@
 </footer><!-- /.post-info -->                </div>
                 <div class="section" id="testbed">
 <h2>Testbed</h2>
-<p>So the question was: do Pythran-generated binaries use more disk space than Cython generated binaries?</p>
+<p>So the question was: do Pythran-generated binaries use more disk space than Cython ones?</p>
 <p>I first pick a few Cython files from the Scipy code base. Those are files that can easily be converted back to Python so that Pythran can process them (remember, Pythran only processes pure Python code).</p>
 <ul class="simple">
 <li><tt class="docutils literal">directed_hausdorff</tt>: [<a class="reference external" href="https://github.com/scipy/scipy/blob/master/scipy/spatial/_hausdorff.pyx">_hausdorff.pyx</a>] [<a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/0d246b22ced40d39f392a09be04ab11b11c363c5/pythran/tests/scipy/hausdorff.py">hausdorff.py</a>]</li>
@@ -168,7 +168,7 @@ of no use for the generated binaries; But they were present because Pythran
 uses the <tt class="docutils literal">pythonic</tt> header only libraries and as such, when it includes some
 headers, the symbol defined end up in the binary. They are actually marked as
 <tt class="docutils literal">hidden</tt> because of the <tt class="docutils literal"><span class="pre">-fvisibility=hidden</span></tt> flag, but they are still
-there (this flag mostly affects the linker. I ended up adding an (optional)
+there (this flag mostly affects the linker). I ended up adding an (optional)
 anonymous namespace right below the <tt class="docutils literal">pythonic</tt> namespace, which effectively
 marks all symbols as internal symbols, so the compiler can remove them
 relatively early in the compilation process.</p>
