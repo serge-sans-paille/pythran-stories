@@ -11,7 +11,7 @@ Shrinking Pythran-Generated Binaries
 Testbed
 =======
 
-So the question was: do Pythran-generated binaries use more disk space than Cython generated binaries?
+So the question was: do Pythran-generated binaries use more disk space than Cython ones?
 
 I first pick a few Cython files from the Scipy code base. Those are files that can easily be converted back to Python so that Pythran can process them (remember, Pythran only processes pure Python code).
 
@@ -68,7 +68,7 @@ of no use for the generated binaries; But they were present because Pythran
 uses the ``pythonic`` header only libraries and as such, when it includes some
 headers, the symbol defined end up in the binary. They are actually marked as
 ``hidden`` because of the ``-fvisibility=hidden`` flag, but they are still
-there (this flag mostly affects the linker. I ended up adding an (optional)
+there (this flag mostly affects the linker). I ended up adding an (optional)
 anonymous namespace right below the ``pythonic`` namespace, which effectively
 marks all symbols as internal symbols, so the compiler can remove them
 relatively early in the compilation process.
