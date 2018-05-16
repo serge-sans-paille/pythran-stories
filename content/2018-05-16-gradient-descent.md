@@ -1,6 +1,6 @@
 Title: An incursion into basic ML - Gradient Descent compiled with Pythran
 Date: 2018-05-16
-Category: optimisation
+Category: examples
 Lang: en
 Authors: serge-sans-paille
 Summary: Or how to compile a basic kernel from the machine learning field with Pythran.
