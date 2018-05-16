@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>An incursion into basic ML - Gradient Descent compiled with Pythran</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/engineering.html">
+						<i class="icon-folder-open icon-large"></i>engineering
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/examples.html">
+						<i class="icon-folder-open icon-large"></i>examples
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to An incursion into basic ML - Gradient Descent compiled with Pythran">
+                                        An incursion into basic ML - Gradient Descent compiled with Pythran
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-05-16T00:00:00+02:00">
+        <i class="icon-calendar"></i>Wed 16 May 2018
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/optimisation.html"><i class="icon-folder-open"></i>optimisation</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <p>This blogpost originally was a Jupyter Notebook. You can <a href="notebooks/An incursion into basic ML - Gradient Descent compiled with Pythran.ipynb">download it</a> if you want. The conversion was done using <code>nbconvert</code> and a <a href="notebooks/nbmarkdown.tpl">custom template</a> to match the style of the other part of the blog.</p>
+<p>Thanks to w1gz and Apo for their review!</p>
+<p>In https://realpython.com/numpy-tensorflow-performance/, the author compares the performance of different approaches of a basic ML kernel, gradient descent. </p>
+<p>Let's try to join the party :-) </p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pythran</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">load_ext</span> <span class="n">pythran</span><span class="o">.</span><span class="n">magic</span>
+</pre></div>
+
+
+<h1>Original Setup</h1>
+<p>The original Numpy code is the following:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">itertools</span> <span class="kn">as</span> <span class="nn">it</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">np_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">N</span>
+<span class="o">...</span> 
+<span class="o">...</span>     <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">...</span>     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">err</span><span class="p">)</span>
+<span class="o">...</span>         <span class="n">grad</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">f</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">err</span><span class="p">),</span> <span class="n">f</span> <span class="o">*</span> <span class="p">(</span><span class="n">err</span> <span class="err">@</span> <span class="n">x</span><span class="p">)</span>
+<span class="o">...</span>         <span class="n">w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">+</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">grad</span>
+<span class="o">...</span>         <span class="n">y</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">w</span>
+</pre></div>
+
+
+<p>And the experimental setup is the following: </p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">444</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">noise</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mu</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">N_epochs</span> <span class="o">=</span> <span class="mi">10000</span>
+</pre></div>
+
+
+<p>So our base line is:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">np_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>281 ms ± 9.82 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+</pre></div>
+
+
+<h1>Pythran version</h1>
+<p>the implicit contract with pythran is ‘add a comment and compile’, but in that case we made two changes:</p>
+<ol>
+<li>static <code>squeeze</code> because pythran does not support dynamic array dimensions</li>
+<li>remove the <code>out</code> parameter for <code>np.subtract</code> because it's not supported yet by pythran (but it could in the future)</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">itertools</span> <span class="kn">as</span> <span class="nn">it</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_descent(float64[], float64[,], float, int)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;pythran does not support squeeze&quot;</span>
+<span class="o">...</span>     <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">N</span>
+<span class="o">...</span> 
+<span class="o">...</span>     <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">...</span>     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">...</span>         <span class="n">err</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">d</span> <span class="o">-</span> <span class="n">y</span>
+<span class="o">...</span>         <span class="n">grad</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">f</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">err</span><span class="p">),</span> <span class="n">f</span> <span class="o">*</span> <span class="p">(</span><span class="n">err</span> <span class="err">@</span> <span class="n">x</span><span class="p">)</span>
+<span class="o">...</span>         <span class="n">w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">+</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">grad</span>
+<span class="o">...</span>         <span class="n">y</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">w</span>
+</pre></div>
+
+
+<p>Ok, it compiles fine, let's run it!</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">pythran_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>268 ms ± 5.05 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+</pre></div>
+
+
+<p>That's slightly faster, but not by much. The numpy code is actually pretty good already, and a good chunk of the time is spent in the scalar product; there is not much to gain here as both numpy and pythran fallback to blas.</p>
+<h2>SIMD Instructions to the rescue</h2>
+<p>Pythran supports generation of SIMD instructions, through the great Boost.SIMD library. Let's update compile flags and try again. The <code>-march=native</code> tells the underlying compiler (here, GCC 7.3.0) to generate code specific to my processor's architecture, thus enabling AVX instructions \o/</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">DUSE_BOOST_SIMD</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">itertools</span> <span class="kn">as</span> <span class="nn">it</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_descent_simd(float64[], float64[,], float, int)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_descent_simd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;pythran does not support squeeze&quot;</span>
+<span class="o">...</span>     <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">N</span>
+<span class="o">...</span> 
+<span class="o">...</span>     <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">...</span>     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">...</span>         <span class="n">err</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">d</span> <span class="o">-</span> <span class="n">y</span>
+<span class="o">...</span>         <span class="n">grad</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">f</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">err</span><span class="p">),</span> <span class="n">f</span> <span class="o">*</span> <span class="p">(</span><span class="n">err</span> <span class="err">@</span> <span class="n">x</span><span class="p">)</span>
+<span class="o">...</span>         <span class="n">w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">+</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">grad</span>
+<span class="o">...</span>         <span class="n">y</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">w</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">pythran_descent_simd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>114 ms ± 298 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+</pre></div>
+
+
+<p>Now <em>that</em> is fast \o/</p>
+<h1>The long story</h1>
+<p>When I first tried to port the kernel, there was two limitations in Pythran. They are now merged into master but not in current release (0.8.5).</p>
+<ol>
+<li>
+<p>There was no support for <code>itertools.repeat</code>. Pythran already supports a bunch of the <code>itertools</code> interface, so even if it's a bit overkill in that context, i added the support and the tests for that call.</p>
+</li>
+<li>
+<p>Poor <code>@</code> performance. In the case of the scalar product of two arrays, openblas is much faster than the trivial non-vectorized implementation, so I specialized the pythran implementation of dot to fallback to the blas call when both parameters are arrays. In the more generic case, merging the operation is still a better approach</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">DUSE_BOOST_SIMD</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export dottest0(float[], float[])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">dottest0</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="o">...</span>     <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="o">...</span>     <span class="n">tmp</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="err">@</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">tmp</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export dottest1(float[], float[])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">dottest1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="o">...</span>     <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="o">...</span>     <span class="n">tmp</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="err">@</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">x</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1000000</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">dottest0</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>1.74 ms ± 12.5 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">dottest1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>631 µs ± 33.1 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+</pre></div>
+
+
+<p>What happened? In <code>dottest0</code>, <code>tmp</code> is used twice so a temporary array is created, and the <code>@</code> operator fallsback to blas implementation, as it is specialized in that case. For <code>dottest1</code>, <code>tmp</code> is used once, so it is evaluated lazily and the <code>@</code> operator now has an array and a lazy expression as parameter: it computes this expression in a single (vectorized) loop.</p>
+<h1>Final Words</h1>
+<p>So here are the final timings from my little experiment. It's nice to get some speedups from high level code, and I should probably be able to improve the generated code in the future!</p>
+<table>
+<thead>
+<tr>
+<th>Engine</th>
+<th>Execution Time (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Numpy</td>
+<td>0.281</td>
+</tr>
+<tr>
+<td>Pythran</td>
+<td>0.268</td>
+</tr>
+<tr>
+<td>Pythran+SIMD</td>
+<td>0.114</td>
+</tr>
+</tbody>
+</table>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/engineering.html">
+    <i class="icon-folder-open icon-large"></i>engineering
+</a>
+</li>
+<li>
+<a href="./category/examples.html">
+    <i class="icon-folder-open icon-large"></i>examples
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
