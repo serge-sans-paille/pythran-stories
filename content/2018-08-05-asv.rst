@@ -1,0 +1,130 @@
+What is the air speed velocity of Pythran?
+##########################################
+
+:date: 2018-08-05
+:category: benchmark
+:lang: en
+:authors: serge-sans-paille
+:summary: Performance of the compiled code is an important feature of Pythran.
+          Yet, Pythran had no unit test to prevent performance regression! Fortunately,
+          thanks to a mix of `airspeed velocity
+          <https://github.com/airspeed-velocity/asv/>`_ and `numpy-benchmark
+          <https://github.com/serge-sans-paille/numpy-benchmarks/>`_, it is now a granted
+          a decent way to track these regressions.
+
+As many projects, `Pythran <https://github.com/serge-sans-paille/pythran>`_ has
+its own test suite that runs on `travis-ci <http://travis-ci.org/>`_ and
+`AppVeyor <http://appveyor.com/>`_. It's a nice test suite: it tests different
+compilers—namely Clang, GCC and MVSCC—with different set of flags—with and
+without OpenMP and vectorization— and for the 2.7 and 3.5 Python versions.
+Nice. Brest.
+
+A while ago, I started to collect various high-level Numpy kernels in the
+`numpy-benchmark <https://github.com/serge-sans-paille/numpy-benchmarks/>`_
+repo. The goal was to check how well Pythran behaves on these kernels, and to
+compare it with other compilers. Over the time I've been adding new kernels
+that showcase different optimization challenges, which leads us to more than 35
+different kernels. I was occasionally using that set of kernels to check for
+performance regression, but that was only semi-automated and rather tedious.
+
+Then comes `airspeed velocity <https://github.com/airspeed-velocity/asv/>`_, a
+tool that exactly brings the remaining bits: automated benchmarking over
+software revision, regression tracking and nice plots. So it was just a matter
+of stirring everything together to give birth to
+https://github.com/serge-sans-paille/pythran-asv. In order not to break the
+link with *numpy-benchmarks*, the original repo is imported as a `git subtree
+<https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt>`_, and
+the tests are automatically generated based on the kernel annotations :-)
+
+Configuration
+=============
+
+As I don't have a dedicated machine to run the performance tracking session, I just ran:
+
+.. code:: sh
+
+    $ asv 0.8.6..master
+
+Basically, this commands runs ``timeit`` on all kernels from *numpy-benchmarks*
+according to the kernel annotations, but only once these kernels have been
+compiled by the *Pythran* compiler extracted from the revisions ranging from
+latest release, *0.8.6* and current *master*. A good way to check if the recent
+commits brought any performance improvement or regressions.
+
+.. note::
+
+    Because I don't have a dedicated machine, these benchamrks were run during the
+    night, with all apps closed, using a blank ``~/.pythranrc`` and GCC 7.3 and on
+    goold'ol Python 2.7. For reference, I have an ``Intel(R) Core(TM) i7-6600U CPU
+    @ 2.60GHz``, but as the goal is merely to track regression, the details are not
+    as relevant as they could be for a traditional benchmark setup.
+
+Subtilities
+===========
+
+Although *asv* works like a charm, some aspects requires care.
+
+1. *Pythran* is an ahead of time compiler, so it does not make sense to track
+   compilation time as part of the actual benchmark. *asv* does provide a
+   ``setup`` mechanism, bit it proved to be too costly (the compilation is
+   called multiple times, and it costs too much time when ranging over hundreds
+   of commits). Fortunately, there is a ``setup_cache`` mechanism that fulfills
+   our need perfectly!
+
+2. *numpy-benchmarks* generally use randomized input, in order to avoid
+   over-specialization of a benchmark for a given input set. In some cases this
+   led to unstable behavior, so we occasionally forced the seed. Changing the
+   kernel body is not an option, one of the interest of *numpy-benchmarks*
+   being that they come from third-party source and are not tailored for a
+   given compiler.
+
+3. On very rare occasion, the *Pythran* annotation language evolves, and
+   kernels that use new syntax cannot be compiled by older versions of
+   *Pythran*. This actually happens only once, now that it is possible to
+   specify the value dimension of a given dimension. As a workaround, if a
+   kernel fails to compile, a rewrite rule automatically changes the annotation
+   back to the traditional, less specialized one.
+
+Results
+=======
+
+As of this post, the result of the regression test is available on
+https://serge-sans-paille.github.io/pythran-asv/. It provides a good
+illustration of the recent commits :-)
+
+- `laplacien
+  <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_laplacien>`_
+  greatly benefits from the partially static shape specialization introduced in
+  `2e9dc6d694feae2be378fa5351e2cf5ad0c19f1b
+  <https://github.com/serge-sans-paille/pythran/tree/2e9dc6d694feae2be378fa5351e2cf5ad0c19f1>`_.
+  This commit also has a positive impact on `grayscott
+  <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_grayscott>`_,
+  but a slightly negative impact on `wdist
+  <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_wdist>`_.
+
+- `make_decision <>`_ exhibits a pattern captured by
+  `a52ee30084549125ef34448f5ccf3013874331a9
+  <https://github.com/serge-sans-paille/pythran/tree/a52ee30084549125ef34448f5ccf3013874331a9>`_
+  : the square of the norm of a complex number.
+
+- `reverse_cumsum <>`_ is returning a complex Numpy view, something Pythran can
+  efficiently do since `8e8711365899009634653cc7e11a8cd36001c0c7
+  <https://github.com/serge-sans-paille/pythran/tree/8e8711365899009634653cc7e11a8cd36001c0c7>`_.
+
+
+Thanks and Future Works
+=======================
+
+The original idea of using *asv* to track *Pythran* performance comes from a
+discussion with the `QuantStack <http://quantstack.net/>`_ guys. They really
+are amazing folks, all the interactions I have with them really keep the
+motivation up. They even funded all this regression tracking stuff for *Pythran*,
+did I mention they're cool?
+
+Next step is probably to run the regression suite on a larger commit range,
+this may spot some more regressions or give hint for further improvements. And
+I'm pretty confident `@wolfv <https://twitter.com/wuoulf>`_ will provide an
+adaptation of *pythran-asv* for `xtensor
+<https://github.com/QuantStack/xtensor>`_ as he `already did
+<https://twitter.com/wuoulf/status/1016710926047825920>`_ for
+*numpy-benchmark*.
