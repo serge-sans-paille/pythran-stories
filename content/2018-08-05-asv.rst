@@ -31,7 +31,7 @@ Then comes `airspeed velocity <https://github.com/airspeed-velocity/asv/>`_, a
 tool that exactly brings the remaining bits: automated benchmarking over
 software revision, regression tracking and nice plots. So it was just a matter
 of stirring everything together to give birth to
-https://github.com/serge-sans-paille/pythran-asv. In order not to break the
+https://github.com/serge-sans-paille/pythran-asv. In order to not break the
 link with *numpy-benchmarks*, the original repo is imported as a `git subtree
 <https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt>`_, and
 the tests are automatically generated based on the kernel annotations :-)
@@ -59,9 +59,9 @@ In order to reduce system glitter, the following one-liner helps a lot:
 
 .. note::
 
-    Because I don't have a dedicated machine, these benchamrks were run during the
+    Because I don't have a dedicated machine, these benchmarks were run during the
     night, with all apps closed, using a blank ``~/.pythranrc`` and GCC 7.3 and on
-    goold'ol Python 2.7. For reference, I have an ``Intel(R) Core(TM) i7-6600U CPU
+    good ol' Python 2.7. For reference, I have an ``Intel(R) Core(TM) i7-6600U CPU
     @ 2.60GHz``, but as the goal is merely to track regression, the details are not
     as relevant as they could be for a traditional benchmark setup.
 
@@ -72,7 +72,7 @@ Although *asv* works like a charm, some aspects requires care.
 
 1. *Pythran* is an ahead of time compiler, so it does not make sense to track
    compilation time as part of the actual benchmark. *asv* does provide a
-   ``setup`` mechanism, bit it proved to be too costly (the compilation is
+   ``setup`` mechanism, but it proved to be too costly (the compilation is
    called multiple times, and it costs too much time when ranging over hundreds
    of commits). Fortunately, there is a ``setup_cache`` mechanism that fulfills
    our need perfectly!
@@ -80,11 +80,11 @@ Although *asv* works like a charm, some aspects requires care.
 2. *numpy-benchmarks* generally use randomized input, in order to avoid
    over-specialization of a benchmark for a given input set. In some cases this
    led to unstable behavior, so we occasionally forced the seed. Changing the
-   kernel body is not an option, one of the interest of *numpy-benchmarks*
-   being that they come from third-party source and are not tailored for a
-   given compiler.
+   kernel body is not an option; since one of the interests behind using
+   *numpy-benchmarks* is that it come from third-party source and
+   are not tailored for a given compiler.
 
-3. On very rare occasion, the *Pythran* annotation language evolves, and
+3. On very rare occasions, the *Pythran* annotation language evolves, and
    kernels that use new syntax cannot be compiled by older versions of
    *Pythran*. This actually happens only once, now that it is possible to
    specify the value dimension of a given dimension. As a workaround, if a
@@ -123,7 +123,7 @@ Thanks and Future Works
 
 The original idea of using *asv* to track *Pythran* performance comes from a
 discussion with the `QuantStack <http://quantstack.net/>`_ guys. They really
-are amazing folks, all the interactions I have with them really keep the
+are amazing folks, all the interactions I have with them really keeps the
 motivation up. They even funded all this regression tracking stuff for *Pythran*,
 did I mention they're cool?
 
@@ -133,4 +133,4 @@ I'm pretty confident `@wolfv <https://twitter.com/wuoulf>`_ will provide an
 adaptation of *pythran-asv* for `xtensor
 <https://github.com/QuantStack/xtensor>`_ as he `already did
 <https://twitter.com/wuoulf/status/1016710926047825920>`_ for
-*numpy-benchmark*.
+*numpy-benchmarks*.
