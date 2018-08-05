@@ -51,6 +51,12 @@ compiled by the *Pythran* compiler extracted from the revisions ranging from
 latest release, *0.8.6* and current *master*. A good way to check if the recent
 commits brought any performance improvement or regressions.
 
+In order to reduce system glitter, the following one-liner helps a lot:
+
+.. code:: sh
+
+    $ python -m perf system tune
+
 .. note::
 
     Because I don't have a dedicated machine, these benchamrks were run during the
