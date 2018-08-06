@@ -23,7 +23,7 @@ A while ago, I started to collect various high-level Numpy kernels in the
 `numpy-benchmark <https://github.com/serge-sans-paille/numpy-benchmarks/>`_
 repo. The goal was to check how well Pythran behaves on these kernels, and to
 compare it with other compilers. Over the time I've been adding new kernels
-that showcase different optimization challenges, which leads us to more than 35
+that showcases different optimization challenges, which leads us to more than 35
 different kernels. I was occasionally using that set of kernels to check for
 performance regression, but that was only semi-automated and rather tedious.
 
@@ -39,7 +39,7 @@ the tests are automatically generated based on the kernel annotations :-)
 Configuration
 =============
 
-As I don't have a dedicated machine to run the performance tracking session, I just ran:
+I don't have a dedicated machine to run the performance tracking session, so I just ran the following:
 
 .. code:: sh
 
@@ -48,7 +48,7 @@ As I don't have a dedicated machine to run the performance tracking session, I j
 Basically, this commands runs ``timeit`` on all kernels from *numpy-benchmarks*
 according to the kernel annotations, but only once these kernels have been
 compiled by the *Pythran* compiler extracted from the revisions ranging from
-latest release, *0.8.6* and current *master*. A good way to check if the recent
+latest release, *0.8.6* to current *master*. That's a good way to check if the recent
 commits brought any performance improvement or regressions.
 
 In order to reduce system glitter, the following one-liner helps a lot:
@@ -59,16 +59,16 @@ In order to reduce system glitter, the following one-liner helps a lot:
 
 .. note::
 
-    Because I don't have a dedicated machine, these benchmarks were run during the
-    night, with all apps closed, using a blank ``~/.pythranrc`` and GCC 7.3 and on
-    good ol' Python 2.7. For reference, I have an ``Intel(R) Core(TM) i7-6600U CPU
-    @ 2.60GHz``, but as the goal is merely to track regression, the details are not
-    as relevant as they could be for a traditional benchmark setup.
+    These benchmarks were run during the night, with all apps closed, using a
+    blank ``~/.pythranrc`` and GCC 7.3 and on good ol' Python 2.7. For
+    reference, I have an ``Intel(R) Core(TM) i7-6600U CPU @ 2.60GHz``, but as
+    the goal is merely to track regression, the details are not as relevant as
+    they could be for a traditional benchmark setup.
 
 Subtilities
 ===========
 
-Although *asv* works like a charm, some aspects requires care.
+Although *asv* works like a charm, some aspects require care.
 
 1. *Pythran* is an ahead of time compiler, so it does not make sense to track
    compilation time as part of the actual benchmark. *asv* does provide a
@@ -77,7 +77,7 @@ Although *asv* works like a charm, some aspects requires care.
    of commits). Fortunately, there is a ``setup_cache`` mechanism that fulfills
    our need perfectly!
 
-2. *numpy-benchmarks* generally use randomized input, in order to avoid
+2. *numpy-benchmarks* tries hard to use randomized input, in order to avoid
    over-specialization of a benchmark for a given input set. In some cases this
    led to unstable behavior, so we occasionally forced the seed. Changing the
    kernel body is not an option; since one of the interests behind using
@@ -134,3 +134,5 @@ adaptation of *pythran-asv* for `xtensor
 <https://github.com/QuantStack/xtensor>`_ as he `already did
 <https://twitter.com/wuoulf/status/1016710926047825920>`_ for
 *numpy-benchmarks*.
+
+And thanks a lot to `ashwinvis <https://ashwinvis.github.io/>`_ for his review!
