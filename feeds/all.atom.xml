@@ -1,5 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2018-07-11T00:00:00+02:00</updated><entry><title>Testing Pythran on random kernels</title><link href="http://serge-sans-paille.github.io/pythran-stories/testing-pythran-on-random-kernels.html" rel="alternate"></link><published>2018-07-11T00:00:00+02:00</published><updated>2018-07-11T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-07-11:/pythran-stories/testing-pythran-on-random-kernels.html</id><summary type="html">&lt;p&gt;Stack Overflow is a great place to find new challenging test case for Pythran :-)&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/Testing Pythran on random kernels.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2018-08-05T00:00:00+02:00</updated><entry><title>What is the air speed velocity of Pythran?</title><link href="http://serge-sans-paille.github.io/pythran-stories/what-is-the-air-speed-velocity-of-pythran.html" rel="alternate"></link><published>2018-08-05T00:00:00+02:00</published><updated>2018-08-05T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-08-05:/pythran-stories/what-is-the-air-speed-velocity-of-pythran.html</id><summary type="html">&lt;p class="first last"&gt;Performance of the compiled code is an important feature of Pythran.
+Yet, Pythran had no unit test to prevent performance regression! Fortunately,
+thanks to a mix of &lt;a class="reference external" href="https://github.com/airspeed-velocity/asv/"&gt;airspeed velocity&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/"&gt;numpy-benchmark&lt;/a&gt;, it is now a granted
+a decent way to track these regressions.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;As many projects, &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran"&gt;Pythran&lt;/a&gt; has
+its own test suite that runs on &lt;a class="reference external" href="http://travis-ci.org/"&gt;travis-ci&lt;/a&gt; and
+&lt;a class="reference external" href="http://appveyor.com/"&gt;AppVeyor&lt;/a&gt;. It's a nice test suite: it tests different
+compilers—namely Clang, GCC and MVSCC—with different set of flags—with and
+without OpenMP and vectorization— and for the 2.7 and 3.5 Python versions.
+Nice. Brest.&lt;/p&gt;
+&lt;p&gt;A while ago, I started to collect various high-level Numpy kernels in the
+&lt;a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/"&gt;numpy-benchmark&lt;/a&gt;
+repo. The goal was to check how well Pythran behaves on these kernels, and to
+compare it with other compilers. Over the time I've been adding new kernels
+that showcases different optimization challenges, which leads us to more than 35
+different kernels. I was occasionally using that set of kernels to check for
+performance regression, but that was only semi-automated and rather tedious.&lt;/p&gt;
+&lt;p&gt;Then comes &lt;a class="reference external" href="https://github.com/airspeed-velocity/asv/"&gt;airspeed velocity&lt;/a&gt;, a
+tool that exactly brings the remaining bits: automated benchmarking over
+software revision, regression tracking and nice plots. So it was just a matter
+of stirring everything together to give birth to
+&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran-asv"&gt;https://github.com/serge-sans-paille/pythran-asv&lt;/a&gt;. In order to not break the
+link with &lt;em&gt;numpy-benchmarks&lt;/em&gt;, the original repo is imported as a &lt;a class="reference external" href="https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt"&gt;git subtree&lt;/a&gt;, and
+the tests are automatically generated based on the kernel annotations :-)&lt;/p&gt;
+&lt;div class="section" id="configuration"&gt;
+&lt;h2&gt;Configuration&lt;/h2&gt;
+&lt;p&gt;I don't have a dedicated machine to run the performance tracking session, so I just ran the following:&lt;/p&gt;
+&lt;pre class="code sh literal-block"&gt;
+$ asv &lt;span class="m"&gt;0&lt;/span&gt;.8.6..master
+&lt;/pre&gt;
+&lt;p&gt;Basically, this commands runs &lt;tt class="docutils literal"&gt;timeit&lt;/tt&gt; on all kernels from &lt;em&gt;numpy-benchmarks&lt;/em&gt;
+according to the kernel annotations, but only once these kernels have been
+compiled by the &lt;em&gt;Pythran&lt;/em&gt; compiler extracted from the revisions ranging from
+latest release, &lt;em&gt;0.8.6&lt;/em&gt; to current &lt;em&gt;master&lt;/em&gt;. That's a good way to check if the recent
+commits brought any performance improvement or regressions.&lt;/p&gt;
+&lt;p&gt;In order to reduce system glitter, the following one-liner helps a lot:&lt;/p&gt;
+&lt;pre class="code sh literal-block"&gt;
+$ python -m perf system tune
+&lt;/pre&gt;
+&lt;div class="admonition note"&gt;
+&lt;p class="first admonition-title"&gt;Note&lt;/p&gt;
+&lt;p class="last"&gt;These benchmarks were run during the night, with all apps closed, using a
+blank &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;~/.pythranrc&lt;/span&gt;&lt;/tt&gt; and GCC 7.3 and on good ol' Python 2.7. For
+reference, I have an &lt;tt class="docutils literal"&gt;Intel(R) Core(TM) &lt;span class="pre"&gt;i7-6600U&lt;/span&gt; CPU &amp;#64; 2.60GHz&lt;/tt&gt;, but as
+the goal is merely to track regression, the details are not as relevant as
+they could be for a traditional benchmark setup.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="subtilities"&gt;
+&lt;h2&gt;Subtilities&lt;/h2&gt;
+&lt;p&gt;Although &lt;em&gt;asv&lt;/em&gt; works like a charm, some aspects require care.&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;&lt;em&gt;Pythran&lt;/em&gt; is an ahead of time compiler, so it does not make sense to track
+compilation time as part of the actual benchmark. &lt;em&gt;asv&lt;/em&gt; does provide a
+&lt;tt class="docutils literal"&gt;setup&lt;/tt&gt; mechanism, but it proved to be too costly (the compilation is
+called multiple times, and it costs too much time when ranging over hundreds
+of commits). Fortunately, there is a &lt;tt class="docutils literal"&gt;setup_cache&lt;/tt&gt; mechanism that fulfills
+our need perfectly!&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;numpy-benchmarks&lt;/em&gt; tries hard to use randomized input, in order to avoid
+over-specialization of a benchmark for a given input set. In some cases this
+led to unstable behavior, so we occasionally forced the seed. Changing the
+kernel body is not an option; since one of the interests behind using
+&lt;em&gt;numpy-benchmarks&lt;/em&gt; is that it come from third-party source and
+are not tailored for a given compiler.&lt;/li&gt;
+&lt;li&gt;On very rare occasions, the &lt;em&gt;Pythran&lt;/em&gt; annotation language evolves, and
+kernels that use new syntax cannot be compiled by older versions of
+&lt;em&gt;Pythran&lt;/em&gt;. This actually happens only once, now that it is possible to
+specify the value dimension of a given dimension. As a workaround, if a
+kernel fails to compile, a rewrite rule automatically changes the annotation
+back to the traditional, less specialized one.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;div class="section" id="results"&gt;
+&lt;h2&gt;Results&lt;/h2&gt;
+&lt;p&gt;As of this post, the result of the regression test is available on
+&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv/"&gt;https://serge-sans-paille.github.io/pythran-asv/&lt;/a&gt;. It provides a good
+illustration of the recent commits :-)&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_laplacien"&gt;laplacien&lt;/a&gt;
+greatly benefits from the partially static shape specialization introduced in
+&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/2e9dc6d694feae2be378fa5351e2cf5ad0c19f1"&gt;2e9dc6d69&lt;/a&gt;.
+This commit also has a positive impact on &lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_grayscott"&gt;grayscott&lt;/a&gt;,
+but a slightly negative impact on &lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_wdist"&gt;wdist&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_make_decision"&gt;make_decision&lt;/a&gt; exhibits a pattern captured by
+&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/a52ee30084549125ef34448f5ccf3013874331a9"&gt;a52ee300&lt;/a&gt;
+: the square of the norm of a complex number.&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_reverse_cumsum"&gt;reverse_cumsum&lt;/a&gt; is returning a complex Numpy view, something Pythran can
+efficiently do since &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/8e8711365899009634653cc7e11a8cd36001c0c7"&gt;8e871136&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class="section" id="thanks-and-future-works"&gt;
+&lt;h2&gt;Thanks and Future Works&lt;/h2&gt;
+&lt;p&gt;The original idea of using &lt;em&gt;asv&lt;/em&gt; to track &lt;em&gt;Pythran&lt;/em&gt; performance comes from a
+discussion with the &lt;a class="reference external" href="http://quantstack.net/"&gt;QuantStack&lt;/a&gt; guys. They really
+are amazing folks, all the interactions I have with them really keeps the
+motivation up. They even funded all this regression tracking stuff for &lt;em&gt;Pythran&lt;/em&gt;,
+did I mention they're cool?&lt;/p&gt;
+&lt;p&gt;Next step is probably to run the regression suite on a larger commit range,
+this may spot some more regressions or give hint for further improvements. And
+I'm pretty confident &lt;a class="reference external" href="https://twitter.com/wuoulf"&gt;&amp;#64;wolfv&lt;/a&gt; will provide an
+adaptation of &lt;em&gt;pythran-asv&lt;/em&gt; for &lt;a class="reference external" href="https://github.com/QuantStack/xtensor"&gt;xtensor&lt;/a&gt; as he &lt;a class="reference external" href="https://twitter.com/wuoulf/status/1016710926047825920"&gt;already did&lt;/a&gt; for
+&lt;em&gt;numpy-benchmarks&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;And thanks a lot to &lt;a class="reference external" href="https://ashwinvis.github.io/"&gt;ashwinvis&lt;/a&gt; for his review!&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>Testing Pythran on random kernels</title><link href="http://serge-sans-paille.github.io/pythran-stories/testing-pythran-on-random-kernels.html" rel="alternate"></link><published>2018-07-11T00:00:00+02:00</published><updated>2018-07-11T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-07-11:/pythran-stories/testing-pythran-on-random-kernels.html</id><summary type="html">&lt;p&gt;Stack Overflow is a great place to find new challenging test case for Pythran :-)&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/Testing Pythran on random kernels.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
 &lt;p&gt;Every now and then, I hang around on stackoverflow, longing for numerical kernels to pass through &lt;a href="https://pythran.readthedocs.io"&gt;pythran&lt;/a&gt;. Here is the result of my recent wanderings :-)&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;# It&amp;#39;s import(ant)&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
