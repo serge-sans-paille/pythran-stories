@@ -73,19 +73,19 @@ back to the traditional, less specialized one.&lt;/li&gt;
 &lt;/div&gt;
 &lt;div class="section" id="results"&gt;
 &lt;h2&gt;Results&lt;/h2&gt;
-&lt;p&gt;As of this post, the result of the regression test is available on
-&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv/"&gt;https://serge-sans-paille.github.io/pythran-asv/&lt;/a&gt;. It provides a good
+&lt;p&gt;As of this post, the result of the regression test has been snapshot on
+&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot/"&gt;https://serge-sans-paille.github.io/pythran-asv-snapshot/&lt;/a&gt;. It provides a good
 illustration of the recent commits :-)&lt;/p&gt;
 &lt;ul class="simple"&gt;
-&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_laplacien"&gt;laplacien&lt;/a&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_laplacien"&gt;laplacien&lt;/a&gt;
 greatly benefits from the partially static shape specialization introduced in
 &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/2e9dc6d694feae2be378fa5351e2cf5ad0c19f1"&gt;2e9dc6d69&lt;/a&gt;.
-This commit also has a positive impact on &lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_grayscott"&gt;grayscott&lt;/a&gt;,
-but a slightly negative impact on &lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_wdist"&gt;wdist&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_make_decision"&gt;make_decision&lt;/a&gt; exhibits a pattern captured by
+This commit also has a positive impact on &lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_grayscott"&gt;grayscott&lt;/a&gt;,
+but a slightly negative impact on &lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_wdist"&gt;wdist&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_make_decision"&gt;make_decision&lt;/a&gt; exhibits a pattern captured by
 &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/a52ee30084549125ef34448f5ccf3013874331a9"&gt;a52ee300&lt;/a&gt;
 : the square of the norm of a complex number.&lt;/li&gt;
-&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_reverse_cumsum"&gt;reverse_cumsum&lt;/a&gt; is returning a complex Numpy view, something Pythran can
+&lt;li&gt;&lt;a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_reverse_cumsum"&gt;reverse_cumsum&lt;/a&gt; is returning a complex Numpy view, something Pythran can
 efficiently do since &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/8e8711365899009634653cc7e11a8cd36001c0c7"&gt;8e871136&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;

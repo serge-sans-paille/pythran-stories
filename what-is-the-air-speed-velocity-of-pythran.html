@@ -204,19 +204,19 @@ back to the traditional, less specialized one.</li>
 </div>
 <div class="section" id="results">
 <h2>Results</h2>
-<p>As of this post, the result of the regression test is available on
-<a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv/">https://serge-sans-paille.github.io/pythran-asv/</a>. It provides a good
+<p>As of this post, the result of the regression test has been snapshot on
+<a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot/">https://serge-sans-paille.github.io/pythran-asv-snapshot/</a>. It provides a good
 illustration of the recent commits :-)</p>
 <ul class="simple">
-<li><a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_laplacien">laplacien</a>
+<li><a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_laplacien">laplacien</a>
 greatly benefits from the partially static shape specialization introduced in
 <a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/2e9dc6d694feae2be378fa5351e2cf5ad0c19f1">2e9dc6d69</a>.
-This commit also has a positive impact on <a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_grayscott">grayscott</a>,
-but a slightly negative impact on <a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_wdist">wdist</a>.</li>
-<li><a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_make_decision">make_decision</a> exhibits a pattern captured by
+This commit also has a positive impact on <a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_grayscott">grayscott</a>,
+but a slightly negative impact on <a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_wdist">wdist</a>.</li>
+<li><a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_make_decision">make_decision</a> exhibits a pattern captured by
 <a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/a52ee30084549125ef34448f5ccf3013874331a9">a52ee300</a>
 : the square of the norm of a complex number.</li>
-<li><a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_reverse_cumsum">reverse_cumsum</a> is returning a complex Numpy view, something Pythran can
+<li><a class="reference external" href="https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_reverse_cumsum">reverse_cumsum</a> is returning a complex Numpy view, something Pythran can
 efficiently do since <a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/8e8711365899009634653cc7e11a8cd36001c0c7">8e871136</a>.</li>
 </ul>
 </div>
