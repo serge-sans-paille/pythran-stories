@@ -94,26 +94,26 @@ Although *asv* works like a charm, some aspects require care.
 Results
 =======
 
-As of this post, the result of the regression test is available on
-https://serge-sans-paille.github.io/pythran-asv/. It provides a good
+As of this post, the result of the regression test has been snapshot on
+https://serge-sans-paille.github.io/pythran-asv-snapshot/. It provides a good
 illustration of the recent commits :-)
 
 - `laplacien
-  <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_laplacien>`_
+  <https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_laplacien>`_
   greatly benefits from the partially static shape specialization introduced in
   `2e9dc6d69
   <https://github.com/serge-sans-paille/pythran/tree/2e9dc6d694feae2be378fa5351e2cf5ad0c19f1>`_.
   This commit also has a positive impact on `grayscott
-  <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_grayscott>`_,
+  <https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_grayscott>`_,
   but a slightly negative impact on `wdist
-  <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_wdist>`_.
+  <https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_wdist>`_.
 
-- `make_decision <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_make_decision>`_ exhibits a pattern captured by
+- `make_decision <https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_make_decision>`_ exhibits a pattern captured by
   `a52ee300
   <https://github.com/serge-sans-paille/pythran/tree/a52ee30084549125ef34448f5ccf3013874331a9>`_
   : the square of the norm of a complex number.
 
-- `reverse_cumsum <https://serge-sans-paille.github.io/pythran-asv#benchmarks.TimeSuite.time_reverse_cumsum>`_ is returning a complex Numpy view, something Pythran can
+- `reverse_cumsum <https://serge-sans-paille.github.io/pythran-asv-snapshot#benchmarks.TimeSuite.time_reverse_cumsum>`_ is returning a complex Numpy view, something Pythran can
   efficiently do since `8e871136
   <https://github.com/serge-sans-paille/pythran/tree/8e8711365899009634653cc7e11a8cd36001c0c7>`_.
 
