@@ -1,0 +1,271 @@
+Bye bye boost.simd, welcome xsimd
+#################################
+
+:date: 2018-10-31
+:category: engineering
+:lang: en
+:authors: serge-sans-paille
+:summary: After five years of friendship, Pythran replaces ``boost.simd`` by
+          ``xsimd`` as its vectorization engine. This post goes through the
+          motivation of this change, and the advantage of this move.
+
+`boost.simd <https://github.com/NumScale/boost.simd>`_ provides a C++
+abstraction of vector type, allowing for efficient vectorization of array
+computations. It has been (optionally) used as part of the expression template
+engine of Pythran for a long time, a great collaboration that led to several
+patch in boost.simd, and great performance for Pythran.
+
+Unfortunately, the project has been silent over the last months (see for
+instance `this issue <https://github.com/NumScale/boost.simd/issues/546>`_ and
+I had to maintain a few custom patches. Turns out the project has been
+re-branded as **bSIMD** with a more restrictive license, as detailed in `another
+issue <https://github.com/NumScale/boost.simd/issues/545>`_. From the Pythran
+perspective, this is no good news.
+
+Fortunately, the people from `QuantStack <http://quantstack.net/>`_ have put
+tremendous effort into providing an equivalent to boost.simd, *xsimd*. And
+their library actually provides some improvements in the context of Pythran, so
+when they proposed to fund the move to *xsimd*, it was just perfect.
+
+So here is the deal: I do the port, report any API and/or performance issue,
+and eventually provide patch when relevant. That's what I did over the last
+three months, let's have a look at the result.
+
+User-level Changes
+==================
+
+In order to activate explicit vectorisation, one must pass ``-DUSE_XSIMD -march=native`` to the pythran compiler, in place of ``-DUSE_BOOST_SIMD -march=native``. Fair enough.
+
+For instance, consider the following kernel, taken from the `numpy benchmarks
+suite <https://github.com/serge-sans-paille/numpy-benchmarks/>`_ suite I
+maintain.
+
+.. code-block:: python
+
+    #pythran export arc_distance(float64 [], float64[], float64[], float64[])
+
+    import numpy as np
+    def arc_distance(theta_1, phi_1,
+                           theta_2, phi_2):
+        """
+        Calculates the pairwise arc distance between all points in vector a and b.
+        """
+        temp = np.sin((theta_2-theta_1)/2)**2+np.cos(theta_1)*np.cos(theta_2)*np.sin((phi_2-phi_1)/2)**2
+        distance_matrix = 2 * (np.arctan2(np.sqrt(temp),np.sqrt(1-temp)))
+        return distance_matrix
+
+When compiled with GCC 7.3 and benchmarked with the `perf <https://pypi.org/project/perf/>`_ module, one gets
+
+.. code-block:: sh
+
+    CC=clang CXX=clang++ pythran arc_distance.py -O3 -march=native
+    python -m perf timeit -s 'N = 10000 ; import numpy as np ; np.random.seed(0); t0, p0, t1, p1 = np.random.randn(N), np.random.randn(N), np.random.randn(N), np.random.randn(N); from arc_distance import arc_distance' 'arc_distance(t0, p0, t1, p1)'
+    .....................
+    Mean +- std dev: 1.48 ms +- 0.01 ms
+
+That's our base line. If we recompile it with ``-DUSE_XSIMD``, we get an extra speedup (AVX instructions are available on my laptop, and enabled by ``-march=native``).
+
+.. code-block:: sh
+
+    CC=clang CXX=clang++ python -m pythran.run arc_distance.py -O3 -march=native -DUSE_XSIMD
+    python -m perf timeit -s 'N = 10000 ; import numpy as np ; np.random.seed(0); t0, p0, t1, p1 = np.random.randn(N), np.random.randn(N), np.random.randn(N), np.random.randn(N); from arc_distance import arc_distance' 'arc_distance(t0, p0, t1, p1)'
+    .....................
+    Mean +- std dev: 199 us +- 4 us
+
+That's roughly 7 times faster. And using Pythran 0.8.7, the last release with boost.simd support, we have
+
+.. code-block:: sh
+
+    CC=clang CXX=clang++ python -m pythran.run arc_distance.py -O3 -march=native -DUSE_BOOST_SIMD
+    python -m perf timeit -s 'N = 10000 ; import numpy as np ; np.random.seed(0); t0, p0, t1, p1 = np.random.randn(N), np.random.randn(N), np.random.randn(N), np.random.randn(N); from arc_distance import arc_distance' 'arc_distance(t0, p0, t1, p1)'
+    .....................
+    Mean +- std dev: 284 us +- 8 us
+
+This is slightly slower, but within the same magnitude order. Out of curiosity, I ran the same three experiments using Clang 6 as a backend compiler and I get the following timings:
+
+.. code::
+
+    clang + boost.simd: 220 us +- 8 us
+    clang + xsimd:      273 us +- 11 us
+    clang:             1.41 ms +- 0.04 ms
+
+Interestingly, **on that example**, Clang generates better code for the boost.simd version. So let's be wary of hasty conclusion and just state that with both engines, I can get efficient vectorization of my code.
+
+Complex Numbers
+===============
+
+Thanks to xsimd, Pythran is no able to *naively* support complex number
+vectorization. I state *naively* because we don't support changing internal
+representation from array-of-struct to struct-of-array, as we stick to numpy's
+layout. Still that's something new for Pythran as showcased by the following kernel:
+
+.. code-block:: python
+
+    #pythran export normalize_complex_arr(complex[])
+
+    import numpy as np
+    def normalize_complex_arr(a):
+        a_oo = a - a.real.min() - 1j*a.imag.min() # origin offsetted
+        return a_oo/np.abs(a_oo).max()
+
+
+Pythran provides a vectorized version of ``np.min`` and ``np.max`` operators, so thanks to complex support, it should provide some decent acceleration. Let's check that!
+
+.. code-block:: sh
+
+    CC=gcc CXX=g++ pythran -march=native -O3 normalize_complex_arr.py
+    python -m perf timeit -s 'import numpy as np; np.random.seed(0); N = 100000; x = np.random.random(N) + 1j *  np.random.random(N); from normalize_complex_arr import normalize_complex_arr' 'normalize_complex_arr(x)'
+    .....................
+    Mean +- std dev: 2.84 ms +- 0.01 ms
+
+
+And with vectorization on (note that the calls to ``np.min()`` do not involve complex numbers though.
+
+.. code-block:: sh
+
+    CC=gcc CXX=g++ pythran -march=native -O3 make_decision.py -DUSE_XSIMD
+    python -m perf timeit -s 'import numpy as np; np.random.seed(0); N = 100000; x = np.random.random(N) + 1j *  np.random.random(N); from normalize_complex_arr import normalize_complex_arr' 'normalize_complex_arr(x)'
+    .....................
+    Mean +- std dev: 723 us +- 14 us
+
+Cool! Speedup for complex! For the record, the numpy version already ran at roughly ``3.19 ms +- 0.02 ms``.
+
+Scalar Version
+==============
+
+That's probably a detail for many xsimd users, but thanks to this cooperation,
+xsimd now exposes a scalar version of all its mathematical function inside the
+``xsimd::`` namespace. That way one can write higher level functions based on
+xsimd, and they would work for both scalar and vector version:
+
+.. code-block:: c++
+
+    template<class T>
+    T euclidian_distance_squared(T x, T y)
+    {
+        auto tmp = xsimd::hypot(x, y);
+        return tmp * tmp;
+    }
+
+In the context of Pythran, this makes the expression template engine easier to
+write. Good point.
+
+
+Compilation Time
+================
+
+Pythran is an *Ahead of Time* compiler, so compilation time is generally not a
+good metric. But there's one situation where it matters to me: Continuous
+Integration. Because Travis has time limits, the faster we compile, the more
+test we can pass! As Pythran validates for Python2 and Python3, for Clang and
+GCC, with and without SIMD, with and without OpenMP, that's a lot of
+configuration to test. Roughly... 20hours of cumulated tests actually, see
+`this recent build
+<https://travis-ci.com/serge-sans-paille/pythran/builds/89663340>`_ for
+instance.
+
+In pre-xsimd setting, compiling the above  ``arc_distance.py`` file in simd mode is relatively slow:
+
+.. code-block:: sh
+
+    time pythran -O3 -march=native normalize_complex_arr.py -E # generate the .cpp
+    0.91s user 0.28s system 130% cpu 0.908 total
+    time pythran -O3 -march=native normalize_complex_arr.cpp -DUSE_BOOST_SIMD
+    12.10s user 0.79s system 102% cpu 12.616 total
+
+
+With xsimd, it's slightly faster (no boost dependencies, and less C++ magic).
+
+.. code-block:: sh
+
+    time pythran -O3 -march=native arc_distance.cpp -DUSE_XSIMD
+    10.32s user 0.65s system 102% cpu 10.688 total
+
+Arguably, it's still slow. But a bit less then what it uses to be, and the reason also lies in the generated c++, not only in the vectorization engine:
+
+.. code-block:: sh
+
+    time pythran -O3 -march=native arc_distance.cpp
+    5.67s user 0.61s system 104% cpu 6.001 total
+
+
+Performance of Basic Functions
+==============================
+
+Using `airspeed velocity <https://github.com/airspeed-velocity/asv>`_, I've compared how well xsimd behaves for simple operations on 1D array. All the benchmarks hereafter have the following form:
+
+.. code-block:: python
+
+    #pythran export cos_array(float64 [])
+    #setup: import numpy as np ; np.random.seed(0); N = 10000 ; x = np.random.random(N) * 2 * np.pi
+    #run: cos_array(x)
+    import numpy as np
+    def cos_array(x):
+        return np.cos(x)
+
+
+The results are obtained through the ``asv compare commit_id0 commit_id1`` command.
+
+.. code::
+
+    All benchmarks:
+
+        before     after       ratio
+      [99d8234f] [60632651]
+         9.90μs     9.89μs      1.00  benchmarks.TimeSuite.time_abs_array
+    +   36.82μs    58.44μs      1.59  benchmarks.TimeSuite.time_acos_array
+        36.25μs    33.60μs      0.93  benchmarks.TimeSuite.time_asin_array
+    -   50.47μs    33.03μs      0.65  benchmarks.TimeSuite.time_atan_array
+    -   48.62μs    35.72μs      0.73  benchmarks.TimeSuite.time_cos_array
+    -   73.82μs    43.81μs      0.59  benchmarks.TimeSuite.time_cosh_array
+    -   47.55μs    35.52μs      0.75  benchmarks.TimeSuite.time_sin_array
+    -   91.45μs    47.86μs      0.52  benchmarks.TimeSuite.time_sinh_array
+        18.35μs    17.91μs      0.98  benchmarks.TimeSuite.time_sqrt_array
+         9.60μs    10.05μs      1.05  benchmarks.TimeSuite.time_square_array
+    -   71.71μs    33.35μs      0.47  benchmarks.TimeSuite.time_tan_array
+    -   84.63μs    42.28μs      0.50  benchmarks.TimeSuite.time_tanh_array
+
+Looks pretty good! Apart from a regression on ``acos``, this is either on-par or faster than before.
+
+Out of curiosity, I also ran the same benchmark, but using Clang as back-end.
+
+.. code::
+
+    All benchmarks:
+
+        before     after       ratio
+      [99d8234f] [60632651]
+         9.57μs    10.00μs      1.05  benchmarks.TimeSuite.time_abs_array
+    +   34.20μs    58.53μs      1.71  benchmarks.TimeSuite.time_acos_array
+        36.09μs    33.91μs      0.94  benchmarks.TimeSuite.time_asin_array
+    -   45.02μs    33.86μs      0.75  benchmarks.TimeSuite.time_atan_array
+    +   39.44μs    45.48μs      1.15  benchmarks.TimeSuite.time_cos_array
+    -   65.98μs    44.78μs      0.68  benchmarks.TimeSuite.time_cosh_array
+    +   39.39μs    45.48μs      1.15  benchmarks.TimeSuite.time_sin_array
+    -  110.62μs    48.44μs      0.44  benchmarks.TimeSuite.time_sinh_array
+        18.18μs    18.54μs      1.02  benchmarks.TimeSuite.time_sqrt_array
+        10.05μs     9.56μs      0.95  benchmarks.TimeSuite.time_square_array
+    -   56.82μs    45.32μs      0.80  benchmarks.TimeSuite.time_tan_array
+    -   98.85μs    44.16μs      0.45  benchmarks.TimeSuite.time_tanh_array
+
+Wow, that's significant changes. Regression on both ``cos``, ``sin`` and ``acos`` are not good news.
+
+What conclusion should we draw? My take on this is that these benchmarks are
+not synthetic enough to state *xsimd implementation of function X is better or
+worse than boost.simd implementation*. But maybe there are bad interactions
+with Pythran's expression template? A single register spill could wreak havoc
+in the performance, and I know there is room for improvement there.
+
+Conclusions
+===========
+
+I'm indeed very happy with the changes. The xsimd team is very reactive, it's
+cool to chat with them about performance, Python, C++... And did I see xsimd
+supports Neon, avx512? I should try to run cross-compiled Pythran code on a
+Raspberry, but... That's for another story!
+
+Again thanks a lot to (alphabetical order) `Johan
+<https://twitter.com/JohanMabille>`_, `martin
+<https://twitter.com/renou_martin>`_, Sylvain
+<https://twitter.com/SylvainCorlay>`_ and `Wolf <https://twitter.com/wuoulf>`_.
+Let's meet again in front of a generous choucroute!
