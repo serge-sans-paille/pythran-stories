@@ -31,7 +31,7 @@ But first some statistics:
 
 - There has been more than a hundred of commits.
 
-  .. code::
+  .. code-block:: sh
 
     $ git rev-list --count 6428e526ec..
     118
@@ -40,7 +40,7 @@ But first some statistics:
   which is great news, because we did fix a lot of issues, without making the
   code grow too much.
 
-  .. code::
+  .. code-block:: sh
 
     $ git diff --shortstat 6428e526ec.. -- pythran
     203 files changed, 3185 insertions(+), 3119 deletions(-)
@@ -49,7 +49,7 @@ But first some statistics:
   roughly 45kSLOC of C++ runtime, 15kSLOC of python tests and 15kSLOC of actual
   compiler code.
 
-  .. code::
+  .. code-block:: sh
 
     $ sloccount pythran
     [...]
@@ -68,14 +68,14 @@ Faster Compilation
 
 If I try to compile the `kmeans.py <https://github.com/serge-sans-paille/pythran/blob/master/pythran/tests/cases/kmeans.py>`_ code from the Pythran test bed, using g++-6.3, at revision ``6428e526ec``, I roughly get (with hot file system caches):
 
-.. code::
+.. code-block:: sh
 
     $ time pythran kmeans.py
     5.69s user 0.46s system 102% cpu 5.975 total
 
 The very same command using the ``HEAD`` revision outputs:
 
-.. code::
+.. code-block:: sh
 
     $ time pythran kmeans.py
     4.47s user 0.43s system 103% cpu 4.723 total
@@ -88,7 +88,7 @@ Optional Typing
 
 « The fastest program is the one that does nothing. » Inspired by this motto (and by the advices of `pbrunet <https://github.com/pbrunet>`_), I realized that current compilation flow, illustrated below:
 
-.. code::
+.. code-block:: python
 
     ir = parse(code)
     if not type_check(ir):
@@ -98,7 +98,7 @@ Optional Typing
 
 could be rewritten like this:
 
-.. code::
+.. code-block:: python
 
     ir = parse(code)
     cxx = generate_cxx(ir)
@@ -215,7 +215,7 @@ Lazy numpy.where
 
 Consider the following Numpy expression:
 
-.. code:: python
+.. code-block:: python
 
     a = numpy.where(a > 1, a ** 2, a + 2)
 
@@ -228,7 +228,7 @@ is now built-in!
 
 Said otherwise, the previous entry point for an expression template was
 
-.. code::
+.. code-block:: c++
 
     template<class T0, class T1, class T2>
     auto operator()(T0 const& arg0, T0 const& arg1, T2 const& arg2) {
@@ -238,7 +238,7 @@ Said otherwise, the previous entry point for an expression template was
 
 And it can now be
 
-.. code::
+.. code-block:: c++
 
     template<class T0, class T1, class T2>
     auto operator()(T0 const& iter0, T0 const& iter1, T2 const& iter2) {
@@ -253,7 +253,7 @@ Update Operator
 
 For some internal operations, I've been lazy and implemented update operator like this:
 
-.. code::
+.. code-block:: c++
 
     template<class T>
     auto operator+=(T const& val) {
@@ -287,7 +287,7 @@ At the assembly level, performing an integer division is generally costly, much 
 
 So instead of doing:
 
-.. code:: c++
+.. code-block:: c++
 
     size_t nbiter = size0 / size1;
     for (size_t i = 0; i < nbiter; ++i) {
@@ -296,7 +296,7 @@ So instead of doing:
 
 Doing (it's not generally equivalent, but in our context it is because ``size0`` is a multiple of ``size1``)
 
-.. code:: c++
+.. code-block:: c++
 
     for (size_t i = 0; i < size0; i += size1) {
        ...

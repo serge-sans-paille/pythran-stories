@@ -16,8 +16,9 @@ there's something that actually makes Pythran difficult to use for new
 comers. What is it? Let's have a look at the following Python code, inspired by
 a `stack overflow thread <http://stackoverflow.com/questions/13815719/creating-grid-with-numpy-performance>`_:
 
-.. code:: python
-    :name: create_grid.py
+.. code-block:: python
+
+    # create_grid.py
 
     #pythran export create_grid(float [])
 
@@ -32,7 +33,7 @@ a `stack overflow thread <http://stackoverflow.com/questions/13815719/creating-g
 
 An attempt to compile it with Pythran would return a very long C++ template instantiation trace, with very little clue concerning the origin of the problem.
 
-.. code:: shell
+.. code-block:: shell
 
     > pythran create_grid.py
     In file included from /tmp/tmpP0xYa2.cpp:10:
@@ -55,7 +56,7 @@ An attempt to compile it with Pythran would return a very long C++ template inst
 
     What we now have is a slightly friendlier message:
 
-.. code:: shell
+.. code-block:: shell
 
     > pythran create_grid.py
     CRITICAL You shall not pass!
@@ -86,7 +87,7 @@ what we need to get closer to Python typing!
 This all is very nice, except in the case of a bad typing. Consider this trivial
 Python code:
 
-.. code:: python
+.. code-block:: python
 
     def twice(s):
         return s * 2
@@ -94,7 +95,7 @@ Python code:
 integer, for instance ``str``, ``list``, ``int``. The C++ equivalent would
 be (taking into account move semantics):
 
-.. code:: c++
+.. code-block:: c++
 
     template<typename T>
     auto twice(T&& s) {
@@ -189,7 +190,7 @@ object that can hold several types at the same time. So that's not exactly a
 ``UnionType`` which is the type of an object that can be of one type among
 many. The difference exists because of the situation described by the following code:
 
-.. code:: python
+.. code-block:: python
 
     def foo(l, m=1):
         pass
@@ -209,7 +210,7 @@ So we handle overloading through a unique object that has a specific type, a
 Abusing from ``Multiype`` can quickly make the combinatorics of the type
 possibilities go wild, so we had to make a decision. Consider the following code:
 
-.. code:: python
+.. code-block:: python
 
     def foo(x, y):
         return y in x
@@ -252,7 +253,7 @@ Handling Option Types
 
 When HM runs on the following Python code:
 
-.. code:: python
+.. code-block:: python
 
     def foo(a):
         if a:
@@ -276,7 +277,7 @@ branch, and we *merge* (not *unify*) the environments.
 
 Likewise, if the condition is *explicitely* a check for ``None``, as in:
 
-.. code:: python
+.. code-block:: python
 
     if a is None:
         stuff()
@@ -290,7 +291,7 @@ generic to be done there.
 
 This even led to improvement in our test base, as the following code was no longer correct:
 
-.. code:: python
+.. code-block:: python
 
     def foo(x):
         v = x.get(1)
@@ -298,7 +299,7 @@ This even led to improvement in our test base, as the following code was no long
 
 Type inference computes that v is of type ``Optional[T0]``, which is not compatible with ``v + 1`` and a ``PythranTypeError`` is raised. A compatible way to write this would be:
 
-.. code:: python
+.. code-block:: python
 
     def foo(x):
         v = x.get(1)
@@ -315,7 +316,7 @@ Handling Type Promotion
 
 It's not uncommon to find this kind of code:
 
-.. code:: python
+.. code-block:: python
 
     l = []
     l.append(0)
@@ -403,7 +404,7 @@ First, the whole test suite passes without much modifications. It helped
 to spot a few *errors* in the tests, mostly code that was incorrect with
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:
 
-.. code:: python
+.. code-block:: python
 
     def test_shadow_import2(self):
         self.run_test(
@@ -421,7 +422,7 @@ The following code sample is adapted from the `MyPy example page
 <http://www.mypy-lang.org/examples.html>`_. It requires a type comment to be
 correctly typed, while Pythran correctly type checks it without annotation.
 
-.. code:: python
+.. code-block:: python
 
     def wc(content):
         d = {}
@@ -436,7 +437,7 @@ correctly typed, while Pythran correctly type checks it without annotation.
 
 If we turn the ``1`` into ``"1"``, we get the following error:
 
-.. code:: shell
+.. code-block:: shell
 
     > pythran wc.py
     CRITICAL You shall not pass!
@@ -444,7 +445,7 @@ If we turn the ``1`` into ``"1"``, we get the following error:
 
 And if we remove the ``0``, ``d.get(word)`` may return ``None`` and the error message becomes:
 
-.. code:: shell
+.. code-block:: shell
 
     > pythran wc.py
     CRITICAL You shall not pass!
@@ -457,7 +458,7 @@ still detect several interesting errors. For instance on a gaussian kernel
 (`error-safe version from stackexchange
 <http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy>`_):
 
-.. code:: python
+.. code-block:: python
 
     import numpy as np
     def vectorized_RBF_kernel(X, sigma):
@@ -471,7 +472,7 @@ still detect several interesting errors. For instance on a gaussian kernel
 
 Pythran correctly catches the error on ``vectorized_RBF_kernel`` call:
 
-.. code:: shell
+.. code-block:: shell
 
     > pythran gaussian.py
     CRITICAL You shall not pass!

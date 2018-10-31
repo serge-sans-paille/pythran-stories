@@ -41,7 +41,7 @@ Configuration
 
 I don't have a dedicated machine to run the performance tracking session, so I just ran the following:
 
-.. code:: sh
+.. code-block:: sh
 
     $ asv 0.8.6..master
 
@@ -53,17 +53,16 @@ commits brought any performance improvement or regressions.
 
 In order to reduce system glitter, the following one-liner helps a lot:
 
-.. code:: sh
+.. code-block:: sh
 
     $ python -m perf system tune
 
-.. note::
 
-    These benchmarks were run during the night, with all apps closed, using a
-    blank ``~/.pythranrc`` and GCC 7.3 and on good ol' Python 2.7. For
-    reference, I have an ``Intel(R) Core(TM) i7-6600U CPU @ 2.60GHz``, but as
-    the goal is merely to track regression, the details are not as relevant as
-    they could be for a traditional benchmark setup.
+These benchmarks were run during the night, with all apps closed, using a
+blank ``~/.pythranrc`` and GCC 7.3 and on good ol' Python 2.7. For
+reference, I have an ``Intel(R) Core(TM) i7-6600U CPU @ 2.60GHz``, but as
+the goal is merely to track regression, the details are not as relevant as
+they could be for a traditional benchmark setup.
 
 Subtilities
 ===========

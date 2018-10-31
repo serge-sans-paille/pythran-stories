@@ -57,7 +57,7 @@ Using Pythran to generate a capsule
 The whole purpose of Pythran is to avoid writing any C code at all. An equivalent of ``testlib.so`` can be derived from the following Python code annotated with a ``pythran export``,
 using ``$ pythran testlib.py -O2`` to produce a shared library ``testlib.so``.
 
-.. code:: python
+.. code-block:: python
 
     # testlib.py
     #pythran export f(int, float64 [], float64 [])
@@ -73,7 +73,7 @@ C++ meta-programs that are instantiated for the types given in the ``pythran
 export`` lines. And that's definitively a useful thing[0], as it is dead easy
 to change its interface to generate Python-free functions. With a bit of syntactic sugar, it gives the following:
 
-.. code:: python
+.. code-block:: python
 
     # testlib.py
     #pythran export capsule f(int32, float64*, float64* )
@@ -83,7 +83,7 @@ to change its interface to generate Python-free functions. With a bit of syntact
 
 Only the Pythran comment changes, the Python code is unchanged and the resulting function ``f`` is not even, it's actually a capsule:
 
-.. code:: python
+.. code-block:: python
 
     >>> from testlib import f
     >>> f
@@ -91,7 +91,7 @@ Only the Pythran comment changes, the Python code is unchanged and the resulting
 
 SciPy's ``LowLevelCallable`` also support capsule as a way to access function pointers:
 
-.. code:: python
+.. code-block:: python
 
     >>> c = ctypes.c_double(1.0)
     >>> user_data = ctypes.cast(ctypes.pointer(c), ctypes.c_void_p)
@@ -99,7 +99,7 @@ SciPy's ``LowLevelCallable`` also support capsule as a way to access function po
 
 Then we can run the same benchmark as above:
 
-.. code:: python
+.. code-block:: python
 
     >>> dat =  [[0, 10], [-10, 0], [-1, 1]]
     >>> %timeit integrate.nquad(func, dat)
@@ -115,7 +115,7 @@ There is another interesting usage example in the `SciPy documentation
 In that example, the capsule creation is purely done in C, using the Python C
 API. Let's see how we can achieve the same result with Pythran. The original C routine is the following:
 
-.. code:: C
+.. code-block:: C
 
     static int
     _transform(npy_intp *output_coordinates, double *input_coordinates, int output_rank, int input_rank, void *user_data)
@@ -131,7 +131,7 @@ API. Let's see how we can achieve the same result with Pythran. The original C r
 
 Using Pythran and Numpy, it is possible to write a portable version like this:
 
-.. code:: python
+.. code-block:: python
 
     from numpy.ctypeslib import as_array
     def transform(output_coordinates, input_coordinates, output_rank, input_rank, user_data):
@@ -151,14 +151,14 @@ Note that thanks to ``numpy.ctypeslib`` that's still 100% pure Python code, usin
 
 The export line to create a capsule is:
 
-.. code:: python
+.. code-block:: python
 
     #pythran export capsule transform(int64*, float64*, int32, int32, float64*)
     #pythran export capsule transform_basic(int64*, float64*, int32, int32, float64*)
 
 Once compiled with Pythran, we get a native library that can be imported and used in a Python script:
 
-.. code:: python
+.. code-block:: python
 
     import ctypes
     import numpy as np
