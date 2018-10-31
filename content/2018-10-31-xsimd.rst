@@ -16,28 +16,28 @@ engine of Pythran for a long time, a great collaboration that led to several
 patch in boost.simd, and great performance for Pythran.
 
 Unfortunately, the project has been silent over the last months (see for
-instance `this issue <https://github.com/NumScale/boost.simd/issues/546>`_ and
+instance `this issue <https://github.com/NumScale/boost.simd/issues/546>`_) and
 I had to maintain a few custom patches. Turns out the project has been
 re-branded as **bSIMD** with a more restrictive license, as detailed in `another
 issue <https://github.com/NumScale/boost.simd/issues/545>`_. From the Pythran
 perspective, this is no good news.
 
 Fortunately, the people from `QuantStack <http://quantstack.net/>`_ have put
-tremendous effort into providing an equivalent to boost.simd, *xsimd*. And
+tremendous effort into providing an equivalent to boost.simd, `xsimd <http://quantstack.net/xsimd.html>`_. And
 their library actually provides some improvements in the context of Pythran, so
 when they proposed to fund the move to *xsimd*, it was just perfect.
 
 So here is the deal: I do the port, report any API and/or performance issue,
-and eventually provide patch when relevant. That's what I did over the last
-three months, let's have a look at the result.
+and eventually provide patches when relevant. That's what I did over the last
+three months, let's have a look at the results.
 
 User-level Changes
 ==================
 
-In order to activate explicit vectorisation, one must pass ``-DUSE_XSIMD -march=native`` to the pythran compiler, in place of ``-DUSE_BOOST_SIMD -march=native``. Fair enough.
+In order to activate explicit vectorisation, one must pass ``-DUSE_XSIMD -march=native`` to the Pythran compiler, in place of ``-DUSE_BOOST_SIMD -march=native``. Fair enough.
 
 For instance, consider the following kernel, taken from the `numpy benchmarks
-suite <https://github.com/serge-sans-paille/numpy-benchmarks/>`_ suite I
+<https://github.com/serge-sans-paille/numpy-benchmarks/>`_ suite I
 maintain.
 
 .. code-block:: python
@@ -94,7 +94,7 @@ Interestingly, **on that example**, Clang generates better code for the boost.si
 Complex Numbers
 ===============
 
-Thanks to xsimd, Pythran is no able to *naively* support complex number
+Thanks to xsimd, Pythran is now able to *naively* support complex number
 vectorization. I state *naively* because we don't support changing internal
 representation from array-of-struct to struct-of-array, as we stick to numpy's
 layout. Still that's something new for Pythran as showcased by the following kernel:
@@ -159,34 +159,35 @@ good metric. But there's one situation where it matters to me: Continuous
 Integration. Because Travis has time limits, the faster we compile, the more
 test we can pass! As Pythran validates for Python2 and Python3, for Clang and
 GCC, with and without SIMD, with and without OpenMP, that's a lot of
-configuration to test. Roughly... 20hours of cumulated tests actually, see
+configurations to test. Roughly... 20hours of cumulated tests actually, see
 `this recent build
 <https://travis-ci.com/serge-sans-paille/pythran/builds/89663340>`_ for
 instance.
 
-In pre-xsimd setting, compiling the above  ``arc_distance.py`` file in simd mode is relatively slow:
+In pre-xsimd setting, compiling the above  ``arc_distance.py`` file in simd mode is relatively slow. As a reference consider the compilation of the sequential version:
 
 .. code-block:: sh
 
     time pythran -O3 -march=native normalize_complex_arr.py -E # generate the .cpp
     0.91s user 0.28s system 130% cpu 0.908 total
+
+    time pythran -O3 -march=native arc_distance.cpp
+    5.67s user 0.61s system 104% cpu 6.001 total
+
+Ok, roughly 5 seconds in sequential mode. What about vectorized version? With boost, it's pretty damn slow:
+
+.. code-block:: sh
+
     time pythran -O3 -march=native normalize_complex_arr.cpp -DUSE_BOOST_SIMD
     12.10s user 0.79s system 102% cpu 12.616 total
 
 
-With xsimd, it's slightly faster (no boost dependencies, and less C++ magic).
+With xsimd, it's slightly faster (no boost dependencies, and less C++ magic):
 
 .. code-block:: sh
 
     time pythran -O3 -march=native arc_distance.cpp -DUSE_XSIMD
     10.32s user 0.65s system 102% cpu 10.688 total
-
-Arguably, it's still slow. But a bit less then what it uses to be, and the reason also lies in the generated c++, not only in the vectorization engine:
-
-.. code-block:: sh
-
-    time pythran -O3 -march=native arc_distance.cpp
-    5.67s user 0.61s system 104% cpu 6.001 total
 
 
 Performance of Basic Functions
@@ -253,19 +254,19 @@ Wow, that's significant changes. Regression on both ``cos``, ``sin`` and ``acos`
 What conclusion should we draw? My take on this is that these benchmarks are
 not synthetic enough to state *xsimd implementation of function X is better or
 worse than boost.simd implementation*. But maybe there are bad interactions
-with Pythran's expression template? A single register spill could wreak havoc
+with Pythran's expression templates? A single register spill could wreak havoc
 in the performance, and I know there is room for improvement there.
 
 Conclusions
 ===========
 
 I'm indeed very happy with the changes. The xsimd team is very reactive, it's
-cool to chat with them about performance, Python, C++... And did I see xsimd
-supports Neon, avx512? I should try to run cross-compiled Pythran code on a
+cool to chat with them about performance, Python, C++... And did I say xsimd
+supports NEON, AVX512? I should try to run cross-compiled Pythran code on a
 Raspberry, but... That's for another story!
 
 Again thanks a lot to (alphabetical order) `Johan
-<https://twitter.com/JohanMabille>`_, `martin
-<https://twitter.com/renou_martin>`_, Sylvain
+<https://twitter.com/JohanMabille>`_, `Martin
+<https://twitter.com/renou_martin>`_, `Sylvain
 <https://twitter.com/SylvainCorlay>`_ and `Wolf <https://twitter.com/wuoulf>`_.
 Let's meet again in front of a generous choucroute!
