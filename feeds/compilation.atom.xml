@@ -7,7 +7,8 @@ ecosystem.&lt;/p&gt;
 there's something that actually makes Pythran difficult to use for new
 comers. What is it? Let's have a look at the following Python code, inspired by
 a &lt;a class="reference external" href="http://stackoverflow.com/questions/13815719/creating-grid-with-numpy-performance"&gt;stack overflow thread&lt;/a&gt;:&lt;/p&gt;
-&lt;pre class="code python literal-block" id="create-grid-py"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# create_grid.py&lt;/span&gt;
+
 &lt;span class="c1"&gt;#pythran export create_grid(float [])&lt;/span&gt;
 
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
@@ -18,17 +19,16 @@ a &lt;a class="reference external" href="http://stackoverflow.com/questions/1381
     &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
     &lt;span class="n"&gt;fast_grid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reshape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fast_grid&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;An attempt to compile it with Pythran would return a very long C++ template instantiation trace, with very little clue concerning the origin of the problem.&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran create_grid.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran create_grid.py
 In file included from /tmp/tmpP0xYa2.cpp:10:
 In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
 In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
 ./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;18446744073709551615&lt;/span&gt; elements&lt;span class="o"&gt;)&lt;/span&gt;
       value_type buffer&lt;span class="o"&gt;[&lt;/span&gt;N ? N : &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
                         ^~~~~~~~~
-./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class &lt;span class="s1"&gt;'pythonic::types::array&amp;lt;long, 18446744073709551615&amp;gt;'&lt;/span&gt; requested here
+./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class &lt;span class="s1"&gt;&amp;#39;pythonic::types::array&amp;lt;long, 18446744073709551615&amp;gt;&amp;#39;&lt;/span&gt; requested here
       array&amp;lt;long, value&amp;gt; _shape&lt;span class="p"&gt;;&lt;/span&gt;
                          ^
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
@@ -38,15 +38,14 @@ In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
                   ^
 &lt;span class="m"&gt;3&lt;/span&gt; errors generated.
 CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
-E: &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'error: Command &amp;quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&amp;quot; failed with exit status 1'&lt;/span&gt;,&lt;span class="o"&gt;)&lt;/span&gt;
+E: &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;error: Command &amp;quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&amp;quot; failed with exit status 1&amp;#39;&lt;/span&gt;,&lt;span class="o"&gt;)&lt;/span&gt;
 
 What we now have is a slightly friendlier message:
-&lt;/pre&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran create_grid.py
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran create_grid.py
 CRITICAL You shall not pass!
 E: Dimension mismatch when slicing &lt;span class="sb"&gt;`&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;2d, float&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;create_grid.py, line &lt;span class="m"&gt;7&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Indeed, the correct declaration for &lt;tt class="docutils literal"&gt;z&lt;/tt&gt; was &lt;tt class="docutils literal"&gt;z = &lt;span class="pre"&gt;np.zeros((N,&lt;/span&gt; N, 3))&lt;/tt&gt;.&lt;/p&gt;
 &lt;div class="section" id="a-quick-glance-at-pythran-typing-system"&gt;
 &lt;h2&gt;A Quick Glance at Pythran Typing System&lt;/h2&gt;
@@ -64,18 +63,16 @@ methods and attributes make sense in the current context. And that's exactly
 what we need to get closer to Python typing!&lt;/p&gt;
 &lt;p&gt;This all is very nice, except in the case of a bad typing. Consider this trivial
 Python code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;integer, for instance &lt;tt class="docutils literal"&gt;str&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;list&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;int&lt;/tt&gt;. The C++ equivalent would
 be (taking into account move semantics):&lt;/p&gt;
-&lt;pre class="code c++ literal-block"&gt;
-&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
 &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In Python's case, type checking is done at runtime, during a lookup in &lt;tt class="docutils literal"&gt;s&lt;/tt&gt; for
 a &lt;tt class="docutils literal"&gt;__mul__&lt;/tt&gt; magic method. In C++ it's done at compile time, when performing
 instantiation of &lt;tt class="docutils literal"&gt;twice&lt;/tt&gt; for a given type value of &lt;tt class="docutils literal"&gt;T&lt;/tt&gt;. What lacked was a
@@ -146,13 +143,12 @@ what got introduced is the concept of &lt;tt class="docutils literal"&gt;MultiTy
 object that can hold several types at the same time. So that's not exactly a
 &lt;tt class="docutils literal"&gt;UnionType&lt;/tt&gt; which is the type of an object that can be of one type among
 many. The difference exists because of the situation described by the following code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;pass&lt;/span&gt;
 
 &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In that case foo really has two types, namely &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;Callable[[Any],&lt;/span&gt; None]&lt;/tt&gt; and
 &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;Callalble[[Any,&lt;/span&gt; Any], None]&lt;/tt&gt;. That's what &lt;tt class="docutils literal"&gt;MultiType&lt;/tt&gt; represents.&lt;/p&gt;
 &lt;div class="section" id="handling-overloading"&gt;
@@ -161,10 +157,9 @@ many. The difference exists because of the situation described by the following 
 &lt;tt class="docutils literal"&gt;MultiType&lt;/tt&gt; that is just a list of possible types.&lt;/p&gt;
 &lt;p&gt;Abusing from &lt;tt class="docutils literal"&gt;Multiype&lt;/tt&gt; can quickly make the combinatorics of the type
 possibilities go wild, so we had to make a decision. Consider the following code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The &lt;tt class="docutils literal"&gt;in&lt;/tt&gt; operator could be implemented as a &lt;tt class="docutils literal"&gt;MultiType&lt;/tt&gt;, enumerating the
 possible valid signature (remember we know of all possible types in Pythran):&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -199,15 +194,14 @@ over-approximation defined above, is a &lt;tt class="docutils literal"&gt;(Any, 
 &lt;div class="section" id="handling-option-types"&gt;
 &lt;h3&gt;Handling Option Types&lt;/h3&gt;
 &lt;p&gt;When HM runs on the following Python code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
         &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;
     &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It runs into some troubles. The &lt;tt class="docutils literal"&gt;return&lt;/tt&gt; from the &lt;tt class="docutils literal"&gt;True&lt;/tt&gt; branch sets the
 return type of &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; to &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; but the one from the &lt;tt class="docutils literal"&gt;False&lt;/tt&gt; branch sets it
 to &lt;tt class="docutils literal"&gt;None&lt;/tt&gt;. How could we make this unification valid? Option types are
@@ -219,40 +213,36 @@ generally described as a parametric type, &lt;tt class="docutils literal"&gt;Opt
 meeting an &lt;tt class="docutils literal"&gt;if&lt;/tt&gt;, we generate a new copy of the variable environment for each
 branch, and we &lt;em&gt;merge&lt;/em&gt; (not &lt;em&gt;unify&lt;/em&gt;) the environments.&lt;/p&gt;
 &lt;p&gt;Likewise, if the condition is &lt;em&gt;explicitely&lt;/em&gt; a check for &lt;tt class="docutils literal"&gt;None&lt;/tt&gt;, as in:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;stuff&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;stuff&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;the environment in the &lt;tt class="docutils literal"&gt;True&lt;/tt&gt; branch holds the &lt;tt class="docutils literal"&gt;None&lt;/tt&gt; type for &lt;tt class="docutils literal"&gt;a&lt;/tt&gt;, and
 the &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; type in the &lt;tt class="docutils literal"&gt;False&lt;/tt&gt; branch. This could be improved, as we support
 only a few patterns as the condition expression, there is something more
 generic to be done there.&lt;/p&gt;
 &lt;p&gt;This even led to improvement in our test base, as the following code was no longer correct:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Type inference computes that v is of type &lt;tt class="docutils literal"&gt;Optional[T0]&lt;/tt&gt;, which is not compatible with &lt;tt class="docutils literal"&gt;v + 1&lt;/tt&gt; and a &lt;tt class="docutils literal"&gt;PythranTypeError&lt;/tt&gt; is raised. A compatible way to write this would be:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;pass&lt;/span&gt;  &lt;span class="c1"&gt;# or do stuff&lt;/span&gt;
     &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="handling-type-promotion"&gt;
 &lt;h3&gt;Handling Type Promotion&lt;/h3&gt;
 &lt;p&gt;It's not uncommon to find this kind of code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
 &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;3.14&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And there's nothing wrong with this in Python, but is this a type error for
 Pythran? In classical HM systems, that's a type error: &lt;tt class="docutils literal"&gt;[]&lt;/tt&gt; is of type
 &lt;tt class="docutils literal"&gt;List[TO]&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;list.append&lt;/tt&gt; is of type &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;Callable[[List[T0],&lt;/span&gt; T0], None]&lt;/tt&gt; so
@@ -324,21 +314,19 @@ various places. So instead of a formal proof, here is some testing results :-).&
 &lt;p&gt;First, the whole test suite passes without much modifications. It helped
 to spot a few &lt;em&gt;errors&lt;/em&gt; in the tests, mostly code that was incorrect with
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_shadow_import2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_shadow_import2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run_test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-        &lt;span class="sd"&gt;'''def shadow_import2(s):
-               for set in s : set.add(1)'''&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;def shadow_import2(s):&lt;/span&gt;
+&lt;span class="sd"&gt;               for set in s : set.add(1)&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
         &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;},{&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
         &lt;span class="n"&gt;shadow_import2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;]]]&lt;/span&gt;
     &lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;where the &lt;tt class="docutils literal"&gt;List[Set[int]]&lt;/tt&gt; expression describes the type for which the code
 must be instantiated.&lt;/p&gt;
 &lt;p&gt;The following code sample is adapted from the &lt;a class="reference external" href="http://www.mypy-lang.org/examples.html"&gt;MyPy example page&lt;/a&gt;. It requires a type comment to be
 correctly typed, while Pythran correctly type checks it without annotation.&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
 
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
@@ -348,25 +336,22 @@ correctly typed, while Pythran correctly type checks it without annotation.&lt;/
     &lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;freq&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;freq&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;()]&lt;/span&gt;
 
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;If we turn the &lt;tt class="docutils literal"&gt;1&lt;/tt&gt; into &lt;tt class="docutils literal"&gt;&amp;quot;1&amp;quot;&lt;/tt&gt;, we get the following error:&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran wc.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran wc.py
 CRITICAL You shall not pass!
 E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;str&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And if we remove the &lt;tt class="docutils literal"&gt;0&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;d.get(word)&lt;/tt&gt; may return &lt;tt class="docutils literal"&gt;None&lt;/tt&gt; and the error message becomes:&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran wc.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran wc.py
 CRITICAL You shall not pass!
 E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;Option&lt;span class="o"&gt;[&lt;/span&gt;T0&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Great!&lt;/p&gt;
 &lt;p&gt;Considering Numpy functions, we don't model all of them in tog, but we can
 still detect several interesting errors. For instance on a gaussian kernel
 (&lt;a class="reference external" href="http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy"&gt;error-safe version from stackexchange&lt;/a&gt;):&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;vectorized_RBF_kernel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sigma&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;X2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;multiply&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;# sum colums of the matrix&lt;/span&gt;
     &lt;span class="n"&gt;K0&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X2&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;X2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;
@@ -375,13 +360,12 @@ still detect several interesting errors. For instance on a gaussian kernel
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;badcall&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;vectorized_RBF_kernel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Pythran correctly catches the error on &lt;tt class="docutils literal"&gt;vectorized_RBF_kernel&lt;/tt&gt; call:&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran gaussian.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran gaussian.py
 CRITICAL You shall not pass!
 E: Invalid argument &lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; call to &lt;span class="sb"&gt;`&lt;/span&gt;Callable&lt;span class="o"&gt;[[&lt;/span&gt;int, T3&lt;span class="o"&gt;]&lt;/span&gt;, ...&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;, tried Callable&lt;span class="o"&gt;[[&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T0&lt;span class="o"&gt;]&lt;/span&gt;, T1&lt;span class="o"&gt;]&lt;/span&gt;, Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T2&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;gaussian.py, line &lt;span class="m"&gt;9&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="conclusion"&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;

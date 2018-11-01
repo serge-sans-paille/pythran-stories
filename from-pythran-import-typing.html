@@ -141,7 +141,8 @@ ecosystem.</p>
 there's something that actually makes Pythran difficult to use for new
 comers. What is it? Let's have a look at the following Python code, inspired by
 a <a class="reference external" href="http://stackoverflow.com/questions/13815719/creating-grid-with-numpy-performance">stack overflow thread</a>:</p>
-<pre class="code python literal-block" id="create-grid-py">
+<div class="highlight"><pre><span></span><span class="c1"># create_grid.py</span>
+
 <span class="c1">#pythran export create_grid(float [])</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -152,17 +153,16 @@ a <a class="reference external" href="http://stackoverflow.com/questions/1381571
     <span class="n">z</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
     <span class="n">fast_grid</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">fast_grid</span>
-</pre>
+</pre></div>
 <p>An attempt to compile it with Pythran would return a very long C++ template instantiation trace, with very little clue concerning the origin of the problem.</p>
-<pre class="code shell literal-block">
-&gt; pythran create_grid.py
+<div class="highlight"><pre><span></span>&gt; pythran create_grid.py
 In file included from /tmp/tmpP0xYa2.cpp:10:
 In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
 In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
 ./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large <span class="o">(</span><span class="m">18446744073709551615</span> elements<span class="o">)</span>
       value_type buffer<span class="o">[</span>N ? N : <span class="m">1</span><span class="o">]</span><span class="p">;</span>
                         ^~~~~~~~~
-./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class <span class="s1">'pythonic::types::array&lt;long, 18446744073709551615&gt;'</span> requested here
+./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class <span class="s1">&#39;pythonic::types::array&lt;long, 18446744073709551615&gt;&#39;</span> requested here
       array&lt;long, value&gt; _shape<span class="p">;</span>
                          ^
 <span class="o">[</span>...<span class="o">]</span>
@@ -172,15 +172,14 @@ In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
                   ^
 <span class="m">3</span> errors generated.
 CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
-E: <span class="o">(</span><span class="s1">'error: Command &quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&quot; failed with exit status 1'</span>,<span class="o">)</span>
+E: <span class="o">(</span><span class="s1">&#39;error: Command &quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&quot; failed with exit status 1&#39;</span>,<span class="o">)</span>
 
 What we now have is a slightly friendlier message:
-</pre>
-<pre class="code shell literal-block">
-&gt; pythran create_grid.py
+</pre></div>
+<div class="highlight"><pre><span></span>&gt; pythran create_grid.py
 CRITICAL You shall not pass!
 E: Dimension mismatch when slicing <span class="sb">`</span>Array<span class="o">[</span>2d, float<span class="o">]</span><span class="sb">`</span> <span class="o">(</span>create_grid.py, line <span class="m">7</span><span class="o">)</span>
-</pre>
+</pre></div>
 <p>Indeed, the correct declaration for <tt class="docutils literal">z</tt> was <tt class="docutils literal">z = <span class="pre">np.zeros((N,</span> N, 3))</tt>.</p>
 <div class="section" id="a-quick-glance-at-pythran-typing-system">
 <h2>A Quick Glance at Pythran Typing System</h2>
@@ -198,18 +197,16 @@ methods and attributes make sense in the current context. And that's exactly
 what we need to get closer to Python typing!</p>
 <p>This all is very nice, except in the case of a bad typing. Consider this trivial
 Python code:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">twice</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">twice</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="mi">2</span>
-</pre>
+</pre></div>
 <p>integer, for instance <tt class="docutils literal">str</tt>, <tt class="docutils literal">list</tt>, <tt class="docutils literal">int</tt>. The C++ equivalent would
 be (taking into account move semantics):</p>
-<pre class="code c++ literal-block">
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
 <span class="k">auto</span> <span class="n">twice</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
 <span class="p">}</span>
-</pre>
+</pre></div>
 <p>In Python's case, type checking is done at runtime, during a lookup in <tt class="docutils literal">s</tt> for
 a <tt class="docutils literal">__mul__</tt> magic method. In C++ it's done at compile time, when performing
 instantiation of <tt class="docutils literal">twice</tt> for a given type value of <tt class="docutils literal">T</tt>. What lacked was a
@@ -280,13 +277,12 @@ what got introduced is the concept of <tt class="docutils literal">MultiType</tt
 object that can hold several types at the same time. So that's not exactly a
 <tt class="docutils literal">UnionType</tt> which is the type of an object that can be of one type among
 many. The difference exists because of the situation described by the following code:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="k">pass</span>
 
 <span class="n">foo</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">foo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-</pre>
+</pre></div>
 <p>In that case foo really has two types, namely <tt class="docutils literal"><span class="pre">Callable[[Any],</span> None]</tt> and
 <tt class="docutils literal"><span class="pre">Callalble[[Any,</span> Any], None]</tt>. That's what <tt class="docutils literal">MultiType</tt> represents.</p>
 <div class="section" id="handling-overloading">
@@ -295,10 +291,9 @@ many. The difference exists because of the situation described by the following 
 <tt class="docutils literal">MultiType</tt> that is just a list of possible types.</p>
 <p>Abusing from <tt class="docutils literal">Multiype</tt> can quickly make the combinatorics of the type
 possibilities go wild, so we had to make a decision. Consider the following code:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span>
-</pre>
+</pre></div>
 <p>The <tt class="docutils literal">in</tt> operator could be implemented as a <tt class="docutils literal">MultiType</tt>, enumerating the
 possible valid signature (remember we know of all possible types in Pythran):</p>
 <ul class="simple">
@@ -333,15 +328,14 @@ over-approximation defined above, is a <tt class="docutils literal">(Any, Any, A
 <div class="section" id="handling-option-types">
 <h3>Handling Option Types</h3>
 <p>When HM runs on the following Python code:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">n</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">None</span>
-</pre>
+</pre></div>
 <p>It runs into some troubles. The <tt class="docutils literal">return</tt> from the <tt class="docutils literal">True</tt> branch sets the
 return type of <tt class="docutils literal">foo</tt> to <tt class="docutils literal">int</tt> but the one from the <tt class="docutils literal">False</tt> branch sets it
 to <tt class="docutils literal">None</tt>. How could we make this unification valid? Option types are
@@ -353,40 +347,36 @@ generally described as a parametric type, <tt class="docutils literal">Optional[
 meeting an <tt class="docutils literal">if</tt>, we generate a new copy of the variable environment for each
 branch, and we <em>merge</em> (not <em>unify</em>) the environments.</p>
 <p>Likewise, if the condition is <em>explicitely</em> a check for <tt class="docutils literal">None</tt>, as in:</p>
-<pre class="code python literal-block">
-<span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
     <span class="n">stuff</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">stuff</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</pre>
+</pre></div>
 <p>the environment in the <tt class="docutils literal">True</tt> branch holds the <tt class="docutils literal">None</tt> type for <tt class="docutils literal">a</tt>, and
 the <tt class="docutils literal">int</tt> type in the <tt class="docutils literal">False</tt> branch. This could be improved, as we support
 only a few patterns as the condition expression, there is something more
 generic to be done there.</p>
 <p>This even led to improvement in our test base, as the following code was no longer correct:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span>
-</pre>
+</pre></div>
 <p>Type inference computes that v is of type <tt class="docutils literal">Optional[T0]</tt>, which is not compatible with <tt class="docutils literal">v + 1</tt> and a <tt class="docutils literal">PythranTypeError</tt> is raised. A compatible way to write this would be:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">pass</span>  <span class="c1"># or do stuff</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span>
-</pre>
+</pre></div>
 </div>
 <div class="section" id="handling-type-promotion">
 <h3>Handling Type Promotion</h3>
 <p>It's not uncommon to find this kind of code:</p>
-<pre class="code python literal-block">
-<span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="highlight"><pre><span></span><span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">3.14</span><span class="p">)</span>
-</pre>
+</pre></div>
 <p>And there's nothing wrong with this in Python, but is this a type error for
 Pythran? In classical HM systems, that's a type error: <tt class="docutils literal">[]</tt> is of type
 <tt class="docutils literal">List[TO]</tt>, <tt class="docutils literal">list.append</tt> is of type <tt class="docutils literal"><span class="pre">Callable[[List[T0],</span> T0], None]</tt> so
@@ -458,21 +448,19 @@ various places. So instead of a formal proof, here is some testing results :-).<
 <p>First, the whole test suite passes without much modifications. It helped
 to spot a few <em>errors</em> in the tests, mostly code that was incorrect with
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">test_shadow_import2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_shadow_import2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span>
-        <span class="sd">'''def shadow_import2(s):
-               for set in s : set.add(1)'''</span><span class="p">,</span>
+        <span class="sd">&#39;&#39;&#39;def shadow_import2(s):</span>
+<span class="sd">               for set in s : set.add(1)&#39;&#39;&#39;</span><span class="p">,</span>
         <span class="p">[{</span><span class="mi">1</span><span class="p">},{</span><span class="mi">2</span><span class="p">}],</span>
         <span class="n">shadow_import2</span><span class="o">=</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span>
     <span class="p">)</span>
-</pre>
+</pre></div>
 <p>where the <tt class="docutils literal">List[Set[int]]</tt> expression describes the type for which the code
 must be instantiated.</p>
 <p>The following code sample is adapted from the <a class="reference external" href="http://www.mypy-lang.org/examples.html">MyPy example page</a>. It requires a type comment to be
 correctly typed, while Pythran correctly type checks it without annotation.</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">wc</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">wc</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
@@ -482,25 +470,22 @@ correctly typed, while Pythran correctly type checks it without annotation.</p>
     <span class="n">l</span> <span class="o">=</span> <span class="p">[(</span><span class="n">freq</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
 
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
-</pre>
+</pre></div>
 <p>If we turn the <tt class="docutils literal">1</tt> into <tt class="docutils literal">&quot;1&quot;</tt>, we get the following error:</p>
-<pre class="code shell literal-block">
-&gt; pythran wc.py
+<div class="highlight"><pre><span></span>&gt; pythran wc.py
 CRITICAL You shall not pass!
 E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>int<span class="sb">`</span> and <span class="sb">`</span>str<span class="sb">`</span> <span class="o">(</span>wc.py, line <span class="m">5</span><span class="o">)</span>
-</pre>
+</pre></div>
 <p>And if we remove the <tt class="docutils literal">0</tt>, <tt class="docutils literal">d.get(word)</tt> may return <tt class="docutils literal">None</tt> and the error message becomes:</p>
-<pre class="code shell literal-block">
-&gt; pythran wc.py
+<div class="highlight"><pre><span></span>&gt; pythran wc.py
 CRITICAL You shall not pass!
 E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>Option<span class="o">[</span>T0<span class="o">]</span><span class="sb">`</span> and <span class="sb">`</span>int<span class="sb">`</span> <span class="o">(</span>wc.py, line <span class="m">5</span><span class="o">)</span>
-</pre>
+</pre></div>
 <p>Great!</p>
 <p>Considering Numpy functions, we don't model all of them in tog, but we can
 still detect several interesting errors. For instance on a gaussian kernel
 (<a class="reference external" href="http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy">error-safe version from stackexchange</a>):</p>
-<pre class="code python literal-block">
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="k">def</span> <span class="nf">vectorized_RBF_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
     <span class="n">X2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># sum colums of the matrix</span>
     <span class="n">K0</span> <span class="o">=</span> <span class="n">X2</span> <span class="o">+</span> <span class="n">X2</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">X</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span>
@@ -509,13 +494,12 @@ still detect several interesting errors. For instance on a gaussian kernel
 
 <span class="k">def</span> <span class="nf">badcall</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">vectorized_RBF_kernel</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-</pre>
+</pre></div>
 <p>Pythran correctly catches the error on <tt class="docutils literal">vectorized_RBF_kernel</tt> call:</p>
-<pre class="code shell literal-block">
-&gt; pythran gaussian.py
+<div class="highlight"><pre><span></span>&gt; pythran gaussian.py
 CRITICAL You shall not pass!
 E: Invalid argument <span class="nb">type</span> <span class="k">for</span> <span class="k">function</span> call to <span class="sb">`</span>Callable<span class="o">[[</span>int, T3<span class="o">]</span>, ...<span class="o">]</span><span class="sb">`</span>, tried Callable<span class="o">[[</span>Array<span class="o">[</span><span class="m">1</span> d+, T0<span class="o">]</span>, T1<span class="o">]</span>, Array<span class="o">[</span><span class="m">1</span> d+, T2<span class="o">]]</span> <span class="o">(</span>gaussian.py, line <span class="m">9</span><span class="o">)</span>
-</pre>
+</pre></div>
 </div>
 <div class="section" id="conclusion">
 <h2>Conclusion</h2>

@@ -1,5 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2018-08-05T00:00:00+02:00</updated><entry><title>What is the air speed velocity of Pythran?</title><link href="http://serge-sans-paille.github.io/pythran-stories/what-is-the-air-speed-velocity-of-pythran.html" rel="alternate"></link><published>2018-08-05T00:00:00+02:00</published><updated>2018-08-05T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-08-05:/pythran-stories/what-is-the-air-speed-velocity-of-pythran.html</id><summary type="html">&lt;p class="first last"&gt;Performance of the compiled code is an important feature of Pythran.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2018-10-31T00:00:00+01:00</updated><entry><title>Bye bye boost.simd, welcome xsimd</title><link href="http://serge-sans-paille.github.io/pythran-stories/bye-bye-boostsimd-welcome-xsimd.html" rel="alternate"></link><published>2018-10-31T00:00:00+01:00</published><updated>2018-10-31T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-10-31:/pythran-stories/bye-bye-boostsimd-welcome-xsimd.html</id><summary type="html">&lt;p class="first last"&gt;After five years of friendship, Pythran replaces &lt;tt class="docutils literal"&gt;boost.simd&lt;/tt&gt; by
+&lt;tt class="docutils literal"&gt;xsimd&lt;/tt&gt; as its vectorization engine. This post goes through the
+motivation of this change, and the advantage of this move.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;&lt;a class="reference external" href="https://github.com/NumScale/boost.simd"&gt;boost.simd&lt;/a&gt; provides a C++
+abstraction of vector type, allowing for efficient vectorization of array
+computations. It has been (optionally) used as part of the expression template
+engine of Pythran for a long time, a great collaboration that led to several
+patches in boost.simd, and great performance for Pythran.&lt;/p&gt;
+&lt;p&gt;Unfortunately, the project has been silent over the last months (see for
+instance &lt;a class="reference external" href="https://github.com/NumScale/boost.simd/issues/546"&gt;this issue&lt;/a&gt;) and
+I had to maintain a few custom patches. Turns out the project has been
+re-branded as &lt;strong&gt;bSIMD&lt;/strong&gt; with a more restrictive license, as detailed in &lt;a class="reference external" href="https://github.com/NumScale/boost.simd/issues/545"&gt;another
+issue&lt;/a&gt;. From the Pythran
+perspective, this is no good news.&lt;/p&gt;
+&lt;p&gt;Fortunately, the people from &lt;a class="reference external" href="http://quantstack.net/"&gt;QuantStack&lt;/a&gt; have put
+tremendous effort into providing an equivalent to boost.simd, &lt;a class="reference external" href="http://quantstack.net/xsimd.html"&gt;xsimd&lt;/a&gt;. And their library actually provides some
+improvements in the context of Pythran, it's under a &lt;em&gt;BSD-3-Clause license&lt;/em&gt;, so
+when they proposed to fund the move to &lt;em&gt;xsimd&lt;/em&gt;, it was just perfect.&lt;/p&gt;
+&lt;p&gt;So here is the deal: I do the port, report any API and/or performance issue,
+and eventually provide patches when relevant. That's what I did over the last
+three months, let's have a look at the results.&lt;/p&gt;
+&lt;div class="section" id="user-level-changes"&gt;
+&lt;h2&gt;User-level Changes&lt;/h2&gt;
+&lt;p&gt;In order to activate explicit vectorisation, one must pass &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-DUSE_XSIMD&lt;/span&gt; &lt;span class="pre"&gt;-march=native&lt;/span&gt;&lt;/tt&gt; to the Pythran compiler, in place of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-DUSE_BOOST_SIMD&lt;/span&gt; &lt;span class="pre"&gt;-march=native&lt;/span&gt;&lt;/tt&gt;. Fair enough.&lt;/p&gt;
+&lt;p&gt;For instance, consider the following kernel, taken from the &lt;a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/"&gt;numpy benchmarks&lt;/a&gt; suite I
+maintain.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export arc_distance(float64 [], float64[], float64[], float64[])&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;arc_distance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;theta_1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;phi_1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                       &lt;span class="n"&gt;theta_2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;phi_2&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class="sd"&gt;    Calculates the pairwise arc distance between all points in vector a and b.&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="n"&gt;temp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sin&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;theta_2&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;theta_1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cos&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;theta_1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cos&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;theta_2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sin&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;phi_2&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;phi_1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;
+    &lt;span class="n"&gt;distance_matrix&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;arctan2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sqrt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;temp&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sqrt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;temp&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;distance_matrix&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;When compiled with GCC 7.3 and benchmarked with the &lt;a class="reference external" href="https://pypi.org/project/perf/"&gt;perf&lt;/a&gt; module, one gets&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++ pythran arc_distance.py -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native
+python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;N = 10000 ; import numpy as np ; np.random.seed(0); t0, p0, t1, p1 = np.random.randn(N), np.random.randn(N), np.random.randn(N), np.random.randn(N); from arc_distance import arc_distance&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;arc_distance(t0, p0, t1, p1)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;1&lt;/span&gt;.48 ms +- &lt;span class="m"&gt;0&lt;/span&gt;.01 ms
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;That's our base line. If we recompile it with &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-DUSE_XSIMD&lt;/span&gt;&lt;/tt&gt;, we get an extra speedup (AVX instructions are available on my laptop, and enabled by &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-march=native&lt;/span&gt;&lt;/tt&gt;).&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++ python -m pythran.run arc_distance.py -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native -DUSE_XSIMD
+python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;N = 10000 ; import numpy as np ; np.random.seed(0); t0, p0, t1, p1 = np.random.randn(N), np.random.randn(N), np.random.randn(N), np.random.randn(N); from arc_distance import arc_distance&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;arc_distance(t0, p0, t1, p1)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;199&lt;/span&gt; us +- &lt;span class="m"&gt;4&lt;/span&gt; us
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;That's roughly 7 times faster. And using Pythran 0.8.7, the last release with boost.simd support, we have&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++ python -m pythran.run arc_distance.py -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native -DUSE_BOOST_SIMD
+python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;N = 10000 ; import numpy as np ; np.random.seed(0); t0, p0, t1, p1 = np.random.randn(N), np.random.randn(N), np.random.randn(N), np.random.randn(N); from arc_distance import arc_distance&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;arc_distance(t0, p0, t1, p1)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;284&lt;/span&gt; us +- &lt;span class="m"&gt;8&lt;/span&gt; us
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This is slightly slower, but within the same magnitude order. Out of curiosity, I ran the same three experiments using Clang 6 as a backend compiler and I get the following timings:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+clang + boost.simd: 220 us +- 8 us
+clang + xsimd:      273 us +- 11 us
+clang:             1.41 ms +- 0.04 ms
+&lt;/pre&gt;
+&lt;p&gt;Interestingly, &lt;strong&gt;on that example&lt;/strong&gt;, Clang generates better code for the boost.simd version. So let's be wary of hasty conclusion and just state that with both engines, I can get efficient vectorization of my code.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="complex-numbers"&gt;
+&lt;h2&gt;Complex Numbers&lt;/h2&gt;
+&lt;p&gt;Thanks to xsimd, Pythran is now able to &lt;em&gt;naively&lt;/em&gt; support complex number
+vectorization. I state &lt;em&gt;naively&lt;/em&gt; because we don't support changing internal
+representation from array-of-struct to struct-of-array, as we stick to numpy's
+layout. Still that's something new for Pythran as showcased by the following kernel:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export normalize_complex_arr(complex[])&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;normalize_complex_arr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;a_oo&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;real&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1j&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;imag&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="c1"&gt;# origin offsetted&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;a_oo&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a_oo&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Pythran provides a vectorized version of &lt;tt class="docutils literal"&gt;np.min&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;np.max&lt;/tt&gt; operators, so thanks to complex support, it should provide some decent acceleration. Note that the two calls to &lt;tt class="docutils literal"&gt;np.min()&lt;/tt&gt; do not involve complex numbers, but that the remaining parts of the expression do. Let's check that!&lt;/p&gt;
+&lt;p&gt;First, the reference numpy version:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0); N = 100000; x = np.random.random(N) + 1j *  np.random.random(N); from normalize_complex_arr import normalize_complex_arr&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;normalize_complex_arr(x)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;3&lt;/span&gt;.19 ms +- &lt;span class="m"&gt;0&lt;/span&gt;.02 ms
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then with Pythran, no explicit vectorization:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;gcc &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;g++ pythran -march&lt;span class="o"&gt;=&lt;/span&gt;native -O3 normalize_complex_arr.py
+python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0); N = 100000; x = np.random.random(N) + 1j *  np.random.random(N); from normalize_complex_arr import normalize_complex_arr&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;normalize_complex_arr(x)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;2&lt;/span&gt;.84 ms +- &lt;span class="m"&gt;0&lt;/span&gt;.01 ms
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And with vectorization on .&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;gcc &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;g++ pythran -march&lt;span class="o"&gt;=&lt;/span&gt;native -O3 make_decision.py -DUSE_XSIMD
+python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; np.random.seed(0); N = 100000; x = np.random.random(N) + 1j *  np.random.random(N); from normalize_complex_arr import normalize_complex_arr&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;normalize_complex_arr(x)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;723&lt;/span&gt; us +- &lt;span class="m"&gt;14&lt;/span&gt; us
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Cool! Speedup for complex! For the record, the numpy version already ran at roughly &lt;tt class="docutils literal"&gt;3.19 ms +- 0.02 ms&lt;/tt&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="scalar-version"&gt;
+&lt;h2&gt;Scalar Version&lt;/h2&gt;
+&lt;p&gt;That's probably a detail for many xsimd users, but thanks to this cooperation,
+xsimd now exposes a scalar version of all the mathematical function inside the
+&lt;tt class="docutils literal"&gt;xsimd::&lt;/tt&gt; namespace. That way one can write higher level functions based on
+xsimd, and they would work for both scalar and vector version:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;euclidian_distance_squared&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;tmp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xsimd&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;hypot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;tmp&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;tmp&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In the context of Pythran, this makes the expression template engine easier to
+write. Good point.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="compilation-time"&gt;
+&lt;h2&gt;Compilation Time&lt;/h2&gt;
+&lt;p&gt;Pythran is an &lt;em&gt;Ahead of Time&lt;/em&gt; compiler, so compilation time is generally not a
+good metric. But there's one situation where it matters to me: Continuous
+Integration. Because Travis has time limits, the faster we compile, the more
+tests we can pass! As Pythran validates for Python2 and Python3, for Clang and
+GCC, with and without SIMD, with and without OpenMP, that's a lot of
+configurations to test. Roughly... 20hours of cumulated tests actually, see
+&lt;a class="reference external" href="https://travis-ci.com/serge-sans-paille/pythran/builds/89663340"&gt;this recent build&lt;/a&gt; for
+instance.&lt;/p&gt;
+&lt;p&gt;In pre-xsimd setting, compiling the above  &lt;tt class="docutils literal"&gt;arc_distance.py&lt;/tt&gt; file in simd mode is relatively slow. As a reference consider the compilation of the sequential version:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;time&lt;/span&gt; pythran -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native normalize_complex_arr.py -E &lt;span class="c1"&gt;# generate the .cpp&lt;/span&gt;
+&lt;span class="m"&gt;0&lt;/span&gt;.91s user &lt;span class="m"&gt;0&lt;/span&gt;.28s system &lt;span class="m"&gt;130&lt;/span&gt;% cpu &lt;span class="m"&gt;0&lt;/span&gt;.908 total
+
+&lt;span class="nb"&gt;time&lt;/span&gt; pythran -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native arc_distance.cpp
+&lt;span class="m"&gt;5&lt;/span&gt;.67s user &lt;span class="m"&gt;0&lt;/span&gt;.61s system &lt;span class="m"&gt;104&lt;/span&gt;% cpu &lt;span class="m"&gt;6&lt;/span&gt;.001 total
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Ok, roughly 5 seconds in sequential mode. What about vectorized version? With boost, it's pretty damn slow:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;time&lt;/span&gt; pythran -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native normalize_complex_arr.cpp -DUSE_BOOST_SIMD
+&lt;span class="m"&gt;12&lt;/span&gt;.10s user &lt;span class="m"&gt;0&lt;/span&gt;.79s system &lt;span class="m"&gt;102&lt;/span&gt;% cpu &lt;span class="m"&gt;12&lt;/span&gt;.616 total
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;With xsimd, it's slightly faster (no boost dependencies, and less C++ magic):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;time&lt;/span&gt; pythran -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native arc_distance.cpp -DUSE_XSIMD
+&lt;span class="m"&gt;10&lt;/span&gt;.32s user &lt;span class="m"&gt;0&lt;/span&gt;.65s system &lt;span class="m"&gt;102&lt;/span&gt;% cpu &lt;span class="m"&gt;10&lt;/span&gt;.688 total
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="performance-of-basic-functions"&gt;
+&lt;h2&gt;Performance of Basic Functions&lt;/h2&gt;
+&lt;p&gt;Using &lt;a class="reference external" href="https://github.com/airspeed-velocity/asv"&gt;airspeed velocity&lt;/a&gt;, I've compared how well xsimd behaves for simple operations on 1D array. All the benchmarks hereafter have the following form:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export cos_array(float64 [])&lt;/span&gt;
+&lt;span class="c1"&gt;#setup: import numpy as np ; np.random.seed(0); N = 10000 ; x = np.random.random(N) * 2 * np.pi&lt;/span&gt;
+&lt;span class="c1"&gt;#run: cos_array(x)&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;cos_array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cos&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The results are obtained through the &lt;tt class="docutils literal"&gt;asv compare commit_id0 commit_id1&lt;/tt&gt; command.&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+All benchmarks:
+
+    before     after       ratio
+  [99d8234f] [60632651]
+     9.90μs     9.89μs      1.00  benchmarks.TimeSuite.time_abs_array
++   36.82μs    58.44μs      1.59  benchmarks.TimeSuite.time_acos_array
+    36.25μs    33.60μs      0.93  benchmarks.TimeSuite.time_asin_array
+-   50.47μs    33.03μs      0.65  benchmarks.TimeSuite.time_atan_array
+-   48.62μs    35.72μs      0.73  benchmarks.TimeSuite.time_cos_array
+-   73.82μs    43.81μs      0.59  benchmarks.TimeSuite.time_cosh_array
+-   47.55μs    35.52μs      0.75  benchmarks.TimeSuite.time_sin_array
+-   91.45μs    47.86μs      0.52  benchmarks.TimeSuite.time_sinh_array
+    18.35μs    17.91μs      0.98  benchmarks.TimeSuite.time_sqrt_array
+     9.60μs    10.05μs      1.05  benchmarks.TimeSuite.time_square_array
+-   71.71μs    33.35μs      0.47  benchmarks.TimeSuite.time_tan_array
+-   84.63μs    42.28μs      0.50  benchmarks.TimeSuite.time_tanh_array
+&lt;/pre&gt;
+&lt;p&gt;Looks pretty good! Apart from a regression on &lt;tt class="docutils literal"&gt;acos&lt;/tt&gt;, this is either on-par or faster than before.&lt;/p&gt;
+&lt;p&gt;Out of curiosity, I also ran the same benchmark, but using Clang as back-end.&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+All benchmarks:
+
+    before     after       ratio
+  [99d8234f] [60632651]
+     9.57μs    10.00μs      1.05  benchmarks.TimeSuite.time_abs_array
++   34.20μs    58.53μs      1.71  benchmarks.TimeSuite.time_acos_array
+    36.09μs    33.91μs      0.94  benchmarks.TimeSuite.time_asin_array
+-   45.02μs    33.86μs      0.75  benchmarks.TimeSuite.time_atan_array
++   39.44μs    45.48μs      1.15  benchmarks.TimeSuite.time_cos_array
+-   65.98μs    44.78μs      0.68  benchmarks.TimeSuite.time_cosh_array
++   39.39μs    45.48μs      1.15  benchmarks.TimeSuite.time_sin_array
+-  110.62μs    48.44μs      0.44  benchmarks.TimeSuite.time_sinh_array
+    18.18μs    18.54μs      1.02  benchmarks.TimeSuite.time_sqrt_array
+    10.05μs     9.56μs      0.95  benchmarks.TimeSuite.time_square_array
+-   56.82μs    45.32μs      0.80  benchmarks.TimeSuite.time_tan_array
+-   98.85μs    44.16μs      0.45  benchmarks.TimeSuite.time_tanh_array
+&lt;/pre&gt;
+&lt;p&gt;Wow, that's significant changes. Regression on both &lt;tt class="docutils literal"&gt;cos&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;sin&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;acos&lt;/tt&gt; are not good news.&lt;/p&gt;
+&lt;p&gt;What conclusion should we draw? My take on this is that these benchmarks are
+not synthetic enough to state &lt;em&gt;xsimd implementation of function X is better or
+worse than boost.simd implementation&lt;/em&gt;. But maybe there are bad interactions
+with Pythran's expression templates? A single register spill could wreak havoc
+in the performance, and I know there is room for improvement there.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="conclusions"&gt;
+&lt;h2&gt;Conclusions&lt;/h2&gt;
+&lt;p&gt;I'm indeed very happy with the changes. The xsimd team is very reactive, it's
+cool to chat with them about performance, Python, C++... And did I say xsimd
+supports NEON, AVX512? I should try to run cross-compiled Pythran code on a
+Raspberry, but... That's for another story!&lt;/p&gt;
+&lt;p&gt;Again thanks a lot to (alphabetical order) &lt;a class="reference external" href="https://twitter.com/JohanMabille"&gt;Johan&lt;/a&gt;, &lt;a class="reference external" href="https://twitter.com/renou_martin"&gt;Martin&lt;/a&gt;, &lt;a class="reference external" href="https://twitter.com/SylvainCorlay"&gt;Sylvain&lt;/a&gt; and &lt;a class="reference external" href="https://twitter.com/wuoulf"&gt;Wolf&lt;/a&gt;.
+Let's meet again in front of a generous choucroute!&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>What is the air speed velocity of Pythran?</title><link href="http://serge-sans-paille.github.io/pythran-stories/what-is-the-air-speed-velocity-of-pythran.html" rel="alternate"></link><published>2018-08-05T00:00:00+02:00</published><updated>2018-08-05T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2018-08-05:/pythran-stories/what-is-the-air-speed-velocity-of-pythran.html</id><summary type="html">&lt;p class="first last"&gt;Performance of the compiled code is an important feature of Pythran.
 Yet, Pythran had no unit test to prevent performance regression! Fortunately,
 thanks to a mix of &lt;a class="reference external" href="https://github.com/airspeed-velocity/asv/"&gt;airspeed velocity&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/"&gt;numpy-benchmark&lt;/a&gt;, it is now a granted
 a decent way to track these regressions.&lt;/p&gt;
@@ -26,26 +230,21 @@ the tests are automatically generated based on the kernel annotations :-)&lt;/p&
 &lt;div class="section" id="configuration"&gt;
 &lt;h2&gt;Configuration&lt;/h2&gt;
 &lt;p&gt;I don't have a dedicated machine to run the performance tracking session, so I just ran the following:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-$ asv &lt;span class="m"&gt;0&lt;/span&gt;.8.6..master
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ asv &lt;span class="m"&gt;0&lt;/span&gt;.8.6..master
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Basically, this commands runs &lt;tt class="docutils literal"&gt;timeit&lt;/tt&gt; on all kernels from &lt;em&gt;numpy-benchmarks&lt;/em&gt;
 according to the kernel annotations, but only once these kernels have been
 compiled by the &lt;em&gt;Pythran&lt;/em&gt; compiler extracted from the revisions ranging from
 latest release, &lt;em&gt;0.8.6&lt;/em&gt; to current &lt;em&gt;master&lt;/em&gt;. That's a good way to check if the recent
 commits brought any performance improvement or regressions.&lt;/p&gt;
 &lt;p&gt;In order to reduce system glitter, the following one-liner helps a lot:&lt;/p&gt;
-&lt;pre class="code sh literal-block"&gt;
-$ python -m perf system tune
-&lt;/pre&gt;
-&lt;div class="admonition note"&gt;
-&lt;p class="first admonition-title"&gt;Note&lt;/p&gt;
-&lt;p class="last"&gt;These benchmarks were run during the night, with all apps closed, using a
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ python -m perf system tune
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;These benchmarks were run during the night, with all apps closed, using a
 blank &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;~/.pythranrc&lt;/span&gt;&lt;/tt&gt; and GCC 7.3 and on good ol' Python 2.7. For
 reference, I have an &lt;tt class="docutils literal"&gt;Intel(R) Core(TM) &lt;span class="pre"&gt;i7-6600U&lt;/span&gt; CPU &amp;#64; 2.60GHz&lt;/tt&gt;, but as
 the goal is merely to track regression, the details are not as relevant as
 they could be for a traditional benchmark setup.&lt;/p&gt;
-&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="subtilities"&gt;
 &lt;h2&gt;Subtilities&lt;/h2&gt;
@@ -1031,43 +1230,38 @@ The following code is going to be compiled as a shared library through &lt;tt cl
 &lt;h2&gt;Using Pythran to generate a capsule&lt;/h2&gt;
 &lt;p&gt;The whole purpose of Pythran is to avoid writing any C code at all. An equivalent of &lt;tt class="docutils literal"&gt;testlib.so&lt;/tt&gt; can be derived from the following Python code annotated with a &lt;tt class="docutils literal"&gt;pythran export&lt;/tt&gt;,
 using &lt;tt class="docutils literal"&gt;$ pythran testlib.py &lt;span class="pre"&gt;-O2&lt;/span&gt;&lt;/tt&gt; to produce a shared library &lt;tt class="docutils literal"&gt;testlib.so&lt;/tt&gt;.&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c1"&gt;# testlib.py&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# testlib.py&lt;/span&gt;
 &lt;span class="c1"&gt;#pythran export f(int, float64 [], float64 [])&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;f&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cp&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cp&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Unfortunately the generated function still performs conversion from Python data to native data, before running the native code. So it's not a good candidate for &lt;tt class="docutils literal"&gt;ctypes&lt;/tt&gt; importation at all.&lt;/p&gt;
 &lt;p&gt;Something I like to say about Pythran is that it converts Python programs into
 C++ meta-programs that are instantiated for the types given in the &lt;tt class="docutils literal"&gt;pythran
 export&lt;/tt&gt; lines. And that's definitively a useful thing[0], as it is dead easy
 to change its interface to generate Python-free functions. With a bit of syntactic sugar, it gives the following:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c1"&gt;# testlib.py&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# testlib.py&lt;/span&gt;
 &lt;span class="c1"&gt;#pythran export capsule f(int32, float64*, float64* )&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;f&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cp&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cp&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Only the Pythran comment changes, the Python code is unchanged and the resulting function &lt;tt class="docutils literal"&gt;f&lt;/tt&gt; is not even, it's actually a capsule:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;testlib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;testlib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;
 &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;capsule&lt;/span&gt; &lt;span class="nb"&gt;object&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;f(int, float64*, float64*)&amp;quot;&lt;/span&gt; &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="mh"&gt;0x7f554d69f840&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;SciPy's &lt;tt class="docutils literal"&gt;LowLevelCallable&lt;/tt&gt; also support capsule as a way to access function pointers:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ctypes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;c_double&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ctypes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;c_double&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;user_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ctypes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cast&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctypes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pointer&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;ctypes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;c_void_p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;LowLevelCallable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;signature&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;double (int, double *, void *)&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Then we can run the same benchmark as above:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;dat&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;dat&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;timeit&lt;/span&gt; &lt;span class="n"&gt;integrate&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nquad&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;dat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="mi"&gt;1000&lt;/span&gt; &lt;span class="n"&gt;loops&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;best&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;1.75&lt;/span&gt; &lt;span class="n"&gt;ms&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;loop&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Cool, the same performance, while keeping Python-compatible code &lt;tt class="docutils literal"&gt;\o/&lt;/tt&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="capsule-and-numpy"&gt;
@@ -1075,8 +1269,7 @@ to change its interface to generate Python-free functions. With a bit of syntact
 &lt;p&gt;There is another interesting usage example in the &lt;a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/tutorial/ndimage.html#ndimage-ccallbacks"&gt;SciPy documentation&lt;/a&gt;.
 In that example, the capsule creation is purely done in C, using the Python C
 API. Let's see how we can achieve the same result with Pythran. The original C routine is the following:&lt;/p&gt;
-&lt;pre class="code C literal-block"&gt;
-&lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;
 &lt;span class="nf"&gt;_transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;npy_intp&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;output_coordinates&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;double&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;input_coordinates&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;output_rank&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;input_rank&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;user_data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="n"&gt;npy_intp&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
@@ -1087,10 +1280,9 @@ API. Let's see how we can achieve the same result with Pythran. The original C r
     &lt;span class="p"&gt;}&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Using Pythran and Numpy, it is possible to write a portable version like this:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numpy.ctypeslib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;as_array&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numpy.ctypeslib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;as_array&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output_coordinates&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;input_coordinates&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;output_rank&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;input_rank&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_data&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;shift&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;user_data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="n"&gt;input_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;as_array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;input_coordinates&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;input_rank&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -1103,16 +1295,14 @@ API. Let's see how we can achieve the same result with Pythran. The original C r
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;input_rank&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="n"&gt;input_coordinates&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;output_coordinates&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;shift&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Note that thanks to &lt;tt class="docutils literal"&gt;numpy.ctypeslib&lt;/tt&gt; that's still 100% pure Python code, using official APIs.&lt;/p&gt;
 &lt;p&gt;The export line to create a capsule is:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="c1"&gt;#pythran export capsule transform(int64*, float64*, int32, int32, float64*)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export capsule transform(int64*, float64*, int32, int32, float64*)&lt;/span&gt;
 &lt;span class="c1"&gt;#pythran export capsule transform_basic(int64*, float64*, int32, int32, float64*)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Once compiled with Pythran, we get a native library that can be imported and used in a Python script:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;ctypes&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;ctypes&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;scipy&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ndimage&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;LowLevelCallable&lt;/span&gt;
 
@@ -1125,7 +1315,7 @@ API. Let's see how we can achieve the same result with Pythran. The original C r
 &lt;span class="n"&gt;callback&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;LowLevelCallable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;transform&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ptr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;int (npy_intp *, double *, int, int, void *)&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;im&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;arange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reshape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;astype&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;float64&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ndimage&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geometric_transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;im&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;callback&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Performance wise, the version based on Numpy array is still slightly lagging
 behind because of the extra array creation (it initializes a here useless
 memory management part), and the other version is equivalent to the one written
@@ -1372,70 +1562,63 @@ generate code that runs faster; So In the end, we get faster code, faster!&lt;/p
 &lt;li&gt;&lt;p class="first"&gt;During this period, &lt;em&gt;24&lt;/em&gt; issues &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues?utf8=%E2%9C%93&amp;amp;q=is%3Aissue%20is%3Aclosed%20closed%3A%3E2017-01-01"&gt;have been closed&lt;/a&gt;.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;There has been more than a hundred of commits.&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-$ git rev-list --count 6428e526ec..
-118
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git rev-list --count 6428e526ec..
+&lt;span class="m"&gt;118&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;If we exclude the two Boost.Simd updates, the code base has not grown much,
 which is great news, because we did fix a lot of issues, without making the
 code grow too much.&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-$ git diff --shortstat 6428e526ec.. -- pythran
-203 files changed, 3185 insertions(+), 3119 deletions(-)
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git diff --shortstat 6428e526ec.. -- pythran
+&lt;span class="m"&gt;203&lt;/span&gt; files changed, &lt;span class="m"&gt;3185&lt;/span&gt; insertions&lt;span class="o"&gt;(&lt;/span&gt;+&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="m"&gt;3119&lt;/span&gt; deletions&lt;span class="o"&gt;(&lt;/span&gt;-&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;And finally, the codebase is still within my reach, as reported by sloccount,
 roughly 45kSLOC of C++ runtime, 15kSLOC of python tests and 15kSLOC of actual
 compiler code.&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-$ sloccount pythran
-[...]
-SLOC        Directory       SLOC-by-Language (Sorted)
-43984   pythonic        cpp=43984
-15004   tests           python=14738,cpp=232,sh=34
-7955    top_dir         python=7955
-2435    analyses        python=2435
-1923    types           python=1923
-1390    transformations python=1390
-720     optimizations   python=720
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sloccount pythran
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+SLOC        Directory       SLOC-by-Language &lt;span class="o"&gt;(&lt;/span&gt;Sorted&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="m"&gt;43984&lt;/span&gt;   pythonic        &lt;span class="nv"&gt;cpp&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;43984&lt;/span&gt;
+&lt;span class="m"&gt;15004&lt;/span&gt;   tests           &lt;span class="nv"&gt;python&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;14738&lt;/span&gt;,cpp&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;232&lt;/span&gt;,sh&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;34&lt;/span&gt;
+&lt;span class="m"&gt;7955&lt;/span&gt;    top_dir         &lt;span class="nv"&gt;python&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;7955&lt;/span&gt;
+&lt;span class="m"&gt;2435&lt;/span&gt;    analyses        &lt;span class="nv"&gt;python&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;2435&lt;/span&gt;
+&lt;span class="m"&gt;1923&lt;/span&gt;    types           &lt;span class="nv"&gt;python&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1923&lt;/span&gt;
+&lt;span class="m"&gt;1390&lt;/span&gt;    transformations &lt;span class="nv"&gt;python&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1390&lt;/span&gt;
+&lt;span class="m"&gt;720&lt;/span&gt;     optimizations   &lt;span class="nv"&gt;python&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;720&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;div class="section" id="faster-compilation"&gt;
 &lt;h2&gt;Faster Compilation&lt;/h2&gt;
 &lt;p&gt;If I try to compile the &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/master/pythran/tests/cases/kmeans.py"&gt;kmeans.py&lt;/a&gt; code from the Pythran test bed, using g++-6.3, at revision &lt;tt class="docutils literal"&gt;6428e526ec&lt;/tt&gt;, I roughly get (with hot file system caches):&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-$ time pythran kmeans.py
-5.69s user 0.46s system 102% cpu 5.975 total
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;time&lt;/span&gt; pythran kmeans.py
+&lt;span class="m"&gt;5&lt;/span&gt;.69s user &lt;span class="m"&gt;0&lt;/span&gt;.46s system &lt;span class="m"&gt;102&lt;/span&gt;% cpu &lt;span class="m"&gt;5&lt;/span&gt;.975 total
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The very same command using the &lt;tt class="docutils literal"&gt;HEAD&lt;/tt&gt; revision outputs:&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-$ time pythran kmeans.py
-4.47s user 0.43s system 103% cpu 4.723 total
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;time&lt;/span&gt; pythran kmeans.py
+&lt;span class="m"&gt;4&lt;/span&gt;.47s user &lt;span class="m"&gt;0&lt;/span&gt;.43s system &lt;span class="m"&gt;103&lt;/span&gt;% cpu &lt;span class="m"&gt;4&lt;/span&gt;.723 total
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Wow, that's something around one second faster. Not incredible, but still 20% faster. How did this happen? (What an intro!)&lt;/p&gt;
 &lt;div class="section" id="optional-typing"&gt;
 &lt;h3&gt;Optional Typing&lt;/h3&gt;
 &lt;p&gt;« The fastest program is the one that does nothing. » Inspired by this motto (and by the advices of &lt;a class="reference external" href="https://github.com/pbrunet"&gt;pbrunet&lt;/a&gt;), I realized that current compilation flow, illustrated below:&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-ir = parse(code)
-if not type_check(ir):
-    raise CompileError(...)
-cxx = generate_cxx(ir)
-compile_cxx(cxx)
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;code&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;type_check&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ir&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="n"&gt;CompileError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;cxx&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;generate_cxx&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ir&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;compile_cxx&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cxx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;could be rewritten like this:&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-ir = parse(code)
-cxx = generate_cxx(ir)
-try:
-    compile_cxx(cxx)
-except SystemError:
-    if not type_check(ir):
-        raise CompileError(...)
-    raise
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;code&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;cxx&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;generate_cxx&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ir&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;compile_cxx&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cxx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="ne"&gt;SystemError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;type_check&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ir&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="n"&gt;CompileError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;raise&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Basically, the type checker is only used to produce smarter error output (see
 &lt;a class="reference external" href="../2016-12-10-pythran-typing.rst"&gt;Previous BlogPost on the subject&lt;/a&gt;
 for more details), there's already a typing mechanism in Pythran that delegates
@@ -1519,9 +1702,8 @@ now part of the constructor API, which prevents such stupid mistakes. And
 &lt;div class="section" id="lazy-numpy-where"&gt;
 &lt;h3&gt;Lazy numpy.where&lt;/h3&gt;
 &lt;p&gt;Consider the following Numpy expression:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;where&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;where&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Python evaluates the three operands before calling &lt;tt class="docutils literal"&gt;numpy.where&lt;/tt&gt;, which
 creates three temporary arrays, and runs the computation of &lt;tt class="docutils literal"&gt;**2&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;+ 2&lt;/tt&gt;
 for each element of the array, while these computations are only needed
@@ -1529,32 +1711,29 @@ depending on the value of &lt;tt class="docutils literal"&gt;a &amp;gt; 1&lt;/tt
 the operands, something that was not part of our expression template engine and
 is now built-in!&lt;/p&gt;
 &lt;p&gt;Said otherwise, the previous entry point for an expression template was&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-template&amp;lt;class T0, class T1, class T2&amp;gt;
-auto operator()(T0 const&amp;amp; arg0, T0 const&amp;amp; arg1, T2 const&amp;amp; arg2) {
-  // every argument is evaluated at that point
-  return arg0 ? arg1 : arg2;
-}
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T2&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="k"&gt;operator&lt;/span&gt;&lt;span class="p"&gt;()(&lt;/span&gt;&lt;span class="n"&gt;T0&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;arg0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T0&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;arg1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;arg2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// every argument is evaluated at that point&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;arg0&lt;/span&gt; &lt;span class="o"&gt;?&lt;/span&gt; &lt;span class="nl"&gt;arg1&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;arg2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And it can now be&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-template&amp;lt;class T0, class T1, class T2&amp;gt;
-auto operator()(T0 const&amp;amp; iter0, T0 const&amp;amp; iter1, T2 const&amp;amp; iter2) {
-  // no argument is evaluated at that point, dereferencing triggers the computation
-  return *arg0 ? *arg1 : *arg2; /**/
-}
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T2&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="k"&gt;operator&lt;/span&gt;&lt;span class="p"&gt;()(&lt;/span&gt;&lt;span class="n"&gt;T0&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;iter0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T0&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;iter1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;iter2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// no argument is evaluated at that point, dereferencing triggers the computation&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;arg0&lt;/span&gt; &lt;span class="o"&gt;?&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="nl"&gt;arg1&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;arg2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="cm"&gt;/**/&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/757795fdc91a2cfafd2e6c8af75a6eb2f64a5db1"&gt;757795fdc9&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="update-operator"&gt;
 &lt;h3&gt;Update Operator&lt;/h3&gt;
 &lt;p&gt;For some internal operations, I've been lazy and implemented update operator like this:&lt;/p&gt;
-&lt;pre class="code literal-block"&gt;
-template&amp;lt;class T&amp;gt;
-auto operator+=(T const&amp;amp; val) {
-    return (*this) = (*this) + val;
-} /**/
-&lt;/pre&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="k"&gt;operator&lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;val&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;val&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="cm"&gt;/**/&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Being lazy rarely pays off, the extra object created had a performance impact
 on 3D data structures, everything is now done properly using in-place
 computations.&lt;/p&gt;
@@ -1576,18 +1755,16 @@ loops from Python3, but there's probably plenty of such details hanging around
 &lt;h3&gt;Avoid the Div&lt;/h3&gt;
 &lt;p&gt;At the assembly level, performing an integer division is generally costly, much more than a multiplication.&lt;/p&gt;
 &lt;p&gt;So instead of doing:&lt;/p&gt;
-&lt;pre class="code c++ literal-block"&gt;
-&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;nbiter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;size0&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;size1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;nbiter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;size0&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;size1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;nbiter&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
    &lt;span class="p"&gt;...&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Doing (it's not generally equivalent, but in our context it is because &lt;tt class="docutils literal"&gt;size0&lt;/tt&gt; is a multiple of &lt;tt class="docutils literal"&gt;size1&lt;/tt&gt;)&lt;/p&gt;
-&lt;pre class="code c++ literal-block"&gt;
-&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;size0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;size1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;size0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;size1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
    &lt;span class="p"&gt;...&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Is generally faster.&lt;/p&gt;
 &lt;p&gt;See commit &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/79293c937869082e97409c68db5ecfd4b8540315"&gt;79293c9378&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
@@ -1625,7 +1802,8 @@ ecosystem.&lt;/p&gt;
 there's something that actually makes Pythran difficult to use for new
 comers. What is it? Let's have a look at the following Python code, inspired by
 a &lt;a class="reference external" href="http://stackoverflow.com/questions/13815719/creating-grid-with-numpy-performance"&gt;stack overflow thread&lt;/a&gt;:&lt;/p&gt;
-&lt;pre class="code python literal-block" id="create-grid-py"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# create_grid.py&lt;/span&gt;
+
 &lt;span class="c1"&gt;#pythran export create_grid(float [])&lt;/span&gt;
 
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
@@ -1636,17 +1814,16 @@ a &lt;a class="reference external" href="http://stackoverflow.com/questions/1381
     &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
     &lt;span class="n"&gt;fast_grid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reshape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fast_grid&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;An attempt to compile it with Pythran would return a very long C++ template instantiation trace, with very little clue concerning the origin of the problem.&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran create_grid.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran create_grid.py
 In file included from /tmp/tmpP0xYa2.cpp:10:
 In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
 In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
 ./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;18446744073709551615&lt;/span&gt; elements&lt;span class="o"&gt;)&lt;/span&gt;
       value_type buffer&lt;span class="o"&gt;[&lt;/span&gt;N ? N : &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
                         ^~~~~~~~~
-./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class &lt;span class="s1"&gt;'pythonic::types::array&amp;lt;long, 18446744073709551615&amp;gt;'&lt;/span&gt; requested here
+./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class &lt;span class="s1"&gt;&amp;#39;pythonic::types::array&amp;lt;long, 18446744073709551615&amp;gt;&amp;#39;&lt;/span&gt; requested here
       array&amp;lt;long, value&amp;gt; _shape&lt;span class="p"&gt;;&lt;/span&gt;
                          ^
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
@@ -1656,15 +1833,14 @@ In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
                   ^
 &lt;span class="m"&gt;3&lt;/span&gt; errors generated.
 CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
-E: &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'error: Command &amp;quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&amp;quot; failed with exit status 1'&lt;/span&gt;,&lt;span class="o"&gt;)&lt;/span&gt;
+E: &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;error: Command &amp;quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&amp;quot; failed with exit status 1&amp;#39;&lt;/span&gt;,&lt;span class="o"&gt;)&lt;/span&gt;
 
 What we now have is a slightly friendlier message:
-&lt;/pre&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran create_grid.py
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran create_grid.py
 CRITICAL You shall not pass!
 E: Dimension mismatch when slicing &lt;span class="sb"&gt;`&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;2d, float&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;create_grid.py, line &lt;span class="m"&gt;7&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Indeed, the correct declaration for &lt;tt class="docutils literal"&gt;z&lt;/tt&gt; was &lt;tt class="docutils literal"&gt;z = &lt;span class="pre"&gt;np.zeros((N,&lt;/span&gt; N, 3))&lt;/tt&gt;.&lt;/p&gt;
 &lt;div class="section" id="a-quick-glance-at-pythran-typing-system"&gt;
 &lt;h2&gt;A Quick Glance at Pythran Typing System&lt;/h2&gt;
@@ -1682,18 +1858,16 @@ methods and attributes make sense in the current context. And that's exactly
 what we need to get closer to Python typing!&lt;/p&gt;
 &lt;p&gt;This all is very nice, except in the case of a bad typing. Consider this trivial
 Python code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;integer, for instance &lt;tt class="docutils literal"&gt;str&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;list&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;int&lt;/tt&gt;. The C++ equivalent would
 be (taking into account move semantics):&lt;/p&gt;
-&lt;pre class="code c++ literal-block"&gt;
-&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
 &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In Python's case, type checking is done at runtime, during a lookup in &lt;tt class="docutils literal"&gt;s&lt;/tt&gt; for
 a &lt;tt class="docutils literal"&gt;__mul__&lt;/tt&gt; magic method. In C++ it's done at compile time, when performing
 instantiation of &lt;tt class="docutils literal"&gt;twice&lt;/tt&gt; for a given type value of &lt;tt class="docutils literal"&gt;T&lt;/tt&gt;. What lacked was a
@@ -1764,13 +1938,12 @@ what got introduced is the concept of &lt;tt class="docutils literal"&gt;MultiTy
 object that can hold several types at the same time. So that's not exactly a
 &lt;tt class="docutils literal"&gt;UnionType&lt;/tt&gt; which is the type of an object that can be of one type among
 many. The difference exists because of the situation described by the following code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;pass&lt;/span&gt;
 
 &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In that case foo really has two types, namely &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;Callable[[Any],&lt;/span&gt; None]&lt;/tt&gt; and
 &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;Callalble[[Any,&lt;/span&gt; Any], None]&lt;/tt&gt;. That's what &lt;tt class="docutils literal"&gt;MultiType&lt;/tt&gt; represents.&lt;/p&gt;
 &lt;div class="section" id="handling-overloading"&gt;
@@ -1779,10 +1952,9 @@ many. The difference exists because of the situation described by the following 
 &lt;tt class="docutils literal"&gt;MultiType&lt;/tt&gt; that is just a list of possible types.&lt;/p&gt;
 &lt;p&gt;Abusing from &lt;tt class="docutils literal"&gt;Multiype&lt;/tt&gt; can quickly make the combinatorics of the type
 possibilities go wild, so we had to make a decision. Consider the following code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The &lt;tt class="docutils literal"&gt;in&lt;/tt&gt; operator could be implemented as a &lt;tt class="docutils literal"&gt;MultiType&lt;/tt&gt;, enumerating the
 possible valid signature (remember we know of all possible types in Pythran):&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -1817,15 +1989,14 @@ over-approximation defined above, is a &lt;tt class="docutils literal"&gt;(Any, 
 &lt;div class="section" id="handling-option-types"&gt;
 &lt;h3&gt;Handling Option Types&lt;/h3&gt;
 &lt;p&gt;When HM runs on the following Python code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
         &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;
     &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It runs into some troubles. The &lt;tt class="docutils literal"&gt;return&lt;/tt&gt; from the &lt;tt class="docutils literal"&gt;True&lt;/tt&gt; branch sets the
 return type of &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; to &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; but the one from the &lt;tt class="docutils literal"&gt;False&lt;/tt&gt; branch sets it
 to &lt;tt class="docutils literal"&gt;None&lt;/tt&gt;. How could we make this unification valid? Option types are
@@ -1837,40 +2008,36 @@ generally described as a parametric type, &lt;tt class="docutils literal"&gt;Opt
 meeting an &lt;tt class="docutils literal"&gt;if&lt;/tt&gt;, we generate a new copy of the variable environment for each
 branch, and we &lt;em&gt;merge&lt;/em&gt; (not &lt;em&gt;unify&lt;/em&gt;) the environments.&lt;/p&gt;
 &lt;p&gt;Likewise, if the condition is &lt;em&gt;explicitely&lt;/em&gt; a check for &lt;tt class="docutils literal"&gt;None&lt;/tt&gt;, as in:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;stuff&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;stuff&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;the environment in the &lt;tt class="docutils literal"&gt;True&lt;/tt&gt; branch holds the &lt;tt class="docutils literal"&gt;None&lt;/tt&gt; type for &lt;tt class="docutils literal"&gt;a&lt;/tt&gt;, and
 the &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; type in the &lt;tt class="docutils literal"&gt;False&lt;/tt&gt; branch. This could be improved, as we support
 only a few patterns as the condition expression, there is something more
 generic to be done there.&lt;/p&gt;
 &lt;p&gt;This even led to improvement in our test base, as the following code was no longer correct:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Type inference computes that v is of type &lt;tt class="docutils literal"&gt;Optional[T0]&lt;/tt&gt;, which is not compatible with &lt;tt class="docutils literal"&gt;v + 1&lt;/tt&gt; and a &lt;tt class="docutils literal"&gt;PythranTypeError&lt;/tt&gt; is raised. A compatible way to write this would be:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;pass&lt;/span&gt;  &lt;span class="c1"&gt;# or do stuff&lt;/span&gt;
     &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="handling-type-promotion"&gt;
 &lt;h3&gt;Handling Type Promotion&lt;/h3&gt;
 &lt;p&gt;It's not uncommon to find this kind of code:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
 &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;3.14&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And there's nothing wrong with this in Python, but is this a type error for
 Pythran? In classical HM systems, that's a type error: &lt;tt class="docutils literal"&gt;[]&lt;/tt&gt; is of type
 &lt;tt class="docutils literal"&gt;List[TO]&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;list.append&lt;/tt&gt; is of type &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;Callable[[List[T0],&lt;/span&gt; T0], None]&lt;/tt&gt; so
@@ -1942,21 +2109,19 @@ various places. So instead of a formal proof, here is some testing results :-).&
 &lt;p&gt;First, the whole test suite passes without much modifications. It helped
 to spot a few &lt;em&gt;errors&lt;/em&gt; in the tests, mostly code that was incorrect with
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_shadow_import2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_shadow_import2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run_test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-        &lt;span class="sd"&gt;'''def shadow_import2(s):
-               for set in s : set.add(1)'''&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;def shadow_import2(s):&lt;/span&gt;
+&lt;span class="sd"&gt;               for set in s : set.add(1)&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
         &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;},{&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
         &lt;span class="n"&gt;shadow_import2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;]]]&lt;/span&gt;
     &lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;where the &lt;tt class="docutils literal"&gt;List[Set[int]]&lt;/tt&gt; expression describes the type for which the code
 must be instantiated.&lt;/p&gt;
 &lt;p&gt;The following code sample is adapted from the &lt;a class="reference external" href="http://www.mypy-lang.org/examples.html"&gt;MyPy example page&lt;/a&gt;. It requires a type comment to be
 correctly typed, while Pythran correctly type checks it without annotation.&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
 
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
@@ -1966,25 +2131,22 @@ correctly typed, while Pythran correctly type checks it without annotation.&lt;/
     &lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;freq&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;freq&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;()]&lt;/span&gt;
 
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;If we turn the &lt;tt class="docutils literal"&gt;1&lt;/tt&gt; into &lt;tt class="docutils literal"&gt;&amp;quot;1&amp;quot;&lt;/tt&gt;, we get the following error:&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran wc.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran wc.py
 CRITICAL You shall not pass!
 E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;str&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And if we remove the &lt;tt class="docutils literal"&gt;0&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;d.get(word)&lt;/tt&gt; may return &lt;tt class="docutils literal"&gt;None&lt;/tt&gt; and the error message becomes:&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran wc.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran wc.py
 CRITICAL You shall not pass!
 E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;Option&lt;span class="o"&gt;[&lt;/span&gt;T0&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Great!&lt;/p&gt;
 &lt;p&gt;Considering Numpy functions, we don't model all of them in tog, but we can
 still detect several interesting errors. For instance on a gaussian kernel
 (&lt;a class="reference external" href="http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy"&gt;error-safe version from stackexchange&lt;/a&gt;):&lt;/p&gt;
-&lt;pre class="code python literal-block"&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;vectorized_RBF_kernel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sigma&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;X2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;multiply&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;# sum colums of the matrix&lt;/span&gt;
     &lt;span class="n"&gt;K0&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X2&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;X2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;
@@ -1993,13 +2155,12 @@ still detect several interesting errors. For instance on a gaussian kernel
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;badcall&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;vectorized_RBF_kernel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Pythran correctly catches the error on &lt;tt class="docutils literal"&gt;vectorized_RBF_kernel&lt;/tt&gt; call:&lt;/p&gt;
-&lt;pre class="code shell literal-block"&gt;
-&amp;gt; pythran gaussian.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran gaussian.py
 CRITICAL You shall not pass!
 E: Invalid argument &lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; call to &lt;span class="sb"&gt;`&lt;/span&gt;Callable&lt;span class="o"&gt;[[&lt;/span&gt;int, T3&lt;span class="o"&gt;]&lt;/span&gt;, ...&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;, tried Callable&lt;span class="o"&gt;[[&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T0&lt;span class="o"&gt;]&lt;/span&gt;, T1&lt;span class="o"&gt;]&lt;/span&gt;, Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T2&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;gaussian.py, line &lt;span class="m"&gt;9&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/pre&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="conclusion"&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;

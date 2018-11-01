@@ -153,70 +153,63 @@ generate code that runs faster; So In the end, we get faster code, faster!</p>
 <li><p class="first">During this period, <em>24</em> issues <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues?utf8=%E2%9C%93&amp;q=is%3Aissue%20is%3Aclosed%20closed%3A%3E2017-01-01">have been closed</a>.</p>
 </li>
 <li><p class="first">There has been more than a hundred of commits.</p>
-<pre class="code literal-block">
-$ git rev-list --count 6428e526ec..
-118
-</pre>
+<div class="highlight"><pre><span></span>$ git rev-list --count 6428e526ec..
+<span class="m">118</span>
+</pre></div>
 </li>
 <li><p class="first">If we exclude the two Boost.Simd updates, the code base has not grown much,
 which is great news, because we did fix a lot of issues, without making the
 code grow too much.</p>
-<pre class="code literal-block">
-$ git diff --shortstat 6428e526ec.. -- pythran
-203 files changed, 3185 insertions(+), 3119 deletions(-)
-</pre>
+<div class="highlight"><pre><span></span>$ git diff --shortstat 6428e526ec.. -- pythran
+<span class="m">203</span> files changed, <span class="m">3185</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">3119</span> deletions<span class="o">(</span>-<span class="o">)</span>
+</pre></div>
 </li>
 <li><p class="first">And finally, the codebase is still within my reach, as reported by sloccount,
 roughly 45kSLOC of C++ runtime, 15kSLOC of python tests and 15kSLOC of actual
 compiler code.</p>
-<pre class="code literal-block">
-$ sloccount pythran
-[...]
-SLOC        Directory       SLOC-by-Language (Sorted)
-43984   pythonic        cpp=43984
-15004   tests           python=14738,cpp=232,sh=34
-7955    top_dir         python=7955
-2435    analyses        python=2435
-1923    types           python=1923
-1390    transformations python=1390
-720     optimizations   python=720
-</pre>
+<div class="highlight"><pre><span></span>$ sloccount pythran
+<span class="o">[</span>...<span class="o">]</span>
+SLOC        Directory       SLOC-by-Language <span class="o">(</span>Sorted<span class="o">)</span>
+<span class="m">43984</span>   pythonic        <span class="nv">cpp</span><span class="o">=</span><span class="m">43984</span>
+<span class="m">15004</span>   tests           <span class="nv">python</span><span class="o">=</span><span class="m">14738</span>,cpp<span class="o">=</span><span class="m">232</span>,sh<span class="o">=</span><span class="m">34</span>
+<span class="m">7955</span>    top_dir         <span class="nv">python</span><span class="o">=</span><span class="m">7955</span>
+<span class="m">2435</span>    analyses        <span class="nv">python</span><span class="o">=</span><span class="m">2435</span>
+<span class="m">1923</span>    types           <span class="nv">python</span><span class="o">=</span><span class="m">1923</span>
+<span class="m">1390</span>    transformations <span class="nv">python</span><span class="o">=</span><span class="m">1390</span>
+<span class="m">720</span>     optimizations   <span class="nv">python</span><span class="o">=</span><span class="m">720</span>
+</pre></div>
 </li>
 </ul>
 <div class="section" id="faster-compilation">
 <h2>Faster Compilation</h2>
 <p>If I try to compile the <a class="reference external" href="https://github.com/serge-sans-paille/pythran/blob/master/pythran/tests/cases/kmeans.py">kmeans.py</a> code from the Pythran test bed, using g++-6.3, at revision <tt class="docutils literal">6428e526ec</tt>, I roughly get (with hot file system caches):</p>
-<pre class="code literal-block">
-$ time pythran kmeans.py
-5.69s user 0.46s system 102% cpu 5.975 total
-</pre>
+<div class="highlight"><pre><span></span>$ <span class="nb">time</span> pythran kmeans.py
+<span class="m">5</span>.69s user <span class="m">0</span>.46s system <span class="m">102</span>% cpu <span class="m">5</span>.975 total
+</pre></div>
 <p>The very same command using the <tt class="docutils literal">HEAD</tt> revision outputs:</p>
-<pre class="code literal-block">
-$ time pythran kmeans.py
-4.47s user 0.43s system 103% cpu 4.723 total
-</pre>
+<div class="highlight"><pre><span></span>$ <span class="nb">time</span> pythran kmeans.py
+<span class="m">4</span>.47s user <span class="m">0</span>.43s system <span class="m">103</span>% cpu <span class="m">4</span>.723 total
+</pre></div>
 <p>Wow, that's something around one second faster. Not incredible, but still 20% faster. How did this happen? (What an intro!)</p>
 <div class="section" id="optional-typing">
 <h3>Optional Typing</h3>
 <p>« The fastest program is the one that does nothing. » Inspired by this motto (and by the advices of <a class="reference external" href="https://github.com/pbrunet">pbrunet</a>), I realized that current compilation flow, illustrated below:</p>
-<pre class="code literal-block">
-ir = parse(code)
-if not type_check(ir):
-    raise CompileError(...)
-cxx = generate_cxx(ir)
-compile_cxx(cxx)
-</pre>
+<div class="highlight"><pre><span></span><span class="n">ir</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">type_check</span><span class="p">(</span><span class="n">ir</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">CompileError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">cxx</span> <span class="o">=</span> <span class="n">generate_cxx</span><span class="p">(</span><span class="n">ir</span><span class="p">)</span>
+<span class="n">compile_cxx</span><span class="p">(</span><span class="n">cxx</span><span class="p">)</span>
+</pre></div>
 <p>could be rewritten like this:</p>
-<pre class="code literal-block">
-ir = parse(code)
-cxx = generate_cxx(ir)
-try:
-    compile_cxx(cxx)
-except SystemError:
-    if not type_check(ir):
-        raise CompileError(...)
-    raise
-</pre>
+<div class="highlight"><pre><span></span><span class="n">ir</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+<span class="n">cxx</span> <span class="o">=</span> <span class="n">generate_cxx</span><span class="p">(</span><span class="n">ir</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">compile_cxx</span><span class="p">(</span><span class="n">cxx</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">SystemError</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">type_check</span><span class="p">(</span><span class="n">ir</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">CompileError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">raise</span>
+</pre></div>
 <p>Basically, the type checker is only used to produce smarter error output (see
 <a class="reference external" href="../2016-12-10-pythran-typing.rst">Previous BlogPost on the subject</a>
 for more details), there's already a typing mechanism in Pythran that delegates
@@ -300,9 +293,8 @@ now part of the constructor API, which prevents such stupid mistakes. And
 <div class="section" id="lazy-numpy-where">
 <h3>Lazy numpy.where</h3>
 <p>Consider the following Numpy expression:</p>
-<pre class="code python literal-block">
-<span class="n">a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
-</pre>
+<div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
 <p>Python evaluates the three operands before calling <tt class="docutils literal">numpy.where</tt>, which
 creates three temporary arrays, and runs the computation of <tt class="docutils literal">**2</tt> and <tt class="docutils literal">+ 2</tt>
 for each element of the array, while these computations are only needed
@@ -310,32 +302,29 @@ depending on the value of <tt class="docutils literal">a &gt; 1</tt>. What we ne
 the operands, something that was not part of our expression template engine and
 is now built-in!</p>
 <p>Said otherwise, the previous entry point for an expression template was</p>
-<pre class="code literal-block">
-template&lt;class T0, class T1, class T2&gt;
-auto operator()(T0 const&amp; arg0, T0 const&amp; arg1, T2 const&amp; arg2) {
-  // every argument is evaluated at that point
-  return arg0 ? arg1 : arg2;
-}
-</pre>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T0</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T1</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T2</span><span class="o">&gt;</span>
+<span class="k">auto</span> <span class="k">operator</span><span class="p">()(</span><span class="n">T0</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">arg0</span><span class="p">,</span> <span class="n">T0</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">T2</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">arg2</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// every argument is evaluated at that point</span>
+  <span class="k">return</span> <span class="n">arg0</span> <span class="o">?</span> <span class="nl">arg1</span> <span class="p">:</span> <span class="n">arg2</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
 <p>And it can now be</p>
-<pre class="code literal-block">
-template&lt;class T0, class T1, class T2&gt;
-auto operator()(T0 const&amp; iter0, T0 const&amp; iter1, T2 const&amp; iter2) {
-  // no argument is evaluated at that point, dereferencing triggers the computation
-  return *arg0 ? *arg1 : *arg2; /**/
-}
-</pre>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T0</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T1</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T2</span><span class="o">&gt;</span>
+<span class="k">auto</span> <span class="k">operator</span><span class="p">()(</span><span class="n">T0</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">iter0</span><span class="p">,</span> <span class="n">T0</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">iter1</span><span class="p">,</span> <span class="n">T2</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">iter2</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// no argument is evaluated at that point, dereferencing triggers the computation</span>
+  <span class="k">return</span> <span class="o">*</span><span class="n">arg0</span> <span class="o">?</span> <span class="o">*</span><span class="nl">arg1</span> <span class="p">:</span> <span class="o">*</span><span class="n">arg2</span><span class="p">;</span> <span class="cm">/**/</span>
+<span class="p">}</span>
+</pre></div>
 <p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/757795fdc91a2cfafd2e6c8af75a6eb2f64a5db1">757795fdc9</a>.</p>
 </div>
 <div class="section" id="update-operator">
 <h3>Update Operator</h3>
 <p>For some internal operations, I've been lazy and implemented update operator like this:</p>
-<pre class="code literal-block">
-template&lt;class T&gt;
-auto operator+=(T const&amp; val) {
-    return (*this) = (*this) + val;
-} /**/
-</pre>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">auto</span> <span class="k">operator</span><span class="o">+=</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)</span> <span class="o">+</span> <span class="n">val</span><span class="p">;</span>
+<span class="p">}</span> <span class="cm">/**/</span>
+</pre></div>
 <p>Being lazy rarely pays off, the extra object created had a performance impact
 on 3D data structures, everything is now done properly using in-place
 computations.</p>
@@ -357,18 +346,16 @@ loops from Python3, but there's probably plenty of such details hanging around
 <h3>Avoid the Div</h3>
 <p>At the assembly level, performing an integer division is generally costly, much more than a multiplication.</p>
 <p>So instead of doing:</p>
-<pre class="code c++ literal-block">
-<span class="kt">size_t</span> <span class="n">nbiter</span> <span class="o">=</span> <span class="n">size0</span> <span class="o">/</span> <span class="n">size1</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="kt">size_t</span> <span class="n">nbiter</span> <span class="o">=</span> <span class="n">size0</span> <span class="o">/</span> <span class="n">size1</span><span class="p">;</span>
 <span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nbiter</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
    <span class="p">...</span>
 <span class="p">}</span>
-</pre>
+</pre></div>
 <p>Doing (it's not generally equivalent, but in our context it is because <tt class="docutils literal">size0</tt> is a multiple of <tt class="docutils literal">size1</tt>)</p>
-<pre class="code c++ literal-block">
-<span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size0</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">size1</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size0</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">size1</span><span class="p">)</span> <span class="p">{</span>
    <span class="p">...</span>
 <span class="p">}</span>
-</pre>
+</pre></div>
 <p>Is generally faster.</p>
 <p>See commit <a class="reference external" href="https://github.com/serge-sans-paille/pythran/commit/79293c937869082e97409c68db5ecfd4b8540315">79293c9378</a>.</p>
 </div>
