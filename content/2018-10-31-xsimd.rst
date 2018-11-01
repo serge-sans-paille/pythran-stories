@@ -23,8 +23,9 @@ issue <https://github.com/NumScale/boost.simd/issues/545>`_. From the Pythran
 perspective, this is no good news.
 
 Fortunately, the people from `QuantStack <http://quantstack.net/>`_ have put
-tremendous effort into providing an equivalent to boost.simd, `xsimd <http://quantstack.net/xsimd.html>`_. And
-their library actually provides some improvements in the context of Pythran, so
+tremendous effort into providing an equivalent to boost.simd, `xsimd
+<http://quantstack.net/xsimd.html>`_. And their library actually provides some
+improvements in the context of Pythran, it's under a *BSD-3-Clause license*, so
 when they proposed to fund the move to *xsimd*, it was just perfect.
 
 So here is the deal: I do the port, report any API and/or performance issue,
