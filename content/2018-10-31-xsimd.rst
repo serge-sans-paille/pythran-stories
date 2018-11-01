@@ -13,7 +13,7 @@ Bye bye boost.simd, welcome xsimd
 abstraction of vector type, allowing for efficient vectorization of array
 computations. It has been (optionally) used as part of the expression template
 engine of Pythran for a long time, a great collaboration that led to several
-patch in boost.simd, and great performance for Pythran.
+patches in boost.simd, and great performance for Pythran.
 
 Unfortunately, the project has been silent over the last months (see for
 instance `this issue <https://github.com/NumScale/boost.simd/issues/546>`_) and
@@ -109,7 +109,17 @@ layout. Still that's something new for Pythran as showcased by the following ker
         return a_oo/np.abs(a_oo).max()
 
 
-Pythran provides a vectorized version of ``np.min`` and ``np.max`` operators, so thanks to complex support, it should provide some decent acceleration. Let's check that!
+Pythran provides a vectorized version of ``np.min`` and ``np.max`` operators, so thanks to complex support, it should provide some decent acceleration. Note that the two calls to ``np.min()`` do not involve complex numbers, but that the remaining parts of the expression do. Let's check that!
+
+First, the reference numpy version:
+
+.. code-block:: sh
+
+    python -m perf timeit -s 'import numpy as np; np.random.seed(0); N = 100000; x = np.random.random(N) + 1j *  np.random.random(N); from normalize_complex_arr import normalize_complex_arr' 'normalize_complex_arr(x)'
+    .....................
+    Mean +- std dev: 3.19 ms +- 0.02 ms
+
+Then with Pythran, no explicit vectorization:
 
 .. code-block:: sh
 
@@ -119,7 +129,7 @@ Pythran provides a vectorized version of ``np.min`` and ``np.max`` operators, so
     Mean +- std dev: 2.84 ms +- 0.01 ms
 
 
-And with vectorization on (note that the calls to ``np.min()`` do not involve complex numbers though.
+And with vectorization on .
 
 .. code-block:: sh
 
@@ -134,7 +144,7 @@ Scalar Version
 ==============
 
 That's probably a detail for many xsimd users, but thanks to this cooperation,
-xsimd now exposes a scalar version of all its mathematical function inside the
+xsimd now exposes a scalar version of all the mathematical function inside the
 ``xsimd::`` namespace. That way one can write higher level functions based on
 xsimd, and they would work for both scalar and vector version:
 
@@ -157,7 +167,7 @@ Compilation Time
 Pythran is an *Ahead of Time* compiler, so compilation time is generally not a
 good metric. But there's one situation where it matters to me: Continuous
 Integration. Because Travis has time limits, the faster we compile, the more
-test we can pass! As Pythran validates for Python2 and Python3, for Clang and
+tests we can pass! As Pythran validates for Python2 and Python3, for Clang and
 GCC, with and without SIMD, with and without OpenMP, that's a lot of
 configurations to test. Roughly... 20hours of cumulated tests actually, see
 `this recent build
