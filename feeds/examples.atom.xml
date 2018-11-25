@@ -665,7 +665,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;lt;function pythranized_91f76c58891b91073f8e4e4dae8d0989.my&amp;gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;amp;lt;function pythranized_91f76c58891b91073f8e4e4dae8d0989.my&amp;amp;gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -857,7 +857,7 @@ extra options: &amp;#39;-std=c++11 -fno-math-errno -w -fwhole-program -fvisibili
 [36m_preserve_environment([])[0m
 [36m_update_environment(...)[0m
 [36m_exec_command_posix(...)[0m
-[36mRunning os.system(&amp;#39;( c++ -pthread -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpRIF8Kz.cpp -o /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden ; echo $? &amp;gt; /tmp/tmpkJNNfR/XwPT61 ) 2&amp;gt;&amp;amp;1 | tee /tmp/tmpkJNNfR/xJbGUl &amp;#39;)[0m
+[36mRunning os.system(&amp;#39;( c++ -pthread -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpRIF8Kz.cpp -o /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden ; echo $? &amp;amp;gt; /tmp/tmpkJNNfR/XwPT61 ) 2&amp;amp;gt;&amp;amp;amp;1 | tee /tmp/tmpkJNNfR/xJbGUl &amp;#39;)[0m
 [36m_update_environment(...)[0m
 [39mc++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -lgmp -lgmpxx -lcblas -lblas -o /tmp/tmpsa8TH1/scrabble.so -fvisibility=hidden -Wl,-strip-all[0m
 [36mexec_command([&amp;#39;c++&amp;#39;, &amp;#39;-pthread&amp;#39;, &amp;#39;-shared&amp;#39;, &amp;#39;-Wl,-O1&amp;#39;, &amp;#39;-Wl,-Bsymbolic-functions&amp;#39;, &amp;#39;-Wl,-z,relro&amp;#39;, &amp;#39;-fno-strict-aliasing&amp;#39;, &amp;#39;-DNDEBUG&amp;#39;, &amp;#39;-g&amp;#39;, &amp;#39;-fwrapv&amp;#39;, &amp;#39;-O2&amp;#39;, &amp;#39;-Wall&amp;#39;, &amp;#39;-Wstrict-prototypes&amp;#39;, &amp;#39;-Wdate-time&amp;#39;, &amp;#39;-D_FORTIFY_SOURCE=2&amp;#39;, &amp;#39;-g&amp;#39;, &amp;#39;-fstack-protector-strong&amp;#39;, &amp;#39;-Wformat&amp;#39;, &amp;#39;-Werror=format-security&amp;#39;, &amp;#39;-Wl,-z,relro&amp;#39;, &amp;#39;-g&amp;#39;, &amp;#39;-O2&amp;#39;, &amp;#39;/tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o&amp;#39;, &amp;#39;-lgmp&amp;#39;, &amp;#39;-lgmpxx&amp;#39;, &amp;#39;-lcblas&amp;#39;, &amp;#39;-lblas&amp;#39;, &amp;#39;-o&amp;#39;, &amp;#39;/tmp/tmpsa8TH1/scrabble.so&amp;#39;, &amp;#39;-fvisibility=hidden&amp;#39;, &amp;#39;-Wl,-strip-all&amp;#39;],)[0m
@@ -865,7 +865,7 @@ extra options: &amp;#39;-std=c++11 -fno-math-errno -w -fwhole-program -fvisibili
 [36m_preserve_environment([])[0m
 [36m_update_environment(...)[0m
 [36m_exec_command_posix(...)[0m
-[36mRunning os.system(&amp;#39;( c++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -lgmp -lgmpxx -lcblas -lblas -o /tmp/tmpsa8TH1/scrabble.so -fvisibility=hidden -Wl,-strip-all ; echo $? &amp;gt; /tmp/tmpkJNNfR/KjbDFo ) 2&amp;gt;&amp;amp;1 | tee /tmp/tmpkJNNfR/LHI7ms &amp;#39;)[0m
+[36mRunning os.system(&amp;#39;( c++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -lgmp -lgmpxx -lcblas -lblas -o /tmp/tmpsa8TH1/scrabble.so -fvisibility=hidden -Wl,-strip-all ; echo $? &amp;amp;gt; /tmp/tmpkJNNfR/KjbDFo ) 2&amp;amp;gt;&amp;amp;amp;1 | tee /tmp/tmpkJNNfR/LHI7ms &amp;#39;)[0m
 [36m_update_environment(...)[0m
 [32mINFO    [0m [34mGenerated module: scrabble[0m
 [32mINFO    [0m [34mOutput: /home/sguelton/sources/pythran/notebooks/scrabble.so[0m
@@ -956,12 +956,12 @@ cc1plus: warning: command line option ‘-Wstrict-prototypes’ is valid for C/O
 [39mcreating demo-1.0[0m
 [39mcreating demo-1.0/demo.egg-info[0m
 [39mmaking hard links in demo-1.0...[0m
-[39mhard linking scrabble.cpp -&amp;gt; demo-1.0[0m
-[39mhard linking setup.py -&amp;gt; demo-1.0[0m
-[39mhard linking demo.egg-info/PKG-INFO -&amp;gt; demo-1.0/demo.egg-info[0m
-[39mhard linking demo.egg-info/SOURCES.txt -&amp;gt; demo-1.0/demo.egg-info[0m
-[39mhard linking demo.egg-info/dependency_links.txt -&amp;gt; demo-1.0/demo.egg-info[0m
-[39mhard linking demo.egg-info/top_level.txt -&amp;gt; demo-1.0/demo.egg-info[0m
+[39mhard linking scrabble.cpp -&amp;amp;gt; demo-1.0[0m
+[39mhard linking setup.py -&amp;amp;gt; demo-1.0[0m
+[39mhard linking demo.egg-info/PKG-INFO -&amp;amp;gt; demo-1.0/demo.egg-info[0m
+[39mhard linking demo.egg-info/SOURCES.txt -&amp;amp;gt; demo-1.0/demo.egg-info[0m
+[39mhard linking demo.egg-info/dependency_links.txt -&amp;amp;gt; demo-1.0/demo.egg-info[0m
+[39mhard linking demo.egg-info/top_level.txt -&amp;amp;gt; demo-1.0/demo.egg-info[0m
 [39mWriting demo-1.0/setup.cfg[0m
 [39mcreating dist[0m
 [39mCreating tar archive[0m
