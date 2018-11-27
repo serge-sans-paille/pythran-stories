@@ -41,7 +41,7 @@ The technique uses a Fast Fourier Transform (FFT), pick peaking to locate pure t
 
 Python/Numpy code
 _________________
-The code is shown below. Refer to the paper if you're interested in the "theoretical" explanation for what's being done. As you can see, the Numpy implementation is simple but not trivial, requiring several steps. Note that the algorithm uses both real and complex numbers: the output of the rfft routine is a complex array, and the rotations are complex numbers. Copy the code below into a time_scaling.py file.
+The code is shown below. Refer to the paper if you're interested in the "theoretical" explanation for what's being done. As you can see, the Numpy implementation is simple but not trivial, requiring several steps. Note that the algorithm uses both real and complex numbers: the output of the rfft routine is a complex array, and the rotations are complex numbers. Copy the code below into a ``time_scaling.py`` file.
 
 .. code-block:: python
 
@@ -114,8 +114,8 @@ The code is shown below. Refer to the paper if you're interested in the "theoret
 
         return outSig
 
-Now we can run the process function on an audio file. For simplicity I'm using a .wav file: Scipy has a very simple interface for reading or writing a .wav file.
-Note that our process function expects a 1D input array. If you open a stereo .wav file, the array returned by wavfile.read will be 2D. In case this happens I'm only keeping the left channel. You can copy paste the following code into a main.py function:
+Now we can run the process function on an audio file. For simplicity I'm using a ``.wav`` file: Scipy has a very simple interface for reading or writing a ``.wav`` file.
+Note that our process function expects a 1D input array. If you open a stereo ``.wav`` file, the array returned by wavfile.read will be 2D. In case this happens I'm only keeping the left channel. You can copy paste the following code into a ``main.py`` file:
 
 .. code-block:: python
 
@@ -131,8 +131,8 @@ Note that our process function expects a 1D input array. If you open a stereo .w
 
 You should be able to open the output file and listen to it in any program that plays wavfiles (for example afplay on macos).
 
-Let's time the function in Ipython. For this you start Ipython (install it if you don't have it, it's a great complement to Python)).
-In Ipython, you can simply put %timeit in front of the line you'd like to benchmark:
+Let's time the function in IPython. For this you start IPython (install it if you don't have it, it's a great complement to Python)).
+In Ipython, you can simply put ``%timeit`` in front of the line you'd like to benchmark:
 
 .. code-block:: python
 
@@ -149,13 +149,13 @@ Using Pythran
 _____________
 
 
-To be able to use the process function from the module that Pythran will create, we need to export it to Python. This is what the following #pythran export directive does. This can be placed anywhere in the .py file.
+To be able to use the process function from the module that Pythran will create, we need to export it to Python. This is what the following ``#pythran export`` directive does. This can be placed anywhere in the .py file.
 
 .. code-block:: python
 
     #pythran export process(float[] or float[::],float,float)
 
-Note that the first parameter is declared as float[] or float[::] a simple float Numpy array or a view into a float Numpy array. The two remaining parameters are declared as float and it will be crucial to pass them as floats when calling process.
+Note that the first parameter is declared as ``float[] or float[::]`` a simple float Numpy array or a view into a float Numpy array. The two remaining parameters are declared as float and it will be crucial to pass them as floats when calling process.
 
 Now simply run
 
@@ -164,16 +164,16 @@ Now simply run
     pythran time_scaling.py.
 
 A time_scaling.so file is created.
-Now the same main.py code will execute much faster because import time_scaling will now import a compiled, very efficient .so file.
+Now the same ``main.py`` code will execute much faster because import time_scaling will now import a compiled, very efficient ``.so`` file.
 
-For the same file as above, %timeit now returns:
+For the same file as above, ``%timeit`` now returns:
 
 .. code::
 
     1 loop, best of 3: 1.87 s per loop
 
 The speed up is amazing. The function runs about 14 times faster than it did in pure Python/Numpy.
-Note that if you pass an int instead of a float to the process function time_scaling.process(x.astype(float)/32767,int(sRate),factor) you will get a run-time error so make sure you're passing the very same types you've declared in time_scaling.py.
+Note that if you pass an int instead of a float to the process function ``time_scaling.process(x.astype(float) / 32767, int(sRate), factor)`` you will get a run-time error so make sure you're passing the very same types you've declared in time_scaling.py.
 
 
 Calling from C++
@@ -186,9 +186,9 @@ To create a c++ version of our process function, we simply do:
 
     pythran -e time_scaling.py
 
-This creates a file time_scaling.cpp that can then be compiled along with the calling code. Note that in this case, the #pythran export declaration is no longer needed. You can take a look at the C++ code, but it will be extremely cryptic and heavily templated... But that's not a problem as this code never need to be hand-tweaked.
+This creates a file time_scaling.cpp that can then be compiled along with the calling code. Note that in this case, the ``#pythran export`` declaration is no longer needed. You can take a look at the C++ code, but it will be extremely cryptic and heavily templated... But that's not a problem as this code never need to be hand-tweaked.
 
-Now, how do we call this process() function from our main C++ program?
+Now, how do we call this ``process()`` function from our main C++ program?
 For this, we must pass the audio in a Numpy like array, but the Pythran C++ source code provides convenient functions to do just that.
 This is the main.cpp file:
 
@@ -265,7 +265,7 @@ and the pointer to the float data is simply:
     outputArray.buffer
 
 
-I find it easier to create a Makefile to run Pythran and then the compiler. In installed pythran in a virtual env in $HOME/Dev/PythranTest/MAIN/venv so my makefile looks like this:
+I find it easier to create a Makefile to run Pythran and then the compiler. In installed pythran in a virtual env in ``$HOME/Dev/PythranTest/MAIN/venv`` so my makefile looks like this:
 
 .. code-block:: make
 
@@ -286,8 +286,8 @@ I find it easier to create a Makefile to run Pythran and then the compiler. In i
     clean:
             rm -f time_scaling.cpp main
 
-Note that you can use pythran-config --cflags --libs to find out what include paths are needed in your case. Also note that since I'm not making any call to functions that need blas (linear algebra functions) I do not need to link with the blas libraries so I've omitted it from my makefile.
-With this makefile, all you need to do is make main, and Pythran will first be run to create time_scaling.cpp then c++ will be called to compile main.cpp into main. I'm using the -march=native flag for maximum efficiency of the executable.
+Note that you can use ``pythran-config --cflags --libs`` to find out what include paths are needed in your case. Also note that since I'm not making any call to functions that need blas (linear algebra functions) I do not need to link with the blas libraries so I've omitted it from my makefile.
+With this makefile, all you need to do is make main, and Pythran will first be run to create ``time_scaling.cpp`` then c++ will be called to compile ``main.cpp`` into ``main``. I'm using the ``-march=native`` flag for maximum efficiency of the executable.
 
 Now main is a completely free-standing executable that does not need any library, and is 100% independent from Python or Numpy. You can run it from the console.
 It's even faster than the Python/Pythran version: the program reports:
