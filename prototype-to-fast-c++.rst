@@ -284,15 +284,22 @@ It's even faster than the Python/Pythran version: the program reports:
     Read 12436200 samples
     Elapsed: 1565 ms
 
-So that's 1.56s down from 1.87s for the Python/Pythran version, an 15% speed improvement!
+So that's 1.56s down from 1.87s for the Python/Pythran version, a further 15% speed improvement!
+
+A final note on time-scaling
+__________________________________
+
+The algorithm I used in this blog post achieves good results in many cases, but not in all cases. For one, results are usually better when speeding up rather than slowing down audio. One of the biggest problems with this simple algorithm is that it does not do well when the audio includes sharp transients (for example, drums, percussions, etc). You'll notice that the transients become smeared in time, lose their sharpness. Many improvements have been suggested to alleviate this problem, see for example `this paper <http://www.ircam.fr/equipes/analyse-synthese/roebel/paper/dafx2003.pdf>`_.
+
 
 Conclusion
 ===============
 
 I hope this example will have convinced you. Python/Numpy is a great prototyping language: high-level, flexible, fast enough for rapid prototyping, it has all the features one might want for algorithm prototyping. Now with Pythran you can turn this high-level interpreted code into a blazingly fast C++ version that no longer depends on Python or Numpy, can be included into your C++ project, and compiled to any target you might like. In addition, if the code you're deploying contains some proprietary IP, the translation to C++ and compilation to machine code makes reverse-engineering it far harder than if it was deployed using python, even with obfuscation.
 
-Pythran has some limitations: you cannot use classes, and polymorphism is limited to some degree. In practice, I find these limitations acceptable (the lack of class support is the one that I find the most cumbersome), given the quality of the C++ code that's generated.
+Pythran has some limitations: you cannot use classes, and polymorphism is limited to some degree. In practice, I find these limitations acceptable (the lack of class support is the one that I find the most cumbersome), given the efficiency of the C++ code that's generated.
 
 .. _Paper: http://www.cs.bu.edu/fac/snyder/cs591/Literature%20and%20Resources/ImprovedPhaseVocoderTimeScaleMod.pdf
 
 .. _entry: https://en.wikipedia.org/wiki/Audio_time_stretching_and_pitch_scaling
+
