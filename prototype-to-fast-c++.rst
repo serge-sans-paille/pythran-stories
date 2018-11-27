@@ -249,6 +249,7 @@ Similary, the process function returns a Numpy array, and the output signal is i
 and the pointer to the float data is simply:
 
 ::
+
     outputArray.buffer
 
 
