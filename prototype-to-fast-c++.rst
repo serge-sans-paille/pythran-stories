@@ -1,4 +1,7 @@
-:Author: Jean Laroche <ripngo@gmail.com>
+:Author: Jean Laroche
+:category: examples
+:lang: en
+:summary: How pythran can be use to bridge the divide between fast prototyping and code deployment
 
 ================================================================================
  Pythran as a bridge between fast prototyping and code deployment
