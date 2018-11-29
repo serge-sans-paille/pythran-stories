@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Pythran as a bridge between fast prototyping and code deployment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/cython.html">
+						<i class="icon-folder-open icon-large"></i>cython
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/engineering.html">
+						<i class="icon-folder-open icon-large"></i>engineering
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/examples.html">
+						<i class="icon-folder-open icon-large"></i>examples
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Pythran as a bridge between fast prototyping and code deployment">
+                                        Pythran as a bridge between fast prototyping and code deployment
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-11-28T00:00:00+01:00">
+        <i class="icon-calendar"></i>Wed 28 November 2018
+</abbr>
+<span class="label">By</span>
+<a href="./author/jean-laroche.html"><i class="icon-user"></i>Jean Laroche</a>
+<span class="label">Category</span>
+<a href="./category/examples.html"><i class="icon-folder-open"></i>examples</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <div class="section" id="introduction">
+<h2>Introduction</h2>
+<p>As a researcher/engineer (really, an algorithm developer) in the general area of audio and speech processing, I've always run into the same difficulty at all the companies I've worked at: How to quickly prototype and develop algorithms, and subsequently turn them into efficient code that can be deployed to customers.</p>
+<p>These have always been incompatible goals: For rapid prototyping, over many years, I've used Matlab, then Python with Numpy. Both are wonderful in the level of mathematical abstraction they provide (for example, 1 line to multiply a matrix by a vector), and they're very useful for testing and debugging as they're interpreted and provide a full array of plotting routines for inspecting what's going on in your algorithm. For example, you can put a breakpoint in your program, and when it stops, you can start poking around, executing high-level commands, etc.</p>
+<p>But when came time to deploy the prototype algorithm, we typically had to bite the bullet and rewrite it in C or C++: For one thing, it was not possible or practical to ship Matlab or Numpy to our customers so our prototype code could be run in their environment. It was also crucial to squeeze every drop of efficiency out of the processor, and predictability and reproducibility of performance was also very important! When processing real-time audio, you cannot wait around for garbage collection to terminate because you will run out of audio samples to play. So interpreted languages were pretty much out.</p>
+<p>This means we had teams of people porting the Matlab or Python code to C++, creating test vectors to ensure results were similar enough, and henceforth maintaining the C++ code to ensure that it still matched the Matlab/Python reference code. This was an enormous overhead, but one that was still preferable to prototyping in C/C++. In some of the companies I worked at, we tested various tools to convert Matlab to C++ but none of them were truly satisfactory (most of them required you to severely constrain the way you coded so the conversion code could run).</p>
+<p>Then I discovered Pythran. Unlike Cython and Numba, Pythran not only accelerates your Python code (by compiling modules into fast .so files) but Pythran also generates self-contained C++ code that implements your Python/Numpy algorithm. The C++ code is fully portable, does not require any Python or Numpy libraries, does not rely at all on Python, and can easily be incorporated into a C++ project. Once compiled, you prototype code becomes extremely efficient, optimized for the target architecture, and its performance is predictable and reproducible. What's more, you do not need to change anything to your Python code to make it work with Pythran, provided that you're using supported functions and features, so you can keep your prototype code as your reference, update and improve it, and re-generate the fast C++ version with a single command. No need to maintain and synchronize two versions of the same code.</p>
+<p>To me, this is nothing short of a revolution in how I do my work. To show you the new workflow I use, I've take an example of a moderately complicated audio algorithm written in Python. With this blog post, you'll be able to see how simple it is to convert the high-level Python/Numpy code into a fully deployable, fast, C++ version.</p>
+</div>
+<div class="section" id="an-example-time-scaling-an-audio-file">
+<h2>An example: time-scaling an audio file</h2>
+<div class="section" id="a-note-on-time-scaling">
+<h3>A note on time-scaling</h3>
+<p>Time scaling in audio signal processing refers to slowing down or speeding up an audio recording while preserving its original pitch (frequency). You may be familiar with playing back a record or a tape at half its normal speed: this both slows down the music but it also changes the pitch: for example a singer's voice become completely unnatural, a female singer might start sounding more like a male. Instead of the music being in a certain key, say A major, it will play in a different key (E major for example), if speeding up by a factor 1.5x. This is undesirable and many techniques have been developed to allow controlling the playback speed while preserving the original tone of the music.</p>
+<p>Time-scaling is useful for example if you're trying to figure out a fast series of notes in an improvisation for example, or if you're learning a language and want hear a speaker at a slower speed...</p>
+<p>Some time-scaling technique operates in the &quot;frequency domain&quot;, i.e. using a Fourier transform to get a view of which frequencies are present in the music at any given time. The one I chose in this blog post is a frequency domain technique that's both simple, and achieves reasonable quality for most (but definitely not all) audio tracks and is described in the paper &quot;Improved  Phase  Vocoder
+Time-Scale  Modification  of  Audio&quot; IEEE  TRANSACTIONS  ON SPEECH  AND  AUDIO  PROCESSING, VOL.  7,  NO.  3,  MAY  1999. See for example: <a class="reference external" href="http://www.cs.bu.edu/fac/snyder/cs591/Literature%20and%20Resources/ImprovedPhaseVocoderTimeScaleMod.pdf">Paper</a>. If you're interested in the general area of audio time-scaling, the Wikipedia <a class="reference external" href="https://en.wikipedia.org/wiki/Audio_time_stretching_and_pitch_scaling">entry</a> is a very good introduction.</p>
+<p>The technique uses a Fast Fourier Transform (FFT), pick peaking to locate pure tones in the audio, and complex rotations to adjust the phase of the Fourier transom prior to reconstructing the audio signal.</p>
+</div>
+<div class="section" id="python-numpy-code">
+<h3>Python/Numpy code</h3>
+<p>The code is shown below. Refer to the paper if you're interested in the &quot;theoretical&quot; explanation for what's being done. As you can see, the Numpy implementation is simple but not trivial, requiring several steps. Note that the algorithm uses both real and complex numbers: the output of the rfft routine is a complex array, and the rotations are complex numbers. Copy the code below into a <tt class="docutils literal">time_scaling.py</tt> file.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+
+<span class="k">def</span> <span class="nf">hanning</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">M</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="k">if</span> <span class="n">M</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">n</span><span class="o">/</span><span class="p">(</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">computeRotation</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">rotations</span><span class="p">,</span><span class="n">fftSize</span><span class="p">,</span><span class="n">inputHop</span><span class="p">,</span><span class="n">outputHop</span><span class="p">):</span>
+    <span class="c1"># Compute the appropriate rotations based on input and output hop.</span>
+    <span class="n">AX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="c1"># Find peaks in AX: values that are larger than their two neighbors on the left and on the right</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="mi">2</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">4</span><span class="p">:]))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span><span class="nb">id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peaks</span><span class="p">):</span>
+        <span class="c1"># Compute new rotation.</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">1j</span><span class="o">*</span><span class="nb">id</span><span class="o">/</span><span class="n">fftSize</span><span class="o">*</span><span class="p">(</span><span class="n">outputHop</span><span class="o">-</span><span class="n">inputHop</span><span class="p">))</span>
+        <span class="c1"># Cumulate rotation with the one from the previous frame.</span>
+        <span class="n">rotations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">*=</span><span class="n">rot</span>
+        <span class="c1"># Now spread this rotation to all the neighboring bins (half-way between peaks).</span>
+        <span class="k">if</span> <span class="n">ii</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">left</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">peaks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">id</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ii</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="n">right</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">AX</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">right</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">peaks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">id</span><span class="p">))</span>
+        <span class="n">rotations</span><span class="p">[</span><span class="n">left</span><span class="p">:</span><span class="n">right</span><span class="p">]</span><span class="o">=</span><span class="n">rotations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">rotations</span>
+
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span><span class="n">sRate</span><span class="p">,</span><span class="n">factor</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">):</span>
+    <span class="c1"># Process parameters.</span>
+    <span class="n">windowLengthS</span> <span class="o">=</span> <span class="mf">0.060</span>
+    <span class="n">windowHopS</span> <span class="o">=</span> <span class="mf">0.030</span>
+
+    <span class="n">windowLength</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">windowLengthS</span><span class="o">*</span><span class="n">sRate</span><span class="p">))</span>
+    <span class="n">windowHop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">windowHopS</span><span class="o">*</span><span class="n">sRate</span><span class="p">))</span>
+    <span class="n">fftSize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">windowLength</span><span class="p">)))</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">hanning</span><span class="p">(</span><span class="n">windowLength</span><span class="p">))</span>
+    <span class="n">halfWinLen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">windowLength</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">curInSamp</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">curOutSamp</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">prevInSamp</span> <span class="o">=</span> <span class="n">curInSamp</span><span class="o">-</span><span class="n">windowHop</span>
+    <span class="c1"># Initialize rotations. They&#39;re complex, and they&#39;re the same for all channels.</span>
+    <span class="n">rotations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">fftSize</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex</span><span class="p">)</span>
+    <span class="n">outSig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">factor</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">)),</span><span class="n">dtype</span><span class="o">=</span><span class="n">signal</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">fftSize</span><span class="p">)</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">curInSamp</span><span class="o">+</span><span class="n">windowLength</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">):</span> <span class="k">break</span>
+        <span class="k">if</span> <span class="n">curOutSamp</span><span class="o">+</span><span class="n">windowLength</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">outSig</span><span class="p">):</span> <span class="k">break</span>
+        <span class="c1"># Take the fft of the signal starting at curInSamp. It&#39;s a good thing to have a zero-phase fft so roll it by</span>
+        <span class="c1"># half a window size so the middle of the input window is at t=0</span>
+        <span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">windowLength</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[</span><span class="n">curInSamp</span><span class="p">:</span><span class="n">curInSamp</span><span class="o">+</span><span class="n">windowLength</span><span class="p">]</span> <span class="o">*</span> <span class="n">window</span>
+        <span class="n">xx</span><span class="p">[</span><span class="n">windowLength</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span><span class="o">-</span><span class="n">halfWinLen</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span><span class="n">fftSize</span><span class="p">)</span>
+        <span class="c1"># Compute required rotations based on the input and output hop.</span>
+        <span class="n">computeRotation</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">rotations</span><span class="p">,</span><span class="n">fftSize</span><span class="p">,</span><span class="n">curInSamp</span><span class="o">-</span><span class="n">prevInSamp</span><span class="p">,</span><span class="n">windowHop</span><span class="p">)</span>
+        <span class="c1"># Apply to FFT</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">X</span> <span class="o">*</span> <span class="n">rotations</span>
+        <span class="c1"># Take the inverse FFT, undo the circular roll and overlap add into the output signal.</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span><span class="n">fftSize</span><span class="p">)</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">yy</span><span class="p">,</span><span class="n">halfWinLen</span><span class="p">)</span>
+        <span class="n">outSig</span><span class="p">[</span><span class="n">curOutSamp</span><span class="p">:</span><span class="n">curOutSamp</span><span class="o">+</span><span class="n">windowLength</span><span class="p">]</span> <span class="o">+=</span> <span class="n">yy</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">windowLength</span><span class="p">]</span> <span class="o">*</span> <span class="n">window</span>
+        <span class="c1"># Increment the output sample by half a window size, and the input sample according to the time scaling factor.</span>
+        <span class="n">prevInSamp</span> <span class="o">=</span> <span class="n">curInSamp</span>
+        <span class="n">curOutSamp</span> <span class="o">+=</span> <span class="n">windowHop</span>
+        <span class="n">curInSamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">curOutSamp</span><span class="o">/</span><span class="n">factor</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">outSig</span>
+</pre></div>
+<p>Now we can run the process function on an audio file. For simplicity I'm using a <tt class="docutils literal">.wav</tt> file: Scipy has a very simple interface for reading or writing a <tt class="docutils literal">.wav</tt> file.
+Note that our process function expects a 1D input array. If you open a stereo <tt class="docutils literal">.wav</tt> file, the array returned by wavfile.read will be 2D. In case this happens I'm only keeping the left channel. You can copy paste the following code into a <tt class="docutils literal">main.py</tt> file:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time_scaling</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">wavfile</span>
+
+<span class="n">sRate</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/Users/jlaroche/temp/MessageInABottleMono.wav&#39;</span><span class="p">)</span>
+<span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">data</span>
+<span class="n">factor</span> <span class="o">=</span> <span class="mf">1.2</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">time_scaling</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">/</span><span class="mi">32767</span><span class="p">,</span><span class="nb">float</span><span class="p">(</span><span class="n">sRate</span><span class="p">),</span><span class="n">factor</span><span class="p">)</span>
+<span class="n">wavfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;./out.wav&#39;</span><span class="p">,</span><span class="n">sRate</span><span class="p">,(</span><span class="mi">32767</span><span class="o">*</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">))</span>
+</pre></div>
+<p>You should be able to open the output file and listen to it in any program that plays wavfiles (for example afplay on macos).</p>
+<p>Let's time the function in IPython. For this you start IPython (install it if you don't have it, it's a great complement to Python)).
+In Ipython, you can simply put <tt class="docutils literal">%timeit</tt> in front of the line you'd like to benchmark:</p>
+<div class="highlight"><pre><span></span><span class="o">%</span><span class="n">timeit</span> <span class="n">out</span> <span class="o">=</span> <span class="n">time_scaling</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">/</span><span class="mi">32767</span><span class="p">,</span><span class="nb">float</span><span class="p">(</span><span class="n">sRate</span><span class="p">),</span><span class="n">factor</span><span class="p">)</span>
+</pre></div>
+<p>For the (quite long) wav file I was using, %timeit returned</p>
+<pre class="code literal-block">
+1 loop, best of 3: 15.1 s per loop
+</pre>
+</div>
+<div class="section" id="using-pythran">
+<h3>Using Pythran</h3>
+<p>To be able to use the process function from the module that Pythran will create, we need to export it to Python. This is what the following <tt class="docutils literal">#pythran export</tt> directive does. This can be placed anywhere in the .py file.</p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export process(float[] or float[::],float,float)</span>
+</pre></div>
+<p>Note that the first parameter is declared as <tt class="docutils literal">float[] or <span class="pre">float[::]</span></tt> a simple float Numpy array or a view into a float Numpy array. The two remaining parameters are declared as float and it will be crucial to pass them as floats when calling process.</p>
+<p>Now simply run</p>
+<div class="highlight"><pre><span></span><span class="n">pythran</span> <span class="n">time_scaling</span><span class="o">.</span><span class="n">py</span><span class="o">.</span>
+</pre></div>
+<p>A time_scaling.so file is created.
+Now the same <tt class="docutils literal">main.py</tt> code will execute much faster because import time_scaling will now import a compiled, very efficient <tt class="docutils literal">.so</tt> file.</p>
+<p>For the same file as above, <tt class="docutils literal">%timeit</tt> now returns:</p>
+<pre class="code literal-block">
+1 loop, best of 3: 1.87 s per loop
+</pre>
+<p>The speed up is amazing. The function runs about 14 times faster than it did in pure Python/Numpy.
+Note that if you pass an int instead of a float to the process function <tt class="docutils literal">time_scaling.process(x.astype(float) / 32767, int(sRate), factor)</tt> you will get a run-time error so make sure you're passing the very same types you've declared in time_scaling.py.</p>
+</div>
+<div class="section" id="calling-from-c">
+<h3>Calling from C++</h3>
+<p>As I explained above, one of the most amazing aspects of Pythran is that it generates self contained C++ code that can be called from any other C++ program. As I explained, the code is self contained in that it does not require any dlls, and makes no call to the Python library. In short, it's a very efficient C++ version of your Python/Numpy algorithm, fully portable to any target architecture.
+To create a c++ version of our process function, we simply do:</p>
+<pre class="code shell literal-block">
+pythran -e time_scaling.py
+</pre>
+<p>This creates a file time_scaling.cpp that can then be compiled along with the calling code. Note that in this case, the <tt class="docutils literal">#pythran export</tt> declaration is no longer needed. You can take a look at the C++ code, but it will be extremely cryptic and heavily templated... But that's not a problem as this code never need to be hand-tweaked.</p>
+<p>Now, how do we call this <tt class="docutils literal">process()</tt> function from our main C++ program?
+For this, we must pass the audio in a Numpy like array, but the Pythran C++ source code provides convenient functions to do just that.
+This is the main.cpp file:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;      /* printf, scanf, NULL */</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;numpy/_numpyconfig.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;time_scaling.cpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;pythonic/include/numpy/array.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;pythonic/numpy/array.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;pythonic/include/utils/array_helper.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;pythonic/include/types/ndarray.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">pythonic</span><span class="p">;</span>
+
+<span class="c1">// Helper to create a float 1D array from a pointer</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="n">types</span><span class="o">::</span><span class="n">ndarray</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;&gt;</span> <span class="n">arrayFromBuf1D</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">fPtr</span><span class="p">,</span> <span class="kt">long</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">shape</span> <span class="o">=</span> <span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">types</span><span class="o">::</span><span class="n">ndarray</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">fPtr</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span><span class="n">types</span><span class="o">::</span><span class="n">ownership</span><span class="o">::</span><span class="n">external</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cp">#define MAX_NUM_SAMPS 500*44100</span>
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Read audio</span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">fileName</span> <span class="o">=</span> <span class="s">&quot;./police.raw&quot;</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">L</span> <span class="o">=</span> <span class="n">MAX_NUM_SAMPS</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">[]</span><span class="o">&gt;</span> <span class="n">ptr</span><span class="p">(</span><span class="k">new</span> <span class="kt">float</span><span class="p">[</span><span class="n">L</span><span class="p">]);</span>
+    <span class="kt">FILE</span><span class="o">*</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span><span class="s">&quot;rb&quot;</span><span class="p">);</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">fread</span><span class="p">(</span><span class="n">ptr</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="n">L</span><span class="p">,</span><span class="n">fd</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Read %d samples</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">L</span><span class="p">);</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+
+    <span class="c1">// Create array from our buffer</span>
+    <span class="k">auto</span> <span class="n">inputArray</span> <span class="o">=</span> <span class="n">arrayFromBuf1D</span><span class="p">(</span><span class="n">ptr</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="n">L</span><span class="p">);</span>
+
+    <span class="c1">// Call process:</span>
+    <span class="k">auto</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+    <span class="k">auto</span> <span class="n">outputArray</span> <span class="o">=</span> <span class="n">__pythran_time_scaling</span><span class="o">::</span><span class="n">process</span><span class="p">()(</span><span class="n">inputArray</span><span class="p">,</span><span class="mf">44100.</span><span class="p">,</span><span class="mf">1.2f</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Elapsed: %d ms</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">).</span><span class="n">count</span><span class="p">());</span>
+
+    <span class="c1">// Now save to a binary float file:</span>
+    <span class="kt">FILE</span><span class="o">*</span> <span class="n">fdout</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">&quot;out.raw&quot;</span><span class="p">,</span><span class="s">&quot;wb&quot;</span><span class="p">);</span>
+    <span class="kt">long</span> <span class="n">numSamps</span> <span class="o">=</span> <span class="n">outputArray</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="c1">//    printf(&quot;NumSamps = %d\n&quot;,numSamps);</span>
+    <span class="n">fwrite</span><span class="p">(</span><span class="n">outputArray</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="n">numSamps</span><span class="p">,</span><span class="n">fdout</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fdout</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>In this code, I'm reading a raw file into a float array, and I create a Pythran 1D array from the float buffer.
+Note the extra pair of parentheses in the call to process:</p>
+<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">outputArray</span> <span class="o">=</span> <span class="n">__pythran_time_scaling</span><span class="o">::</span><span class="n">process</span><span class="p">()(</span><span class="n">inputArray</span><span class="p">,</span><span class="mf">44100.</span><span class="p">,</span><span class="mf">1.2f</span><span class="p">);</span>
+</pre></div>
+<p>Similary, the process function returns a Numpy array, and the output signal is in the array's buffer. It's pretty straightforward to get the size of the array, and a pointer to its data. The size is obtained with:</p>
+<div class="highlight"><pre><span></span><span class="kt">long</span> <span class="n">numSamps</span> <span class="o">=</span> <span class="n">outputArray</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</pre></div>
+<p>and the pointer to the float data is simply:</p>
+<div class="highlight"><pre><span></span><span class="n">outputArray</span><span class="p">.</span><span class="n">buffer</span>
+</pre></div>
+<p>I find it easier to create a Makefile to run Pythran and then the compiler. In installed pythran in a virtual env in <tt class="docutils literal">$HOME/Dev/PythranTest/MAIN/venv</tt> so my makefile looks like this:</p>
+<div class="highlight"><pre><span></span><span class="nv">VENV</span> <span class="o">=</span> <span class="nv">$$</span>HOME/Dev/PythranTest/MAIN/venv
+<span class="nv">IDIR1</span> <span class="o">=</span> <span class="k">$(</span>VENV<span class="k">)</span>/lib/python2.7/site-packages/pythran
+<span class="nv">IDIR2</span> <span class="o">=</span> <span class="k">$(</span>VENV<span class="k">)</span>/lib/python2.7/site-packages/numpy/core/include
+<span class="nv">IDIR3</span> <span class="o">=</span> <span class="k">$(</span>VENV<span class="k">)</span>/include/python2.7
+<span class="nv">OFLAG</span> <span class="o">=</span> -O2
+<span class="nv">PFLAG</span> <span class="o">=</span> -DUSE_XSIMD -fopenmp
+
+<span class="nf">main</span><span class="o">:</span> <span class="n">main</span>.<span class="n">cpp</span> <span class="n">time_scaling</span>.<span class="n">cpp</span>
+        c++ -std<span class="o">=</span>c++11 <span class="k">$(</span>OFLAG<span class="k">)</span> -w -I<span class="k">$(</span>IDIR1<span class="k">)</span> -I<span class="k">$(</span>IDIR2<span class="k">)</span> -I<span class="k">$(</span>IDIR3<span class="k">)</span> -undefined dynamic_lookup -march<span class="o">=</span>native -F. main.cpp -o main
+
+<span class="nf">time_scaling.cpp</span><span class="o">:</span> <span class="n">time_scaling</span>.<span class="n">py</span>
+        @echo <span class="s2">&quot;\033[0;36mRunning pythran\033[0m&quot;</span>
+        pythran -e <span class="k">$(</span>PFLAG<span class="k">)</span> time_scaling.py
+
+<span class="nf">clean</span><span class="o">:</span>
+        rm -f time_scaling.cpp main
+</pre></div>
+<p>Note that you can use <tt class="docutils literal"><span class="pre">pythran-config</span> <span class="pre">--cflags</span> <span class="pre">--libs</span></tt> to find out what include paths are needed in your case. Also note that since I'm not making any call to functions that need blas (linear algebra functions) I do not need to link with the blas libraries so I've omitted it from my makefile.
+With this makefile, all you need to do is make main, and Pythran will first be run to create <tt class="docutils literal">time_scaling.cpp</tt> then c++ will be called to compile <tt class="docutils literal">main.cpp</tt> into <tt class="docutils literal">main</tt>. I'm using the <tt class="docutils literal"><span class="pre">-march=native</span></tt> flag for maximum efficiency of the executable.</p>
+<p>Now main is a completely free-standing executable that does not need any library, and is 100% independent from Python or Numpy. You can run it from the console.
+It's even faster than the Python/Pythran version: the program reports:</p>
+<pre class="code literal-block">
+Read 12436200 samples
+Elapsed: 1565 ms
+</pre>
+<p>So that's 1.56s down from 1.87s for the Python/Pythran version, a further 15% speed improvement!</p>
+</div>
+<div class="section" id="a-final-note-on-time-scaling">
+<h3>A final note on time-scaling</h3>
+<p>The algorithm I used in this blog post achieves good results in many cases, but not in all cases. For one, results are usually better when speeding up rather than slowing down audio. One of the biggest problems with this simple algorithm is that it does not do well when the audio includes sharp transients (for example, drums, percussions, etc). You'll notice that the transients become smeared in time, lose their sharpness. Many improvements have been suggested to alleviate this problem, see for example <a class="reference external" href="http://www.ircam.fr/equipes/analyse-synthese/roebel/paper/dafx2003.pdf">this paper</a>.</p>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>I hope this example will have convinced you. Python/Numpy is a great prototyping language: high-level, flexible, fast enough for rapid prototyping, it has all the features one might want for algorithm prototyping. Now with Pythran you can turn this high-level interpreted code into a blazingly fast C++ version that no longer depends on Python or Numpy, can be included into your C++ project, and compiled to any target you might like. In addition, if the code you're deploying contains some proprietary IP, the translation to C++ and compilation to machine code makes reverse-engineering it far harder than if it was deployed using python, even with obfuscation.</p>
+<p>Pythran has some limitations: you cannot use classes, and polymorphism is limited to some degree. In practice, I find these limitations acceptable (the lack of class support is the one that I find the most cumbersome), given the efficiency of the C++ code that's generated.</p>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/cython.html">
+    <i class="icon-folder-open icon-large"></i>cython
+</a>
+</li>
+<li>
+<a href="./category/engineering.html">
+    <i class="icon-folder-open icon-large"></i>engineering
+</a>
+</li>
+<li>
+<a href="./category/examples.html">
+    <i class="icon-folder-open icon-large"></i>examples
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
