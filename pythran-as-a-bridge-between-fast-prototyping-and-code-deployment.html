@@ -267,7 +267,7 @@ Now the same <tt class="docutils literal">main.py</tt> code will execute much fa
 <pre class="code literal-block">
 1 loop, best of 3: 1.87 s per loop
 </pre>
-<p>The speed up is amazing. The function runs about 14 times faster than it did in pure Python/Numpy.
+<p>The speed up is amazing. The function runs about 8 times faster than it did in pure Python/Numpy.
 Note that if you pass an int instead of a float to the process function <tt class="docutils literal">time_scaling.process(x.astype(float) / 32767, int(sRate), factor)</tt> you will get a run-time error so make sure you're passing the very same types you've declared in time_scaling.py.</p>
 </div>
 <div class="section" id="calling-from-c">
