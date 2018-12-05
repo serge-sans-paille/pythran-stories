@@ -172,7 +172,7 @@ For the same file as above, ``%timeit`` now returns:
 
     1 loop, best of 3: 1.87 s per loop
 
-The speed up is amazing. The function runs about 14 times faster than it did in pure Python/Numpy.
+The speed up is amazing. The function runs about 8 times faster than it did in pure Python/Numpy.
 Note that if you pass an int instead of a float to the process function ``time_scaling.process(x.astype(float) / 32767, int(sRate), factor)`` you will get a run-time error so make sure you're passing the very same types you've declared in time_scaling.py.
 
 
