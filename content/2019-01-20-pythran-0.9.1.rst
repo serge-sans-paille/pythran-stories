@@ -1,0 +1,226 @@
+Pythran 0.9.1 is out!
+#####################
+
+:date: 2019-01-20
+:category: release
+:lang: en
+:authors: serge-sans-paille
+:summary: Pythran version bump, new PyPI packages + Conda release, Changelog and comments.
+
+Hey folks, it's been a long time since I last did a post to celebrate a
+release. Even if 0.9.1 is only a minor release, we're getting closer to an
+important date, when Python 2 will no longer be officially supported.
+Following `the move <https://python3statement.org/>`_ Pythran will stop
+supporting Python2 by the end of the year. Of course, the last stable version
+supporting Python2 will still be available at that movment, but only Python3
+will receive updates. It's in one year, but you'll be warned!
+
+Reminder
+========
+
+Pythran is an ahead-of-time compiler for numeric kernel. The whole idea is that you extract the high-level kernel you wrote using NumPy calls and stuff into an independent module, then run
+
+.. code-block:: sh
+
+    pythran my_module.py
+
+And you end up with a native module that crunch numbers faster; For instance the following kernel:
+
+.. code-block:: python
+
+    #from https://github.com/craffel/jax-tutorial/blob/master/you-don-t-know-jax.ipynb
+
+    #pythran export net((float64[:,:], float64[:], float64[:], float64), int64[:])
+
+    import numpy as np
+
+    # Sigmoid nonlinearity
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
+
+    # Computes our network's output
+    def net(params, x):
+        w1, b1, w2, b2 = params
+        hidden = np.tanh(np.dot(w1, x) + b1)
+        return sigmoid(np.dot(w2, hidden) + b2)
+
+Runs twice as fast when compiled with Pythran, with as much effort as a single extra line that describes the parameters of the top level function.
+
+.. code-block:: python
+
+    #pythran export net((float64[:,:], float64[:], float64[:], float64), int64[:])
+
+
+
+Changelog
+=========
+
+So what happened? From the changelog:
+
+Honor PYTHRANRC environment variable for config file lookup
+-----------------------------------------------------------
+
+Pythran is now sensible to the ``PYTHRANRC`` environment variable. You can use it to point to different configuration, say different compiler and/or compiler settings:
+
+.. code-block:: sh
+
+    PYTHRANRC=~/.pythranrc.gcc pythran kernel.py
+
+    PYTHRANRC=~/.pythranrc.clang pythran kernel.py
+
+Stricter type checking for export parameters
+--------------------------------------------
+
+Pythran has been supporting function overloading in ``export`` signature for a long time, but it was confused by the following overloads:
+
+.. code-block:: python
+
+    #pythran export foo(float)
+    #pythran export foo(int)
+    # which is equivalent to #pythran export foo(int or float) by the way
+
+Because of the implicit conversion that could happen. This releases fixes the issue, and no implicit conversion now happens when checking for overloads. As a consequence, a function flagged as
+
+.. code-block:: python
+
+    #pythran export foo(float)
+
+Now raises an error when passed an int parameter.
+
+Allow some kind of list to tuple conversion
+-------------------------------------------
+
+This one is a tricky one: tuple in Pythran have a fixed size that needs to be known at compile time. On the other hand, lists have a dynamic size, so converting a list to a tuple is a difficult task: the *compiler* needs to know the list size at compile time, which may be an unfeasible task, e.g. if the list comes from the Python world.
+
+Still Pythran now uses an *internal* type that acts as a container of read-only elements of the same type, which is an hybrid type between list and tuple and solves *some* problems, not all. The following (quite useless) code is now valid:
+
+.. code-block:: python
+
+    #pythran export set_of_tuple_generation(int)
+
+    def set_of_tuple_generation(n):
+        s = set()
+        l = list()
+        for v in range(n):
+            l.append(v)
+            s.add(tuple(l))
+        return s
+
+But this one would still fail:
+
+.. code-block:: python
+
+    #pythran export array_maker(int)
+    import numpy as np
+    def array_maker(n):
+        l = tuple(range(n))
+        return np.ones(l)
+
+Because Pythran doesn't know the size of ``l`` so it cannot statically compute the number of dimension of the output array. That's how it is :-/
+
+
+Lazy slicing of broadcast expression and transposed expression
+--------------------------------------------------------------
+
+Numpy is super famous for it's (relatively) intuitive array expression syntax. One of the goal of Pythran -and it's not an easy one- is to be able to efficiently compile these. A small step forward, this kind of expression is now supported, even with more complex slicing patterns:
+
+.. code-block:: python
+
+    #pythran export broadcast_and_slice(float[:,:,:], float[:])
+    def broadcast_and_slice(x, y):
+        return (x + y) [1:]
+
+It's a tricky one because as a result of broadcasting (`x` and `y` don't have the same number of dimension) Numpy creates a temporarily large array, and right after it slices it. Pythran can now evaluates this expression lazily and avoid the creation of the intermediate (large) array.
+
+Support ``numpy.stack``, ``numpy.rollaxis``, ``numpy.broadcast_to`` and ``numpy.ndarray.dtype.type``
+----------------------------------------------------------------------------------------------------
+
+Well, the title says it all. The Numpy API is huge but we're moving forward.
+
+Better support of array of complex numbers
+------------------------------------------
+
+That's actually big news, Pythran now decently support operations on array of  ``complex64``, ``complex128`` and ``complex256`` (if the backend compiler supports ``long double``) types.
+
+Verbose mode in ``pythran-config`` to debug compiler backend issues
+-------------------------------------------------------------------
+
+In some cases, knowing about the exact configuration files being loaded by Pythran helps debugging the setup. After all there's the default config file, the one living in your home, or maybe in ``XDG_CONFIG_HOME`` and the one specified by ``PYTHRANRC``. If in doublt, just run
+
+.. code-block:: shell
+
+    pythran-config -v
+
+And everything should be crystal-clear.
+
+Config file linting
+-------------------
+
+With that feature, any typo in the config file should now appear, well as a typo and not being silently ignored.
+
+Evaluate numpy.arange lazily when valid
+---------------------------------------
+
+Another optimization some people may appreciate: The pythran compiler can decide to evaluate ``np.arange`` lazily to avoid the array allocation, as in
+
+.. code-block:: python
+
+    def even_numbers(n):
+        return np.arange(n) * 2
+
+In that case Pythran only creates the end array, not the temporary one.
+
+Faster PRNG, namely pcg
+-----------------------
+
+I know that random numbers are a sloppy ground. Random numbers in Pythran have never strictly respected the semantic of Numpy's PRNG, that is we never produced the same sequence for the same seed. The previous engine was ``std::mt19937`` from the STL, it's now `PCG <http://www.pcg-random.org/>`_, and there's no guarantee it won't change in the future.
+
+Favor Python3 support in various places
+---------------------------------------
+
+Rember the Python3 statement from the beginning of this post?
+
+Fix Numpy.remainder implementation
+----------------------------------
+
+That was a funny one: ``std::remainder`` from C++ and ``numpy.remainder`` don't have the same semantic when dealing with negative numbers.
+
+Better support for importing user modules
+-----------------------------------------
+
+I'm unsure if this feature is used a lot, but it's possible to import a local
+module from a pythranized module, and it's considered as pythranized code then.
+Support for that feature was partial, especially with respect to global
+variable. The logic has been completely reworked and it should now works fine.
+
+Note that internally, importing a local module shares *some* similarity with the ``#include`` directive. A direct consequence is that no compiled module are generated for these modules. Their code is bundled withing the final native module.
+
+
+More vectorized operations support
+----------------------------------
+
+Pythran's runtime contains calls to `xsimd <https://github.com/QuantStack/xsimd>`_ for efficient and portable vectorization. It now has a vectorized version of ``numpy.argmin`` and ``numpy.argmapx``, and correctly interacts with operands that would require a type cast (by refusing to vectorize them).
+
+Thanks
+======
+
+Numerous people have contributed to that release. I think it's the first time I received that much patches -I'm used to receiving bug reports-. So thanks a bunch to the following usual suspects:
+
+- Pierre Augier
+- Yann Diorcet
+- Jean Laroche
+- Ashwin Vishnu
+
+We've been closing `a great deal of bugs <https://github.com/serge-sans-paille/pythran/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+updated%3A%3E2018-06-01+>`_, which also means that the Pythran community is growing, and that's super-cool!
+
+
+That's all folks
+================
+
+The release is available on
+
+- `Github <https://github.com/serge-sans-paille/pythran/tree/0.9.1>`_,
+- `PyPI <https://pypi.org/project/pythran/>`_ and
+- `Conda <https://anaconda.org/conda-forge/pythran>`_.
+
+Use Pythran, test it, report bug, submit patch. That's what makes a community lively!
