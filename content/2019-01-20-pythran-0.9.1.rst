@@ -18,7 +18,7 @@ will receive updates. It's in one year, but you'll be warned!
 Reminder
 ========
 
-Pythran is an ahead-of-time compiler for numeric kernel. The whole idea is that you extract the high-level kernel you wrote using NumPy calls and stuff into an independent module, then run
+Pythran is an ahead-of-time compiler for numeric kernel. The whole idea is that you extract the high-level kernel you wrote using NumPy calls and high level abstractions into an independent module, then run
 
 .. code-block:: sh
 
@@ -60,7 +60,7 @@ So what happened? From the changelog:
 Honor PYTHRANRC environment variable for config file lookup
 -----------------------------------------------------------
 
-Pythran is now sensible to the ``PYTHRANRC`` environment variable. You can use it to point to different configuration, say different compiler and/or compiler settings:
+Pythran now honors the ``PYTHRANRC`` environment variable. You can use it to point to different configuration, say different compiler and/or compiler settings:
 
 .. code-block:: sh
 
@@ -183,7 +183,7 @@ Rember the Python3 statement from the beginning of this post?
 Fix Numpy.remainder implementation
 ----------------------------------
 
-That was a funny one: ``std::remainder`` from C++ and ``numpy.remainder`` don't have the same semantic when dealing with negative numbers.
+That was a funny one: ``std::remainder`` from C++ and ``numpy.remainder`` don't behave the same when dealing with negative numbers.
 
 Better support for importing user modules
 -----------------------------------------
