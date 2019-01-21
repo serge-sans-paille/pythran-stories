@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Pythran 0.9.1 is out!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/cython.html">
+						<i class="icon-folder-open icon-large"></i>cython
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/engineering.html">
+						<i class="icon-folder-open icon-large"></i>engineering
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/examples.html">
+						<i class="icon-folder-open icon-large"></i>examples
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Pythran 0.9.1 is out!">
+                                        Pythran 0.9.1 is out!
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-01-20T00:00:00+01:00">
+        <i class="icon-calendar"></i>Sun 20 January 2019
+</abbr>
+<span class="label">By</span>
+<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
+<span class="label">Category</span>
+<a href="./category/release.html"><i class="icon-folder-open"></i>release</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <p>Hey folks, it's been a long time since I last did a post to celebrate a
+release. Even if 0.9.1 is only a minor release, we're getting closer to an
+important date, when Python 2 will no longer be officially supported.
+Following <a class="reference external" href="https://python3statement.org/">the move</a> Pythran will stop
+supporting Python2 by the end of the year. Of course, the last stable version
+supporting Python2 will still be available at that movment, but only Python3
+will receive updates. It's in one year, but you'll be warned!</p>
+<div class="section" id="reminder">
+<h2>Reminder</h2>
+<p>Pythran is an ahead-of-time compiler for numeric kernel. The whole idea is that you extract the high-level kernel you wrote using NumPy calls and high level abstractions into an independent module, then run</p>
+<div class="highlight"><pre><span></span>pythran my_module.py
+</pre></div>
+<p>And you end up with a native module that crunch numbers faster; For instance the following kernel:</p>
+<div class="highlight"><pre><span></span><span class="c1">#from https://github.com/craffel/jax-tutorial/blob/master/you-don-t-know-jax.ipynb</span>
+
+<span class="c1">#pythran export net((float64[:,:], float64[:], float64[:], float64), int64[:])</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># Sigmoid nonlinearity</span>
+<span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># Computes our network&#39;s output</span>
+<span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">w1</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">params</span>
+    <span class="n">hidden</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w2</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span> <span class="o">+</span> <span class="n">b2</span><span class="p">)</span>
+</pre></div>
+<p>Runs twice as fast when compiled with Pythran, with as much effort as a single extra line that describes the parameters of the top level function.</p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export net((float64[:,:], float64[:], float64[:], float64), int64[:])</span>
+</pre></div>
+</div>
+<div class="section" id="changelog">
+<h2>Changelog</h2>
+<p>So what happened? From the changelog:</p>
+<div class="section" id="honor-pythranrc-environment-variable-for-config-file-lookup">
+<h3>Honor PYTHRANRC environment variable for config file lookup</h3>
+<p>Pythran now honors the <tt class="docutils literal">PYTHRANRC</tt> environment variable. You can use it to point to different configuration, say different compiler and/or compiler settings:</p>
+<div class="highlight"><pre><span></span><span class="nv">PYTHRANRC</span><span class="o">=</span>~/.pythranrc.gcc pythran kernel.py
+
+<span class="nv">PYTHRANRC</span><span class="o">=</span>~/.pythranrc.clang pythran kernel.py
+</pre></div>
+</div>
+<div class="section" id="stricter-type-checking-for-export-parameters">
+<h3>Stricter type checking for export parameters</h3>
+<p>Pythran has been supporting function overloading in <tt class="docutils literal">export</tt> signature for a long time, but it was confused by the following overloads:</p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export foo(float)</span>
+<span class="c1">#pythran export foo(int)</span>
+<span class="c1"># which is equivalent to #pythran export foo(int or float) by the way</span>
+</pre></div>
+<p>Because of the implicit conversion that could happen. This releases fixes the issue, and no implicit conversion now happens when checking for overloads. As a consequence, a function flagged as</p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export foo(float)</span>
+</pre></div>
+<p>Now raises an error when passed an int parameter.</p>
+</div>
+<div class="section" id="allow-some-kind-of-list-to-tuple-conversion">
+<h3>Allow some kind of list to tuple conversion</h3>
+<p>This one is a tricky one: tuple in Pythran have a fixed size that needs to be known at compile time. On the other hand, lists have a dynamic size, so converting a list to a tuple is a difficult task: the <em>compiler</em> needs to know the list size at compile time, which may be an unfeasible task, e.g. if the list comes from the Python world.</p>
+<p>Still Pythran now uses an <em>internal</em> type that acts as a container of read-only elements of the same type, which is an hybrid type between list and tuple and solves <em>some</em> problems, not all. The following (quite useless) code is now valid:</p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export set_of_tuple_generation(int)</span>
+
+<span class="k">def</span> <span class="nf">set_of_tuple_generation</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">s</span>
+</pre></div>
+<p>But this one would still fail:</p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export array_maker(int)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">array_maker</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+</pre></div>
+<p>Because Pythran doesn't know the size of <tt class="docutils literal">l</tt> so it cannot statically compute the number of dimension of the output array. That's how it is :-/</p>
+</div>
+<div class="section" id="lazy-slicing-of-broadcast-expression-and-transposed-expression">
+<h3>Lazy slicing of broadcast expression and transposed expression</h3>
+<p>Numpy is super famous for it's (relatively) intuitive array expression syntax. One of the goal of Pythran -and it's not an easy one- is to be able to efficiently compile these. A small step forward, this kind of expression is now supported, even with more complex slicing patterns:</p>
+<div class="highlight"><pre><span></span><span class="c1">#pythran export broadcast_and_slice(float[:,:,:], float[:])</span>
+<span class="k">def</span> <span class="nf">broadcast_and_slice</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+</pre></div>
+<p>It's a tricky one because as a result of broadcasting (<cite>x</cite> and <cite>y</cite> don't have the same number of dimension) Numpy creates a temporarily large array, and right after it slices it. Pythran can now evaluates this expression lazily and avoid the creation of the intermediate (large) array.</p>
+</div>
+<div class="section" id="support-numpy-stack-numpy-rollaxis-numpy-broadcast-to-and-numpy-ndarray-dtype-type">
+<h3>Support <tt class="docutils literal">numpy.stack</tt>, <tt class="docutils literal">numpy.rollaxis</tt>, <tt class="docutils literal">numpy.broadcast_to</tt> and <tt class="docutils literal">numpy.ndarray.dtype.type</tt></h3>
+<p>Well, the title says it all. The Numpy API is huge but we're moving forward.</p>
+</div>
+<div class="section" id="better-support-of-array-of-complex-numbers">
+<h3>Better support of array of complex numbers</h3>
+<p>That's actually big news, Pythran now decently support operations on array of  <tt class="docutils literal">complex64</tt>, <tt class="docutils literal">complex128</tt> and <tt class="docutils literal">complex256</tt> (if the backend compiler supports <tt class="docutils literal">long double</tt>) types.</p>
+</div>
+<div class="section" id="verbose-mode-in-pythran-config-to-debug-compiler-backend-issues">
+<h3>Verbose mode in <tt class="docutils literal"><span class="pre">pythran-config</span></tt> to debug compiler backend issues</h3>
+<p>In some cases, knowing about the exact configuration files being loaded by Pythran helps debugging the setup. After all there's the default config file, the one living in your home, or maybe in <tt class="docutils literal">XDG_CONFIG_HOME</tt> and the one specified by <tt class="docutils literal">PYTHRANRC</tt>. If in doublt, just run</p>
+<div class="highlight"><pre><span></span>pythran-config -v
+</pre></div>
+<p>And everything should be crystal-clear.</p>
+</div>
+<div class="section" id="config-file-linting">
+<h3>Config file linting</h3>
+<p>With that feature, any typo in the config file should now appear, well as a typo and not being silently ignored.</p>
+</div>
+<div class="section" id="evaluate-numpy-arange-lazily-when-valid">
+<h3>Evaluate numpy.arange lazily when valid</h3>
+<p>Another optimization some people may appreciate: The pythran compiler can decide to evaluate <tt class="docutils literal">np.arange</tt> lazily to avoid the array allocation, as in</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">even_numbers</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+</pre></div>
+<p>In that case Pythran only creates the end array, not the temporary one.</p>
+</div>
+<div class="section" id="faster-prng-namely-pcg">
+<h3>Faster PRNG, namely pcg</h3>
+<p>I know that random numbers are a sloppy ground. Random numbers in Pythran have never strictly respected the semantic of Numpy's PRNG, that is we never produced the same sequence for the same seed. The previous engine was <tt class="docutils literal"><span class="pre">std::mt19937</span></tt> from the STL, it's now <a class="reference external" href="http://www.pcg-random.org/">PCG</a>, and there's no guarantee it won't change in the future.</p>
+</div>
+<div class="section" id="favor-python3-support-in-various-places">
+<h3>Favor Python3 support in various places</h3>
+<p>Rember the Python3 statement from the beginning of this post?</p>
+</div>
+<div class="section" id="fix-numpy-remainder-implementation">
+<h3>Fix Numpy.remainder implementation</h3>
+<p>That was a funny one: <tt class="docutils literal"><span class="pre">std::remainder</span></tt> from C++ and <tt class="docutils literal">numpy.remainder</tt> don't behave the same when dealing with negative numbers.</p>
+</div>
+<div class="section" id="better-support-for-importing-user-modules">
+<h3>Better support for importing user modules</h3>
+<p>I'm unsure if this feature is used a lot, but it's possible to import a local
+module from a pythranized module, and it's considered as pythranized code then.
+Support for that feature was partial, especially with respect to global
+variable. The logic has been completely reworked and it should now works fine.</p>
+<p>Note that internally, importing a local module shares <em>some</em> similarity with the <tt class="docutils literal">#include</tt> directive. A direct consequence is that no compiled module are generated for these modules. Their code is bundled withing the final native module.</p>
+</div>
+<div class="section" id="more-vectorized-operations-support">
+<h3>More vectorized operations support</h3>
+<p>Pythran's runtime contains calls to <a class="reference external" href="https://github.com/QuantStack/xsimd">xsimd</a> for efficient and portable vectorization. It now has a vectorized version of <tt class="docutils literal">numpy.argmin</tt> and <tt class="docutils literal">numpy.argmapx</tt>, and correctly interacts with operands that would require a type cast (by refusing to vectorize them).</p>
+</div>
+</div>
+<div class="section" id="thanks">
+<h2>Thanks</h2>
+<p>Numerous people have contributed to that release. I think it's the first time I received that much patches -I'm used to receiving bug reports-. So thanks a bunch to the following usual suspects:</p>
+<ul class="simple">
+<li>Pierre Augier</li>
+<li>Yann Diorcet</li>
+<li>Jean Laroche</li>
+<li>Ashwin Vishnu</li>
+</ul>
+<p>We've been closing <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aclosed+updated%3A%3E2018-06-01+">a great deal of bugs</a>, which also means that the Pythran community is growing, and that's super-cool!</p>
+</div>
+<div class="section" id="that-s-all-folks">
+<h2>That's all folks</h2>
+<p>The release is available on</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/0.9.1">Github</a>,</li>
+<li><a class="reference external" href="https://pypi.org/project/pythran/">PyPI</a> and</li>
+<li><a class="reference external" href="https://anaconda.org/conda-forge/pythran">Conda</a>.</li>
+</ul>
+<p>Use Pythran, test it, report bug, submit patch. That's what makes a community lively!</p>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="http://pythonhosted.org/pythran"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/cython.html">
+    <i class="icon-folder-open icon-large"></i>cython
+</a>
+</li>
+<li>
+<a href="./category/engineering.html">
+    <i class="icon-folder-open icon-large"></i>engineering
+</a>
+</li>
+<li>
+<a href="./category/examples.html">
+    <i class="icon-folder-open icon-large"></i>examples
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>

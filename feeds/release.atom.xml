@@ -1,5 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - release</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/release.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2017-10-22T00:00:00+02:00</updated><entry><title>Pythran 0.8.3 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-083-is-out.html" rel="alternate"></link><published>2017-10-22T00:00:00+02:00</published><updated>2017-10-22T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2017-10-22:/pythran-stories/pythran-083-is-out.html</id><summary type="html">&lt;p&gt;Pythran version bump, new PyPI packages + Conda release, and a Changelog commented in a Jupyter notebook.&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/pythran - 0.8.3.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - release</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/release.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2019-01-20T00:00:00+01:00</updated><entry><title>Pythran 0.9.1 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-091-is-out.html" rel="alternate"></link><published>2019-01-20T00:00:00+01:00</published><updated>2019-01-20T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-01-20:/pythran-stories/pythran-091-is-out.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, new PyPI packages + Conda release, Changelog and comments.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Hey folks, it's been a long time since I last did a post to celebrate a
+release. Even if 0.9.1 is only a minor release, we're getting closer to an
+important date, when Python 2 will no longer be officially supported.
+Following &lt;a class="reference external" href="https://python3statement.org/"&gt;the move&lt;/a&gt; Pythran will stop
+supporting Python2 by the end of the year. Of course, the last stable version
+supporting Python2 will still be available at that movment, but only Python3
+will receive updates. It's in one year, but you'll be warned!&lt;/p&gt;
+&lt;div class="section" id="reminder"&gt;
+&lt;h2&gt;Reminder&lt;/h2&gt;
+&lt;p&gt;Pythran is an ahead-of-time compiler for numeric kernel. The whole idea is that you extract the high-level kernel you wrote using NumPy calls and high level abstractions into an independent module, then run&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pythran my_module.py
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And you end up with a native module that crunch numbers faster; For instance the following kernel:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#from https://github.com/craffel/jax-tutorial/blob/master/you-don-t-know-jax.ipynb&lt;/span&gt;
+
+&lt;span class="c1"&gt;#pythran export net((float64[:,:], float64[:], float64[:], float64), int64[:])&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Sigmoid nonlinearity&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;sigmoid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Computes our network&amp;#39;s output&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;net&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;w1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;params&lt;/span&gt;
+    &lt;span class="n"&gt;hidden&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tanh&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;b1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;sigmoid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;hidden&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;b2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Runs twice as fast when compiled with Pythran, with as much effort as a single extra line that describes the parameters of the top level function.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export net((float64[:,:], float64[:], float64[:], float64), int64[:])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="changelog"&gt;
+&lt;h2&gt;Changelog&lt;/h2&gt;
+&lt;p&gt;So what happened? From the changelog:&lt;/p&gt;
+&lt;div class="section" id="honor-pythranrc-environment-variable-for-config-file-lookup"&gt;
+&lt;h3&gt;Honor PYTHRANRC environment variable for config file lookup&lt;/h3&gt;
+&lt;p&gt;Pythran now honors the &lt;tt class="docutils literal"&gt;PYTHRANRC&lt;/tt&gt; environment variable. You can use it to point to different configuration, say different compiler and/or compiler settings:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;PYTHRANRC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;~/.pythranrc.gcc pythran kernel.py
+
+&lt;span class="nv"&gt;PYTHRANRC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;~/.pythranrc.clang pythran kernel.py
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="stricter-type-checking-for-export-parameters"&gt;
+&lt;h3&gt;Stricter type checking for export parameters&lt;/h3&gt;
+&lt;p&gt;Pythran has been supporting function overloading in &lt;tt class="docutils literal"&gt;export&lt;/tt&gt; signature for a long time, but it was confused by the following overloads:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export foo(float)&lt;/span&gt;
+&lt;span class="c1"&gt;#pythran export foo(int)&lt;/span&gt;
+&lt;span class="c1"&gt;# which is equivalent to #pythran export foo(int or float) by the way&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Because of the implicit conversion that could happen. This releases fixes the issue, and no implicit conversion now happens when checking for overloads. As a consequence, a function flagged as&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export foo(float)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now raises an error when passed an int parameter.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="allow-some-kind-of-list-to-tuple-conversion"&gt;
+&lt;h3&gt;Allow some kind of list to tuple conversion&lt;/h3&gt;
+&lt;p&gt;This one is a tricky one: tuple in Pythran have a fixed size that needs to be known at compile time. On the other hand, lists have a dynamic size, so converting a list to a tuple is a difficult task: the &lt;em&gt;compiler&lt;/em&gt; needs to know the list size at compile time, which may be an unfeasible task, e.g. if the list comes from the Python world.&lt;/p&gt;
+&lt;p&gt;Still Pythran now uses an &lt;em&gt;internal&lt;/em&gt; type that acts as a container of read-only elements of the same type, which is an hybrid type between list and tuple and solves &lt;em&gt;some&lt;/em&gt; problems, not all. The following (quite useless) code is now valid:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export set_of_tuple_generation(int)&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;set_of_tuple_generation&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;But this one would still fail:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export array_maker(int)&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;array_maker&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ones&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Because Pythran doesn't know the size of &lt;tt class="docutils literal"&gt;l&lt;/tt&gt; so it cannot statically compute the number of dimension of the output array. That's how it is :-/&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="lazy-slicing-of-broadcast-expression-and-transposed-expression"&gt;
+&lt;h3&gt;Lazy slicing of broadcast expression and transposed expression&lt;/h3&gt;
+&lt;p&gt;Numpy is super famous for it's (relatively) intuitive array expression syntax. One of the goal of Pythran -and it's not an easy one- is to be able to efficiently compile these. A small step forward, this kind of expression is now supported, even with more complex slicing patterns:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export broadcast_and_slice(float[:,:,:], float[:])&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;broadcast_and_slice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;It's a tricky one because as a result of broadcasting (&lt;cite&gt;x&lt;/cite&gt; and &lt;cite&gt;y&lt;/cite&gt; don't have the same number of dimension) Numpy creates a temporarily large array, and right after it slices it. Pythran can now evaluates this expression lazily and avoid the creation of the intermediate (large) array.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="support-numpy-stack-numpy-rollaxis-numpy-broadcast-to-and-numpy-ndarray-dtype-type"&gt;
+&lt;h3&gt;Support &lt;tt class="docutils literal"&gt;numpy.stack&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;numpy.rollaxis&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;numpy.broadcast_to&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;numpy.ndarray.dtype.type&lt;/tt&gt;&lt;/h3&gt;
+&lt;p&gt;Well, the title says it all. The Numpy API is huge but we're moving forward.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="better-support-of-array-of-complex-numbers"&gt;
+&lt;h3&gt;Better support of array of complex numbers&lt;/h3&gt;
+&lt;p&gt;That's actually big news, Pythran now decently support operations on array of  &lt;tt class="docutils literal"&gt;complex64&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;complex128&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;complex256&lt;/tt&gt; (if the backend compiler supports &lt;tt class="docutils literal"&gt;long double&lt;/tt&gt;) types.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="verbose-mode-in-pythran-config-to-debug-compiler-backend-issues"&gt;
+&lt;h3&gt;Verbose mode in &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;pythran-config&lt;/span&gt;&lt;/tt&gt; to debug compiler backend issues&lt;/h3&gt;
+&lt;p&gt;In some cases, knowing about the exact configuration files being loaded by Pythran helps debugging the setup. After all there's the default config file, the one living in your home, or maybe in &lt;tt class="docutils literal"&gt;XDG_CONFIG_HOME&lt;/tt&gt; and the one specified by &lt;tt class="docutils literal"&gt;PYTHRANRC&lt;/tt&gt;. If in doublt, just run&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pythran-config -v
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And everything should be crystal-clear.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="config-file-linting"&gt;
+&lt;h3&gt;Config file linting&lt;/h3&gt;
+&lt;p&gt;With that feature, any typo in the config file should now appear, well as a typo and not being silently ignored.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="evaluate-numpy-arange-lazily-when-valid"&gt;
+&lt;h3&gt;Evaluate numpy.arange lazily when valid&lt;/h3&gt;
+&lt;p&gt;Another optimization some people may appreciate: The pythran compiler can decide to evaluate &lt;tt class="docutils literal"&gt;np.arange&lt;/tt&gt; lazily to avoid the array allocation, as in&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;even_numbers&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;arange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In that case Pythran only creates the end array, not the temporary one.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="faster-prng-namely-pcg"&gt;
+&lt;h3&gt;Faster PRNG, namely pcg&lt;/h3&gt;
+&lt;p&gt;I know that random numbers are a sloppy ground. Random numbers in Pythran have never strictly respected the semantic of Numpy's PRNG, that is we never produced the same sequence for the same seed. The previous engine was &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::mt19937&lt;/span&gt;&lt;/tt&gt; from the STL, it's now &lt;a class="reference external" href="http://www.pcg-random.org/"&gt;PCG&lt;/a&gt;, and there's no guarantee it won't change in the future.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="favor-python3-support-in-various-places"&gt;
+&lt;h3&gt;Favor Python3 support in various places&lt;/h3&gt;
+&lt;p&gt;Rember the Python3 statement from the beginning of this post?&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="fix-numpy-remainder-implementation"&gt;
+&lt;h3&gt;Fix Numpy.remainder implementation&lt;/h3&gt;
+&lt;p&gt;That was a funny one: &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::remainder&lt;/span&gt;&lt;/tt&gt; from C++ and &lt;tt class="docutils literal"&gt;numpy.remainder&lt;/tt&gt; don't behave the same when dealing with negative numbers.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="better-support-for-importing-user-modules"&gt;
+&lt;h3&gt;Better support for importing user modules&lt;/h3&gt;
+&lt;p&gt;I'm unsure if this feature is used a lot, but it's possible to import a local
+module from a pythranized module, and it's considered as pythranized code then.
+Support for that feature was partial, especially with respect to global
+variable. The logic has been completely reworked and it should now works fine.&lt;/p&gt;
+&lt;p&gt;Note that internally, importing a local module shares &lt;em&gt;some&lt;/em&gt; similarity with the &lt;tt class="docutils literal"&gt;#include&lt;/tt&gt; directive. A direct consequence is that no compiled module are generated for these modules. Their code is bundled withing the final native module.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="more-vectorized-operations-support"&gt;
+&lt;h3&gt;More vectorized operations support&lt;/h3&gt;
+&lt;p&gt;Pythran's runtime contains calls to &lt;a class="reference external" href="https://github.com/QuantStack/xsimd"&gt;xsimd&lt;/a&gt; for efficient and portable vectorization. It now has a vectorized version of &lt;tt class="docutils literal"&gt;numpy.argmin&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;numpy.argmapx&lt;/tt&gt;, and correctly interacts with operands that would require a type cast (by refusing to vectorize them).&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="thanks"&gt;
+&lt;h2&gt;Thanks&lt;/h2&gt;
+&lt;p&gt;Numerous people have contributed to that release. I think it's the first time I received that much patches -I'm used to receiving bug reports-. So thanks a bunch to the following usual suspects:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Pierre Augier&lt;/li&gt;
+&lt;li&gt;Yann Diorcet&lt;/li&gt;
+&lt;li&gt;Jean Laroche&lt;/li&gt;
+&lt;li&gt;Ashwin Vishnu&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We've been closing &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues?utf8=%E2%9C%93&amp;amp;q=is%3Aissue+is%3Aclosed+updated%3A%3E2018-06-01+"&gt;a great deal of bugs&lt;/a&gt;, which also means that the Pythran community is growing, and that's super-cool!&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="that-s-all-folks"&gt;
+&lt;h2&gt;That's all folks&lt;/h2&gt;
+&lt;p&gt;The release is available on&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/0.9.1"&gt;Github&lt;/a&gt;,&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://pypi.org/project/pythran/"&gt;PyPI&lt;/a&gt; and&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://anaconda.org/conda-forge/pythran"&gt;Conda&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Use Pythran, test it, report bug, submit patch. That's what makes a community lively!&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>Pythran 0.8.3 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-083-is-out.html" rel="alternate"></link><published>2017-10-22T00:00:00+02:00</published><updated>2017-10-22T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2017-10-22:/pythran-stories/pythran-083-is-out.html</id><summary type="html">&lt;p&gt;Pythran version bump, new PyPI packages + Conda release, and a Changelog commented in a Jupyter notebook.&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/pythran - 0.8.3.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
 &lt;h1&gt;Pythran minor version bump&lt;/h1&gt;
 &lt;p&gt;So Pythran just got a version bump. The primary goal of this version is to match the upgrade of the &lt;code&gt;networkx&lt;/code&gt; dependency. Pythran now requires &lt;code&gt;networkx&amp;gt;=2.0&lt;/code&gt;.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pythran&lt;/span&gt;
