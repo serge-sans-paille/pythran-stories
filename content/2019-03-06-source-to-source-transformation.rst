@@ -12,7 +12,7 @@ If you're curious or genuinely interested into how Pythran transforms your
 code, but not brave enough to dive into the generated C++ code, Pythran
 provides a compilation switch to dump the refined Python code, after
 optimization and before it gets translated to C++. Internally, this relies on
-the fact we have to backends: a C++ backend and a Python backend.
+the fact we have two backends: a C++ backend and a Python backend.
 
 Using Pythran as a Source-to-Source Compiler
 ============================================
@@ -35,10 +35,10 @@ Pythran can be used as a source-to-source engine through the ``-P`` flag.
 
 What happened? Pythran analyzed the body of ``fibo`` and found out it was a
 pure function (no effect on global state nor arguments) called with a literal,
-so it performed aggressive constant propagation. It also computed variable
-scope and made any builtin explicit (``__builtin__.print``) and computed the
-control flow graph of each function, adding ``return None`` wherever Python
-would implicit add it.
+so it performed aggressive constant propagation. It also computed def-use
+chains which helps making every builtin explicit (``__builtin__.print``). Based
+on the the control flow graph of each function, it also adds ``return None``
+wherever Python would implicit add it.
 
 Advanced Transformations
 ========================
@@ -66,7 +66,7 @@ these operation!
     def wsum(v, w, x, y, z):
         return __builtin__.sum(((v * 0.1), (w * 0.2), (x * 0.3), (y * 0.2), (z * 0.1)))
 
-Fascinating! (Yes, I'm auto-congratulating there). Pythran understood that a
+Fascinating! (Yes, I'm self-congratulating there). Pythran understood that a
 Numpy operation on fixed-size array was involved, so it first performed the
 broadcasting on its own, resulting in:
 
@@ -79,7 +79,7 @@ broadcasting on its own, resulting in:
 Then it used the fact that sum can take any iterable as parameter to prune the
 call to ``np.array``. The nice thing with tuple of homogeneous type as
 parameter is that the C++ backend can use it to generate something equivalent
-to ``std::array<double, 5>``, avoiding a memory allocation.
+to ``std::array<double, 5>``, avoiding a heap allocation.
 
 The Assembly Worker
 ===================
