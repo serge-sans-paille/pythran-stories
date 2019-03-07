@@ -1,5 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - compilation</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/compilation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2016-12-10T00:00:00+01:00</updated><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:/pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a type checking ability, called &lt;em&gt;tog&lt;/em&gt;. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - compilation</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/compilation.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2019-03-06T00:00:00+01:00</updated><entry><title>Source-to-source transformation of a Python kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/source-to-source-transformation-of-a-python-kernel.html" rel="alternate"></link><published>2019-03-06T00:00:00+01:00</published><updated>2019-03-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-06:/pythran-stories/source-to-source-transformation-of-a-python-kernel.html</id><summary type="html">&lt;p class="first last"&gt;Pythran can also be used as a source-to-source transformation engine.
+This post showcases some recent transformation on a high-level code.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;If you're curious or genuinely interested into how Pythran transforms your
+code, but not brave enough to dive into the generated C++ code, Pythran
+provides a compilation switch to dump the refined Python code, after
+optimization and before it gets translated to C++. Internally, this relies on
+the fact we have two backends: a C++ backend and a Python backend.&lt;/p&gt;
+&lt;div class="section" id="using-pythran-as-a-source-to-source-compiler"&gt;
+&lt;h2&gt;Using Pythran as a Source-to-Source Compiler&lt;/h2&gt;
+&lt;p&gt;Pythran can be used as a source-to-source engine through the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-P&lt;/span&gt;&lt;/tt&gt; flag.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; cat sample.py
+def fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="o"&gt;)&lt;/span&gt;:
+    &lt;span class="k"&gt;return&lt;/span&gt; n &lt;span class="k"&gt;if&lt;/span&gt; n &amp;lt; &lt;span class="m"&gt;2&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; fibo&lt;span class="o"&gt;(&lt;/span&gt;n - &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; + fibo&lt;span class="o"&gt;(&lt;/span&gt;n - &lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+def test&lt;span class="o"&gt;()&lt;/span&gt;:
+    print&lt;span class="o"&gt;(&lt;/span&gt;fibo&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;10&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+&amp;gt; pythran -P sample.py
+def fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="o"&gt;)&lt;/span&gt;:
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;n &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;n &amp;lt; &lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;fibo&lt;span class="o"&gt;((&lt;/span&gt;n - &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; + fibo&lt;span class="o"&gt;((&lt;/span&gt;n - &lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;))))&lt;/span&gt;
+def test&lt;span class="o"&gt;()&lt;/span&gt;:
+    __builtin__.print&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;55&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; __builtin__.None
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;What happened? Pythran analyzed the body of &lt;tt class="docutils literal"&gt;fibo&lt;/tt&gt; and found out it was a
+pure function (no effect on global state nor arguments) called with a literal,
+so it performed aggressive constant propagation. It also computed def-use
+chains which helps making every builtin explicit (&lt;tt class="docutils literal"&gt;__builtin__.print&lt;/tt&gt;). Based
+on the the control flow graph of each function, it also adds &lt;tt class="docutils literal"&gt;return None&lt;/tt&gt;
+wherever Python would implicit add it.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="advanced-transformations"&gt;
+&lt;h2&gt;Advanced Transformations&lt;/h2&gt;
+&lt;p&gt;An alluring aspect of Python for scientists is the high level constructs it
+proposes. For instance, the following code implements an (arguably) high level
+way of computing the wighted sum between five integers:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# wsum.py&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This code is okay from Numpy point of view, but how does Pythran handle it?
+Surely, building a temporary array just for the sake of performing a
+point-to-point array operation is not the most efficient way of performing
+these operation!&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran -P wsum.py
+import numpy as __pythran_import_numpy
+def wsum&lt;span class="o"&gt;(&lt;/span&gt;v, w, x, y, z&lt;span class="o"&gt;)&lt;/span&gt;:
+    &lt;span class="k"&gt;return&lt;/span&gt; __builtin__.sum&lt;span class="o"&gt;(((&lt;/span&gt;v * &lt;span class="m"&gt;0&lt;/span&gt;.1&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;w * &lt;span class="m"&gt;0&lt;/span&gt;.2&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;x * &lt;span class="m"&gt;0&lt;/span&gt;.3&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;y * &lt;span class="m"&gt;0&lt;/span&gt;.2&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;z * &lt;span class="m"&gt;0&lt;/span&gt;.1&lt;span class="o"&gt;)))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Fascinating! (Yes, I'm self-congratulating there). Pythran understood that a
+Numpy operation on fixed-size array was involved, so it first performed the
+broadcasting on its own, resulting in:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;__pythran_import_numpy&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;__builtin__&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__pythran_import_numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([(&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.2&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.3&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.2&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;z&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;)]))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then it used the fact that sum can take any iterable as parameter to prune the
+call to &lt;tt class="docutils literal"&gt;np.array&lt;/tt&gt;. The nice thing with tuple of homogeneous type as
+parameter is that the C++ backend can use it to generate something equivalent
+to &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::array&amp;lt;double,&lt;/span&gt; 5&amp;gt;&lt;/tt&gt;, avoiding a heap allocation.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="the-assembly-worker"&gt;
+&lt;h2&gt;The Assembly Worker&lt;/h2&gt;
+&lt;p&gt;Let's inspect the assembly generated from the above code, instantiated with the
+Pythran annotation &lt;tt class="docutils literal"&gt;#pythran export wsum(float64, float64, float64, float64,
+float64)&lt;/tt&gt; and compiled with Clang 6.0&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++ pythran wsum.py
+&amp;gt; objdump -S -C wsum.*.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+...  movsd  0x12d4&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm0
+...  movsd  0x18&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm2
+...  mulsd  %xmm0,%xmm2
+...  movsd  0x12ca&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm1
+...  movsd  0x10&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm3
+...  mulsd  %xmm1,%xmm3
+...  movsd  0x8&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm4
+...  mulsd  0x12ba&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm4
+...  movsd  &lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm5
+...  mulsd  %xmm0,%xmm5
+...  movsd  0x20&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm0
+...  mulsd  %xmm1,%xmm0
+...  addsd  %xmm5,%xmm0
+...  addsd  %xmm4,%xmm0
+...  addsd  %xmm3,%xmm0
+...  addsd  %xmm2,%xmm0
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;No single call to a memory allocator, no branching, just a plain listing of
+&lt;tt class="docutils literal"&gt;movsd&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;mulsd&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;addsd&lt;/tt&gt;. And quite some register pressure, but
+that's how it is.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="just-perf-it"&gt;
+&lt;h2&gt;Just &lt;tt class="docutils literal"&gt;perf&lt;/tt&gt; it&lt;/h2&gt;
+&lt;p&gt;As a tribute to Victor Stinner's &lt;tt class="docutils literal"&gt;perf&lt;/tt&gt; module, and as a conclusion to this
+small experiment, let's ensure we get some speedup, event for such a small
+kernel:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; rm *.so
+&amp;gt; python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;from wsum import wsum&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;3&lt;/span&gt;.73 us +- &lt;span class="m"&gt;0&lt;/span&gt;.11 us
+&amp;gt; &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++ pythran wsum.py
+&amp;gt; python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;from wsum import wsum&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;190&lt;/span&gt; ns +- &lt;span class="m"&gt;3&lt;/span&gt; ns
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And out of curiosity, let's check the timing with the transformed Python kernel.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; rm *.so
+&amp;gt; pythran -P wsum.py &lt;span class="p"&gt;|&lt;/span&gt; sed &lt;span class="s1"&gt;&amp;#39;s,__builtin__.,,&amp;#39;&lt;/span&gt; &amp;gt; wsum2.py
+&amp;gt; python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;from wsum2 import wsum&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
+.....................
+Mean +- std dev: &lt;span class="m"&gt;308&lt;/span&gt; ns +- &lt;span class="m"&gt;7&lt;/span&gt; ns
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Fine! Pythran did the job in both cases :-)&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="final-words"&gt;
+&lt;h2&gt;Final Words&lt;/h2&gt;
+&lt;p&gt;The optimisations done by Pythran are meant at optimising its internal
+representation so that translated code compiles to an efficient native library.
+Still, being able to debug it at Python level is very valuable, and it can even
+generate faster Python code in some cases!&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:/pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a type checking ability, called &lt;em&gt;tog&lt;/em&gt;. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;Pythran is currently part of &lt;a class="reference external" href="http://opendreamkit.org/"&gt;OpenDreamKit&lt;/a&gt;,
 a project that aims at improving the open source computational mathematics
 ecosystem.&lt;/p&gt;
