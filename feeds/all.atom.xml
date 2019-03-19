@@ -1,5 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2019-03-06T00:00:00+01:00</updated><entry><title>Source-to-source transformation of a Python kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/source-to-source-transformation-of-a-python-kernel.html" rel="alternate"></link><published>2019-03-06T00:00:00+01:00</published><updated>2019-03-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-06:/pythran-stories/source-to-source-transformation-of-a-python-kernel.html</id><summary type="html">&lt;p class="first last"&gt;Pythran can also be used as a source-to-source transformation engine.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2019-03-18T00:00:00+01:00</updated><entry><title>Gast, Beniget! Use-Def chains for Python Programs</title><link href="http://serge-sans-paille.github.io/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html" rel="alternate"></link><published>2019-03-18T00:00:00+01:00</published><updated>2019-03-18T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-18:/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html</id><summary type="html">&lt;p class="first last"&gt;Many tools manipulate the Python AST to analyse or transform it.
+Let's propose a collection of analyse those tools can leverage on: &lt;strong&gt;beniget&lt;/strong&gt;.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;In spite of its dynamic nature, the Python language has been granted a rich
+ecosystem of Abstract Syntax Tree(AST) analysis and transformations. Off the top of my head, I can already cite:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://github.com/PyCQA/pyflakes"&gt;Pyflake&lt;/a&gt;, a Python linter;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://www.pylint.org/"&gt;Pylint&lt;/a&gt;, a Python linter and more;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://pytorch.org/docs/stable/jit.html"&gt;TorchScript&lt;/a&gt;, a DSL embedded into Python for &lt;a class="reference external" href="https://pytorch.org/"&gt;PyTorch&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://www.tensorflow.org/guide/autograph"&gt;autograph&lt;/a&gt; another DSL embedded into Python, for &lt;a class="reference external" href="https://www.tensorflow.org/"&gt;Tensorflow&lt;/a&gt;;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran"&gt;Pythran&lt;/a&gt; (of course!);&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://www.python.org/dev/peps/pep-0511/"&gt;PEP-511&lt;/a&gt; even proposed to normalize an API for code transformers-it got rejected.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;And there probably are plenty of other users of the &lt;a class="reference external" href="https://docs.python.org/3/library/ast.html"&gt;ast&lt;/a&gt; module from the Python standard
+library.&lt;/p&gt;
+&lt;div class="section" id="foreword"&gt;
+&lt;h2&gt;Foreword&lt;/h2&gt;
+&lt;p&gt;If you're using the &lt;tt class="docutils literal"&gt;ast&lt;/tt&gt; module, then you should consider using the great
+(&lt;em&gt;and home-backed&lt;/em&gt;) &lt;a class="reference external" href="https://github.com/serge-sans-paille/gast"&gt;gast&lt;/a&gt; package.
+It offers a common tree structure to deal with the different Python version and
+their changes. In other words, if you can transform or analyze &lt;tt class="docutils literal"&gt;gast&lt;/tt&gt; AST,
+then you can handle most Python versions.&lt;/p&gt;
+&lt;p&gt;Not convinced? It's already used by &lt;a class="reference external" href="https://www.tensorflow.org/"&gt;Tensorflow&lt;/a&gt;
+and &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran"&gt;Pythran&lt;/a&gt;. And &lt;a class="reference external" href="https://github.com/serge-sans-paille/beniget"&gt;Beniget&lt;/a&gt; :-)&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="about-use-def-chains"&gt;
+&lt;h2&gt;About Use-Def Chains&lt;/h2&gt;
+&lt;p&gt;&lt;a class="reference external" href="https://en.wikipedia.org/wiki/Use-define_chain"&gt;Use-def chains&lt;/a&gt; is a very
+common compiler abstraction. It makes it possible to link any use of an
+identifier to its definition, enabling many code optimisations like &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Constant_folding"&gt;constant
+folding&lt;/a&gt; or &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Dead_code_elimination"&gt;dead code
+elimination&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The following statements are annotated with &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt; (resp. &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;) to mark that the annotated statement defines (resp. uses) the associated identifier.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;           &lt;span class="c1"&gt;# DEF(a)&lt;/span&gt;
+&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;       &lt;span class="c1"&gt;# DEF(b) USE(a)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;     &lt;span class="c1"&gt;# USE(a, b)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;           &lt;span class="c1"&gt;# USE(c)&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;12&amp;quot;&lt;/span&gt;    &lt;span class="c1"&gt;# DEF(a&amp;#39;)&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;      &lt;span class="c1"&gt;# DEF(a&amp;#39;&amp;#39;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;        &lt;span class="c1"&gt;# USE(a&amp;#39;, a&amp;#39;&amp;#39;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;From these annotations, using a data-flow analysis, one can build the def-use chains as:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+DEF(a) -&amp;gt; USE(a) # a + 2
+       -&amp;gt; USE(a) # print(a, b)
+
+DEF(b) -&amp;gt; USE(b) # print(a, b)
+
+DEF(a') -&amp;gt; USE(a') # print(a)
+
+DEF(a'') -&amp;gt; USE(a'') # print(a)
+&lt;/pre&gt;
+&lt;p&gt;There is no &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt; for &lt;tt class="docutils literal"&gt;USE(c)&lt;/tt&gt; which means a probable &lt;tt class="docutils literal"&gt;NameError&lt;/tt&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="using-use-def-chains-from-beniget"&gt;
+&lt;h2&gt;Using Use-Def Chains from Beniget&lt;/h2&gt;
+&lt;p&gt;The &lt;a class="reference external" href="https://github.com/serge-sans-paille/beniget/blob/master/README.rst"&gt;README&lt;/a&gt; from &lt;tt class="docutils literal"&gt;beniget&lt;/tt&gt; provides several use cases, from simple to complex ones. Let's go through some of them!&lt;/p&gt;
+&lt;div class="section" id="detect-unused-imports"&gt;
+&lt;h3&gt;Detect Unused Imports&lt;/h3&gt;
+&lt;p&gt;This is a very basic usage: look for &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt; without any &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;, and warn about them, focusing on imported values.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;beniget&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;gast&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;ast&lt;/span&gt;
+
+&lt;span class="c1"&gt;# parse some simple statements&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;code&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;from math import cos, sin; print(cos(3))&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;code&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# compute the def-use chains at module level&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;duc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;beniget&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DefUseChains&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;duc&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;visit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# grab the import statement&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;imported&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;names&lt;/span&gt;
+
+&lt;span class="c1"&gt;# inspect the users of each imported name&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;imported&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="o"&gt;...&lt;/span&gt;   &lt;span class="n"&gt;ud&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;duc&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chains&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="o"&gt;...&lt;/span&gt;   &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;ud&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;users&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Unused import: {}&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ud&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;
+&lt;span class="n"&gt;Unused&lt;/span&gt; &lt;span class="n"&gt;import&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;sin&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;At that point, the astute reader has already noted that due to the dynamic
+nature of Python, one can fool this analysis by calling the &lt;tt class="docutils literal"&gt;eval&lt;/tt&gt; function,
+eventually through an indirection, or by performing a lookup into
+&lt;tt class="docutils literal"&gt;globals()&lt;/tt&gt;. More about this later.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="compute-a-function-s-closure"&gt;
+&lt;h3&gt;Compute a Function's Closure&lt;/h3&gt;
+&lt;p&gt;In Python, inner functions (and lambdas) can capture identifiers defined in the
+outer scope. This analysis computes such identifiers by registering all &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;
+from a local &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt;, then walking through all identifier and checking whether
+they're one of the &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;An alternative approach would be to rely on the use-def chains to inspect all
+the &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt;  of each &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt; and ensure the &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt; come from the visited
+function.&lt;/p&gt;
+&lt;pre class="doctest-block"&gt;
+&amp;gt;&amp;gt;&amp;gt; import gast as ast
+&amp;gt;&amp;gt;&amp;gt; import beniget
+&amp;gt;&amp;gt;&amp;gt; class Capture(ast.NodeVisitor):
+...
+...     def __init__(self, module_node):
+...         # initialize def-use chains
+...         self.chains = beniget.DefUseChains()
+...         self.chains.visit(module_node)
+...         self.users = set()  # users of local definitions
+...         self.captured = set()  # identifiers that don't belong to local users
+...
+...     def visit_FunctionDef(self, node):
+...         # initialize the set of node using a local variable
+...         for def_ in self.chains.locals[node]:
+...             self.users.update(use.node for use in def_.users())
+...         self.generic_visit(node)
+...
+...     def visit_Name(self, node):
+...         # register load of identifiers not locally defined
+...         if isinstance(node.ctx, ast.Load):
+...             if node not in self.users:
+...                 self.captured.add(node.id)
+&lt;/pre&gt;
+&lt;pre class="doctest-block"&gt;
+&amp;gt;&amp;gt;&amp;gt; code = 'def foo(x):\n def bar(): return x\n return bar'
+&amp;gt;&amp;gt;&amp;gt; module = ast.parse(code)
+&amp;gt;&amp;gt;&amp;gt; inner_function = module.body[0].body[0]
+&amp;gt;&amp;gt;&amp;gt; capture = Capture(module)
+&amp;gt;&amp;gt;&amp;gt; capture.visit(inner_function)
+&amp;gt;&amp;gt;&amp;gt; list(capture.captured)
+['x']
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="detecting-nameerror"&gt;
+&lt;h3&gt;Detecting &lt;tt class="docutils literal"&gt;NameError&lt;/tt&gt;&lt;/h3&gt;
+&lt;p&gt;Any &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt; without &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt; is probably (and no, not &lt;strong&gt;certainly&lt;/strong&gt;) an error. But even if there's an associated &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt;, it could be an error; Consider the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;random&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;There's a chance that &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; is unbound while executing &lt;tt class="docutils literal"&gt;print(a)&lt;/tt&gt;. It would be possible to combine &lt;tt class="docutils literal"&gt;beniget&lt;/tt&gt; with a dummy code transformation to detect this issue by generating dummy top-level definitions and checking if they have any &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;  &lt;span class="c1"&gt;# if any of those have a USE, then we have a potential issue&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;random&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="limitations"&gt;
+&lt;h3&gt;Limitations&lt;/h3&gt;
+&lt;p&gt;It's Python. So introspection and lazy binding are a pain for &lt;em&gt;any&lt;/em&gt; static analysis tool. There's nothing we can do against&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://docs.python.org/3/library/functions.html#eval"&gt;eval&lt;/a&gt; and &lt;a class="reference external" href="https://docs.python.org/3/library/functions.html#exec"&gt;exec&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;star import &lt;tt class="docutils literal"&gt;from some_module import *&lt;/tt&gt; even if &lt;tt class="docutils literal"&gt;beniget&lt;/tt&gt;, in a very conservative way, assumes that such import can define any identifier, which means it's likely to have a lot of &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;!&lt;/li&gt;
+&lt;li&gt;assigning to &lt;tt class="docutils literal"&gt;globals()&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;locals()&lt;/tt&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;And plenty of other similar stuff. I can't blame you for using these features, that's part of &lt;a class="reference external" href="https://fr.wikipedia.org/wiki/Le_Scorpion_et_la_Grenouille"&gt;Python nature&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Also, note that &lt;tt class="docutils literal"&gt;beniget&lt;/tt&gt; analysis is not data dependant, so &lt;tt class="docutils literal"&gt;if 1: a = 1&lt;/tt&gt; does &lt;strong&gt;not&lt;/strong&gt; unconditionally defines &lt;tt class="docutils literal"&gt;a&lt;/tt&gt;!&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installation-and-stuff"&gt;
+&lt;h3&gt;Installation and stuff&lt;/h3&gt;
+&lt;p&gt;&lt;tt class="docutils literal"&gt;beniget&lt;/tt&gt; is available on &lt;a class="reference external" href="https://pypi.org/project/beniget/"&gt;PyPI&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/serge-sans-paille/beniget/"&gt;GitHub&lt;/a&gt; under &lt;a class="reference external" href="https://github.com/serge-sans-paille/beniget/blob/master/LICENSE"&gt;BSD 3-clause&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;It's tested using &lt;a class="reference external" href="https://pypi.org/project/tox/"&gt;tox&lt;/a&gt; on Python 2.7 and 3.6.&lt;/p&gt;
+&lt;p&gt;It's already used as a foundation package of &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran"&gt;Pythran&lt;/a&gt; and &lt;a class="reference external" href="https://transonic.readthedocs.io/"&gt;Transonic&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="acknowledgment"&gt;
+&lt;h3&gt;Acknowledgment&lt;/h3&gt;
+&lt;p&gt;Thanks a lot to &lt;a class="reference external" href="http://www.legi.grenoble-inp.fr/people/Pierre.Augier/"&gt;Pierre Augier&lt;/a&gt; for motivating the
+project and &lt;a class="reference external" href="http://www.legi.grenoble-inp.fr/web/?lang=fr"&gt;LEGI&lt;/a&gt; for funding
+it!&lt;/p&gt;
+&lt;p&gt;Also, thanks a bunch to Ashwin Vishnu, Pierrick Brunet and Jean Laroche for proof reading this post o/&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</content></entry><entry><title>Source-to-source transformation of a Python kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/source-to-source-transformation-of-a-python-kernel.html" rel="alternate"></link><published>2019-03-06T00:00:00+01:00</published><updated>2019-03-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-06:/pythran-stories/source-to-source-transformation-of-a-python-kernel.html</id><summary type="html">&lt;p class="first last"&gt;Pythran can also be used as a source-to-source transformation engine.
 This post showcases some recent transformation on a high-level code.&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;If you're curious or genuinely interested into how Pythran transforms your
 code, but not brave enough to dive into the generated C++ code, Pythran
