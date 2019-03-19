@@ -9,8 +9,7 @@ Gast, Beniget! Use-Def chains for Python Programs
           Let's propose a collection of analyse those tools can leverage on: **beniget**.
 
 In spite of its dynamic nature, the Python language has been granted a rich
-ecosystem of Abstract Syntax Tree(AST) analysis and transformations. Out of my
-head, I can already cite:
+ecosystem of Abstract Syntax Tree(AST) analysis and transformations. Off the top of my head, I can already cite:
 
 - `Pyflake <https://github.com/PyCQA/pyflakes>`_, a Python linter;
 - `Pylint <https://www.pylint.org/>`_, a Python linter and more;
@@ -29,7 +28,7 @@ Foreword
 If you're using the ``ast`` module, then you should consider using the great
 (*and home-backed*) `gast <https://github.com/serge-sans-paille/gast>`_ package.
 It offers a common tree structure to deal with the different Python version and
-their changes. Said other wise, if you can transform or analyze ``gast`` AST,
+their changes. In other words, if you can transform or analyze ``gast`` AST,
 then you can handle most Python versions.
 
 Not convinced? It's already used by `Tensorflow <https://www.tensorflow.org/>`_
@@ -208,4 +207,4 @@ Thanks a lot to `Pierre Augier
 project and `LEGI <http://www.legi.grenoble-inp.fr/web/?lang=fr>`_ for funding
 it!
 
-Also, thanks a bunch to Ashwin Vishnu and Pierrick Brunet for proof reading this post o/
+Also, thanks a bunch to Ashwin Vishnu, Pierrick Brunet and Jean Laroche for proof reading this post o/
