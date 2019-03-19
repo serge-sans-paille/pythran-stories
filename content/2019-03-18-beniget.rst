@@ -1,0 +1,210 @@
+Gast, Beniget! Use-Def chains for Python Programs
+#################################################
+
+:date: 2019-03-18
+:category: compilation
+:lang: en
+:authors: serge-sans-paille
+:summary: Many tools manipulate the Python AST to analyse or transform it.
+          Let's propose a collection of analyse those tools can leverage on: **beniget**.
+
+In spite of its dynamic nature, the Python language has been granted a rich
+ecosystem of Abstract Syntax Tree(AST) analysis and transformations. Off the top of my head, I can already cite:
+
+- `Pyflake <https://github.com/PyCQA/pyflakes>`_, a Python linter;
+- `Pylint <https://www.pylint.org/>`_, a Python linter and more;
+- `TorchScript <https://pytorch.org/docs/stable/jit.html>`_, a DSL embedded into Python for `PyTorch <https://pytorch.org/>`_
+- `autograph <https://www.tensorflow.org/guide/autograph>`_ another DSL embedded into Python, for `Tensorflow <https://www.tensorflow.org/>`_;
+- `Pythran <https://github.com/serge-sans-paille/pythran>`_ (of course!);
+- `PEP-511 <https://www.python.org/dev/peps/pep-0511/>`_ even proposed to normalize an API for code transformers-it got rejected.
+
+And there probably are plenty of other users of the `ast
+<https://docs.python.org/3/library/ast.html>`_ module from the Python standard
+library.
+
+Foreword
+========
+
+If you're using the ``ast`` module, then you should consider using the great
+(*and home-backed*) `gast <https://github.com/serge-sans-paille/gast>`_ package.
+It offers a common tree structure to deal with the different Python version and
+their changes. In other words, if you can transform or analyze ``gast`` AST,
+then you can handle most Python versions.
+
+Not convinced? It's already used by `Tensorflow <https://www.tensorflow.org/>`_
+and `Pythran <https://github.com/serge-sans-paille/pythran>`_. And `Beniget
+<https://github.com/serge-sans-paille/beniget>`_ :-)
+
+About Use-Def Chains
+====================
+
+`Use-def chains <https://en.wikipedia.org/wiki/Use-define_chain>`_ is a very
+common compiler abstraction. It makes it possible to link any use of an
+identifier to its definition, enabling many code optimisations like `constant
+folding <https://en.wikipedia.org/wiki/Constant_folding>`_ or `dead code
+elimination <https://en.wikipedia.org/wiki/Dead_code_elimination>`_.
+
+The following statements are annotated with ``DEF`` (resp. ``USE``) to mark that the annotated statement defines (resp. uses) the associated identifier.
+
+.. code-block:: python
+
+    a = 1           # DEF(a)
+    b = a + 2       # DEF(b) USE(a)
+    print(a, b)     # USE(a, b)
+    if c:           # USE(c)
+        a = "12"    # DEF(a')
+    else:
+        a = []      # DEF(a'')
+    print(a)        # USE(a', a'')
+
+From these annotations, using a data-flow analysis, one can build the def-use chains as:
+
+.. code::
+
+    DEF(a) -> USE(a) # a + 2
+           -> USE(a) # print(a, b)
+
+    DEF(b) -> USE(b) # print(a, b)
+
+    DEF(a') -> USE(a') # print(a)
+
+    DEF(a'') -> USE(a'') # print(a)
+
+There is no ``DEF`` for ``USE(c)`` which means a probable ``NameError``
+
+
+Using Use-Def Chains from Beniget
+=================================
+
+The `README <https://github.com/serge-sans-paille/beniget/blob/master/README.rst>`_ from ``beniget`` provides several use cases, from simple to complex ones. Let's go through some of them!
+
+Detect Unused Imports
+---------------------
+
+This is a very basic usage: look for ``DEF`` without any ``USE``, and warn about them, focusing on imported values.
+
+.. code-block:: python
+
+    >>> import beniget, gast as ast
+
+    # parse some simple statements
+    >>> code = "from math import cos, sin; print(cos(3))"
+    >>> module = ast.parse(code)
+
+    # compute the def-use chains at module level
+    >>> duc = beniget.DefUseChains()
+    >>> duc.visit(module)
+
+    # grab the import statement
+    >>> imported = module.body[0].names
+
+    # inspect the users of each imported name
+    >>> for name in imported:
+    ...   ud = duc.chains[name]
+    ...   if not ud.users():
+    ...     print("Unused import: {}".format(ud.name()))
+    Unused import: sin
+
+At that point, the astute reader has already noted that due to the dynamic
+nature of Python, one can fool this analysis by calling the ``eval`` function,
+eventually through an indirection, or by performing a lookup into
+``globals()``. More about this later.
+
+Compute a Function's Closure
+----------------------------
+
+In Python, inner functions (and lambdas) can capture identifiers defined in the
+outer scope. This analysis computes such identifiers by registering all ``USE``
+from a local ``DEF``, then walking through all identifier and checking whether
+they're one of the ``USE``.
+
+An alternative approach would be to rely on the use-def chains to inspect all
+the ``DEF``  of each ``USE`` and ensure the ``DEF`` come from the visited
+function.
+
+>>> import gast as ast
+>>> import beniget
+>>> class Capture(ast.NodeVisitor):
+...
+...     def __init__(self, module_node):
+...         # initialize def-use chains
+...         self.chains = beniget.DefUseChains()
+...         self.chains.visit(module_node)
+...         self.users = set()  # users of local definitions
+...         self.captured = set()  # identifiers that don't belong to local users
+...
+...     def visit_FunctionDef(self, node):
+...         # initialize the set of node using a local variable
+...         for def_ in self.chains.locals[node]:
+...             self.users.update(use.node for use in def_.users())
+...         self.generic_visit(node)
+...
+...     def visit_Name(self, node):
+...         # register load of identifiers not locally defined
+...         if isinstance(node.ctx, ast.Load):
+...             if node not in self.users:
+...                 self.captured.add(node.id)
+
+>>> code = 'def foo(x):\n def bar(): return x\n return bar'
+>>> module = ast.parse(code)
+>>> inner_function = module.body[0].body[0]
+>>> capture = Capture(module)
+>>> capture.visit(inner_function)
+>>> list(capture.captured)
+['x']
+
+Detecting ``NameError``
+-----------------------
+
+Any ``USE`` without ``DEF`` is probably (and no, not **certainly**) an error. But even if there's an associated ``DEF``, it could be an error; Consider the following:
+
+.. code-block:: python
+
+    from random import random
+    if random() > 0.5:
+        a = 1
+    print(a)
+
+There's a chance that ``a`` is unbound while executing ``print(a)``. It would be possible to combine ``beniget`` with a dummy code transformation to detect this issue by generating dummy top-level definitions and checking if they have any ``USE``:
+
+
+.. code-block:: python
+
+    a = random = None  # if any of those have a USE, then we have a potential issue
+    from random import random
+    if random() > 0.5:
+        a = 1
+    print(a)
+
+Limitations
+-----------
+
+It's Python. So introspection and lazy binding are a pain for *any* static analysis tool. There's nothing we can do against
+
+- `eval <https://docs.python.org/3/library/functions.html#eval>`_ and `exec <https://docs.python.org/3/library/functions.html#exec>`_
+- star import ``from some_module import *`` even if ``beniget``, in a very conservative way, assumes that such import can define any identifier, which means it's likely to have a lot of ``USE``!
+- assigning to ``globals()`` or ``locals()``
+
+And plenty of other similar stuff. I can't blame you for using these features, that's part of `Python nature <https://fr.wikipedia.org/wiki/Le_Scorpion_et_la_Grenouille>`_
+
+Also, note that ``beniget`` analysis is not data dependant, so ``if 1: a = 1`` does **not** unconditionally defines ``a``!
+
+Installation and stuff
+----------------------
+
+``beniget`` is available on `PyPI <https://pypi.org/project/beniget/>`_ and `GitHub <https://github.com/serge-sans-paille/beniget/>`_ under `BSD 3-clause <https://github.com/serge-sans-paille/beniget/blob/master/LICENSE>`_.
+
+It's tested using `tox <https://pypi.org/project/tox/>`_ on Python 2.7 and 3.6.
+
+It's already used as a foundation package of `Pythran <https://github.com/serge-sans-paille/pythran>`_ and `Transonic <https://transonic.readthedocs.io/>`_.
+
+
+Acknowledgment
+--------------
+
+Thanks a lot to `Pierre Augier
+<http://www.legi.grenoble-inp.fr/people/Pierre.Augier/>`_ for motivating the
+project and `LEGI <http://www.legi.grenoble-inp.fr/web/?lang=fr>`_ for funding
+it!
+
+Also, thanks a bunch to Ashwin Vishnu, Pierrick Brunet and Jean Laroche for proof reading this post o/
