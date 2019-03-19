@@ -208,4 +208,4 @@ Thanks a lot to `Pierre Augier
 project and `LEGI <http://www.legi.grenoble-inp.fr/web/?lang=fr>`_ for funding
 it!
 
-Also, thanks a bunch to Ashwin Vishnu for prrof reading this post o/
+Also, thanks a bunch to Ashwin Vishnu and Pierrick Brunet for proof reading this post o/
