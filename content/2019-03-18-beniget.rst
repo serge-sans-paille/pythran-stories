@@ -193,7 +193,7 @@ Also, note that ``beniget`` analysis is not data dependant, so ``if 1: a = 1`` d
 Installation and stuff
 ----------------------
 
-``beinget`` is available on `PyPI <https://pypi.org/project/beniget/>`_ and `GitHub <https://github.com/serge-sans-paille/beniget/>`_ under `BSD 3-clause <https://github.com/serge-sans-paille/beniget/blob/master/LICENSE>`_.
+``beniget`` is available on `PyPI <https://pypi.org/project/beniget/>`_ and `GitHub <https://github.com/serge-sans-paille/beniget/>`_ under `BSD 3-clause <https://github.com/serge-sans-paille/beniget/blob/master/LICENSE>`_.
 
 It's tested using `tox <https://pypi.org/project/tox/>`_ on Python 2.7 and 3.6.
 
