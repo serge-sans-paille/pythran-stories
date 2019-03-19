@@ -40,7 +40,7 @@ About Use-Def Chains
 ====================
 
 `Use-def chains <https://en.wikipedia.org/wiki/Use-define_chain>`_ is a very
-common compiler abstraction. It make it possible to link any use of an
+common compiler abstraction. It makes it possible to link any use of an
 identifier to its definition, enabling many code optimisations like `constant
 folding <https://en.wikipedia.org/wiki/Constant_folding>`_ or `dead code
 elimination <https://en.wikipedia.org/wiki/Dead_code_elimination>`_.
@@ -166,7 +166,7 @@ Any ``USE`` without ``DEF`` is probably (and no, not **certainly**) an error. Bu
         a = 1
     print(a)
 
-There's a chace that ``a`` is unbound when executing ``print(a)``. It's possible to detect this issue by generating dummy top-level definitions and checking if they have any ``USE``:
+There's a chance that ``a`` is unbound while executing ``print(a)``. It would be possible to combine ``beniget`` with a dummy code transformation to detect this issue by generating dummy top-level definitions and checking if they have any ``USE``:
 
 
 .. code-block:: python
@@ -193,7 +193,7 @@ Also, note that ``beniget`` analysis is not data dependant, so ``if 1: a = 1`` d
 Installation and stuff
 ----------------------
 
-``beginget`` is available on `PyPI <https://pypi.org/project/beniget/>`_ and `GitHub <https://github.com/serge-sans-paille/beniget/>`_ under `BSD 3-clause <https://github.com/serge-sans-paille/beniget/blob/master/LICENSE>`_.
+``beinget`` is available on `PyPI <https://pypi.org/project/beniget/>`_ and `GitHub <https://github.com/serge-sans-paille/beniget/>`_ under `BSD 3-clause <https://github.com/serge-sans-paille/beniget/blob/master/LICENSE>`_.
 
 It's tested using `tox <https://pypi.org/project/tox/>`_ on Python 2.7 and 3.6.
 
@@ -207,3 +207,5 @@ Thanks a lot to `Pierre Augier
 <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/>`_ for motivating the
 project and `LEGI <http://www.legi.grenoble-inp.fr/web/?lang=fr>`_ for funding
 it!
+
+Also, thanks a bunch to Ashwin Vishnu for prrof reading this post o/
