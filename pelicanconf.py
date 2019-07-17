@@ -22,7 +22,7 @@ AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
 
 # Blogroll
-LINKS = (('Pythran Doc', 'http://pythonhosted.org/pythran'),
+LINKS = (('Pythran Doc', 'https://pythran.readthedocs.io'),
          ('Pythran on PyPI', 'https://pypi.python.org/pypi/pythran'),
         )
 
