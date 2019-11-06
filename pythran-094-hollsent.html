@@ -148,13 +148,12 @@ announce on the mailing list</a>.</p>
 <div class="section" id="support-for-the-isinstance-builtin">
 <h2>Support for the <tt class="docutils literal"><span class="pre">isinstance(...)</span></tt> builtin</h2>
 <p>The following code is perfectly valid in Python:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">abssqr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">abssqr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">complex</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">real</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">imag</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-</pre>
+</pre></div>
 <p>However, it is not trivial to turn it into a statically compiled, generic
 function because of the guard over <tt class="docutils literal"><span class="pre">isinstance(...)</span></tt>. This closely resembles a
 feature of C++17, <a class="reference external" href="https://en.cppreference.com/w/cpp/language/if">if constexpr</a>, something supported by
@@ -170,28 +169,25 @@ example is just... well... an example!</p>
 <h2>Support the <tt class="docutils literal"><span class="pre">type(...)</span></tt> builtin</h2>
 <p>Typing is difficult, so I've always been reluctant to implement type-related
 operators. Here is the implementation of the <tt class="docutils literal"><span class="pre">type(...)</span></tt> in <tt class="docutils literal">pythonic</tt>:</p>
-<pre class="code c++ literal-block">
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
 <span class="k">typename</span> <span class="n">type_functor</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">type</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span> <span class="o">&amp;</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">return</span> <span class="p">{};</span>
 <span class="p">}</span>
-</pre>
+</pre></div>
 <p>Where <tt class="docutils literal">type_functor</tt> maintains a binding between types and functors capable of
 building that type, as in:</p>
-<pre class="code c++ literal-block">
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
 <span class="k">struct</span> <span class="n">type_functor</span><span class="o">&lt;</span><span class="n">types</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
     <span class="k">using</span> <span class="n">type</span> <span class="o">=</span> <span class="n">functor</span><span class="o">::</span><span class="n">list</span><span class="p">;</span>
 <span class="p">};</span>
-</pre>
+</pre></div>
 <p>That's some ugly internals of <tt class="docutils literal">pythonic</tt> but the interesting part is that all
 the pieces fit together! <em>Gast</em> do I love static polymorphism and modern C++!
 Say hello to beautiful polymorphic code like:</p>
-<pre class="code python literal-block">
-<span class="k">def</span> <span class="nf">poly</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">poly</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)(</span><span class="n">l</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span>
-</pre>
+</pre></div>
 </div>
 <div class="section" id="clang-cl">
 <h2><tt class="docutils literal"><span class="pre">clang-cl</span></tt></h2>
