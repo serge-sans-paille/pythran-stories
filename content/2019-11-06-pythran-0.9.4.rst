@@ -22,7 +22,7 @@ Support for the ``isinstance(...)`` builtin
 
 The following code is perfectly valid in Python:
 
-.. code:: python
+.. code-block:: python
 
     def abssqr(x):
         if isinstance(x, complex):
@@ -49,7 +49,7 @@ Support the ``type(...)`` builtin
 Typing is difficult, so I've always been reluctant to implement type-related
 operators. Here is the implementation of the ``type(...)`` in ``pythonic``:
 
-.. code:: c++
+.. code-block:: c++
 
     template <class T>
     typename type_functor<T>::type type(T const &)
@@ -60,7 +60,7 @@ operators. Here is the implementation of the ``type(...)`` in ``pythonic``:
 Where ``type_functor`` maintains a binding between types and functors capable of
 building that type, as in:
 
-.. code:: c++
+.. code-block:: c++
 
     template <class T>
     struct type_functor<types::list<T>> {
@@ -71,7 +71,7 @@ That's some ugly internals of ``pythonic`` but the interesting part is that all
 the pieces fit together! *Gast* do I love static polymorphism and modern C++!
 Say hello to beautiful polymorphic code like:
 
-.. code:: python
+.. code-block:: python
 
     def poly(x, l):
         return type(x)(l) + x
