@@ -1,5 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2019-03-18T00:00:00+01:00</updated><entry><title>Gast, Beniget! Use-Def chains for Python Programs</title><link href="http://serge-sans-paille.github.io/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html" rel="alternate"></link><published>2019-03-18T00:00:00+01:00</published><updated>2019-03-18T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-18:/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html</id><summary type="html">&lt;p class="first last"&gt;Many tools manipulate the Python AST to analyse or transform it.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2019-11-06T00:00:00+01:00</updated><entry><title>Pythran 0.9.4 - Hollsent</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-094-hollsent.html" rel="alternate"></link><published>2019-11-06T00:00:00+01:00</published><updated>2019-11-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-11-06:/pythran-stories/pythran-094-hollsent.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, bringing a lot of unexpected features in!&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Pythran 0.9.4 just got &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/0.9.4post0"&gt;released&lt;/a&gt;, and it has an
+unusual number of unexpected features. Unexpected? Yes, that's the kind of
+features I never thought Pythran would have, but they ended up being possible,
+and even better, consistent with the whole picture. So let's take a deeper look!&lt;/p&gt;
+&lt;p&gt;Before that, if you're just interested in the changes etc, please read &lt;a class="reference external" href="https://www.freelists.org/post/pythran/Pythran-094-Hollsent"&gt;the
+announce on the mailing list&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="section" id="support-for-the-isinstance-builtin"&gt;
+&lt;h2&gt;Support for the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;isinstance(...)&lt;/span&gt;&lt;/tt&gt; builtin&lt;/h2&gt;
+&lt;p&gt;The following code is perfectly valid in Python:&lt;/p&gt;
+&lt;pre class="code python literal-block"&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;abssqr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;isinstance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;complex&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;real&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;imag&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;/pre&gt;
+&lt;p&gt;However, it is not trivial to turn it into a statically compiled, generic
+function because of the guard over &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;isinstance(...)&lt;/span&gt;&lt;/tt&gt;. This closely resembles a
+feature of C++17, &lt;a class="reference external" href="https://en.cppreference.com/w/cpp/language/if"&gt;if constexpr&lt;/a&gt;, something supported by
+Pythran (even though we're generating C++11 code in the back-end, but that's another
+story). So it was just a small step forward to handle the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;isinstance(...)&lt;/span&gt;&lt;/tt&gt;
+builtin. Icing on the cake: it's actually the same code transformation that we
+already use to support &lt;tt class="docutils literal"&gt;is None&lt;/tt&gt;!&lt;/p&gt;
+&lt;p&gt;Trivia: Pythran automatically detect a call to &lt;tt class="docutils literal"&gt;abs(x) ** 2&lt;/tt&gt; and replaces it
+by a call to a Pythran builtin, optimized for the actual type of &lt;tt class="docutils literal"&gt;x&lt;/tt&gt;, so this
+example is just... well... an example!&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="support-the-type-builtin"&gt;
+&lt;h2&gt;Support the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;type(...)&lt;/span&gt;&lt;/tt&gt; builtin&lt;/h2&gt;
+&lt;p&gt;Typing is difficult, so I've always been reluctant to implement type-related
+operators. Here is the implementation of the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;type(...)&lt;/span&gt;&lt;/tt&gt; in &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt;:&lt;/p&gt;
+&lt;pre class="code c++ literal-block"&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;type_functor&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;::&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;
+&lt;p&gt;Where &lt;tt class="docutils literal"&gt;type_functor&lt;/tt&gt; maintains a binding between types and functors capable of
+building that type, as in:&lt;/p&gt;
+&lt;pre class="code c++ literal-block"&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;type_functor&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;types&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;functor&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;
+&lt;p&gt;That's some ugly internals of &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; but the interesting part is that all
+the pieces fit together! &lt;em&gt;Gast&lt;/em&gt; do I love static polymorphism and modern C++!
+Say hello to beautiful polymorphic code like:&lt;/p&gt;
+&lt;pre class="code python literal-block"&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;poly&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="clang-cl"&gt;
+&lt;h2&gt;&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;clang-cl&lt;/span&gt;&lt;/tt&gt;&lt;/h2&gt;
+&lt;p&gt;Native extension like the ones produced by Pythran are supposed to be compiled
+using the Microsoft Visual Studio Compiler. That behavior is &lt;a class="reference external" href="https://github.com/python/cpython/blob/e42b705188271da108de42b55d9344642170aa2b/Lib/distutils/msvc9compiler.py#L384"&gt;hardcoded in
+distutils&lt;/a&gt;.
+Unfortunately, this compiler regularly fails to compile Pythran code that
+compiles fine with GCC and Clang.&lt;/p&gt;
+&lt;p&gt;The (relatively hacky, but so satisfying) answer I found out is to rely on
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;clang-cl.exe&lt;/span&gt;&lt;/tt&gt;, a binary shipped with the clang toolchain that mimics the &lt;tt class="docutils literal"&gt;cl.exe&lt;/tt&gt; Command Line
+Interface. It requires some monkey patching in &lt;tt class="docutils literal"&gt;distutils&lt;/tt&gt;, but it's worth the
+price: Pythran now seems to work nice in a MS environment. And according to
+&lt;a class="reference external" href="https://ci.appveyor.com/project/serge-sans-paille/pythran/builds/28505845"&gt;AppVeyor&lt;/a&gt;, the generated module run just fine.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="python-3-8-support"&gt;
+&lt;h2&gt;Python 3.8 support&lt;/h2&gt;
+&lt;p&gt;Pythran uses an internal representation that closely resembles the Python AST,
+but which is independent from it: it can represent both py2, py35, py36, py37
+and now py38 code. That's all thank to this innocent package: &lt;a class="reference external" href="https://github.com/serge-sans-paille/gast"&gt;gast&lt;/a&gt; and not to forget its happy
+companion &lt;a class="reference external" href="https://github.com/serge-sans-paille/beniget/"&gt;beniget&lt;/a&gt; which
+provides use-def chains for Python.&lt;/p&gt;
+&lt;p&gt;Fun fact: &lt;tt class="docutils literal"&gt;gast&lt;/tt&gt; is a relatively small
+package but it's by far the most popular one I created, according to &lt;a class="reference external" href="https://pypistats.org/packages/gast"&gt;pypistats&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>Gast, Beniget! Use-Def chains for Python Programs</title><link href="http://serge-sans-paille.github.io/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html" rel="alternate"></link><published>2019-03-18T00:00:00+01:00</published><updated>2019-03-18T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-18:/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html</id><summary type="html">&lt;p class="first last"&gt;Many tools manipulate the Python AST to analyse or transform it.
 Let's propose a collection of analyse those tools can leverage on: &lt;strong&gt;beniget&lt;/strong&gt;.&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;In spite of its dynamic nature, the Python language has been granted a rich
 ecosystem of Abstract Syntax Tree(AST) analysis and transformations. Off the top of my head, I can already cite:&lt;/p&gt;
