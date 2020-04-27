@@ -9,9 +9,9 @@ Basic Value Range Analysis
           analysis. Let's discuss some implementation details through a bunch of
           examples.
 
-Not every storie begins with an issue, but this one does. And with a quite old
+Not every story begins with an issue, but this one does. And with a quite old
 one! `#1059 <https://github.com/serge-sans-paille/pythran/issues/1059>`_ dates
-back to october, 2018 :-) At that time, I was trying to compile efficiently some
+back to October, 2018 :-) At that time, I was trying to efficiently compile some
 kernels for a `scikit-image PR <https://github.com/scikit-image/scikit-image/pull/3226>`_.
 
 ``_integ`` function from scikit-image
@@ -71,7 +71,7 @@ The translation to python, and thus to pythran, would be:
         ans = img[r, c] + img[r2, c2] - img[r, c2] - img[r2, c]
         return max(0, ans)
 
-Very little change here: the type annotations disappear, as Pythran infers them
+Very little changes here: the type annotations disappear, as Pythran infers them
 from the top-level function and its ``pythran export`` line. All Pythran
 functions are ``nogil`` by default (this is a strong requirement).
 
@@ -126,7 +126,7 @@ Let's illustrate that analysis through an example:
             print("ok")
         return a, b, c
 
-Running this code through ``pythran -P``, which basically optimizes the code
+Running this code through ``pythran -P``, which optimizes the code
 then prints the python code back, gives:
 
 .. code-block:: python
@@ -154,5 +154,5 @@ decent start ;-)
 Conclusion
 ==========
 
-Use ``assert`` statement! Pythran can extract precious information from them,
+Use ``assert`` statements! Pythran can extract precious information from them,
 and there's no runtime cost unless you ask so ;-)
