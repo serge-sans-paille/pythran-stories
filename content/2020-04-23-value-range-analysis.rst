@@ -98,8 +98,8 @@ is involved. Note that each indexing expression is handled independently, unlike
 the global ``wraparound=False`` decorator.
 
 
-Going further
-=============
+Basic Implementation
+====================
 
 Pythran range analysis is relatively simple: it does not support symbolic bounds
 and only manipulates intervals. It is interprocedural given it computes the
@@ -126,6 +126,59 @@ Let's illustrate that analysis through an example:
             print("ok")
         return a, b, c
 
+It's a control flow analysis, so it follows the control flow starting from the
+function entry point. It first meets an ``assert``, so we register that ``1 <= a <= inf``
+(remember, we only use intervals). Then, there's an assignment of constant
+value, so we have:
+
+.. code::
+
+    1 <= a <= inf
+    10 <= b <= 10
+    10 <= c <= 10``
+
+Then comes a ``while`` statement. A while usually has two successors: its body,
+and the next statement. But in that case we evaluate the condition and see that
+it always holds, because we have ``1 <= a``, so we first perform a first round
+of the body, getting, through the two accumulation (let's drop ``c`` for the
+sake of clarity):
+
+.. code::
+
+    0 <= a <= inf
+    11 <= b <=11
+
+Then we're back to the test. The condition no longer always hold, so we need to
+make a decision! The idea here is to perform a *widening*, so we record current
+state, and perform another round, getting ``-1 <= a <= inf; 12 <= b <= 12``.
+Through the comparison of the two states, we can see the evolution of ``a``
+(it shrinks towards ``-inf``) and ``b`` (it grows toward ``+inf``).
+This maybe not super accurate, but it's a correct overestimate.
+So we decide that right before the test, we have:
+
+.. code::
+
+    -inf <= a <= inf
+    11 <= b <= inf
+
+It's safe to apply the condition at the entry point too, so let's constraint our
+intervals once more.
+
+.. code::
+
+    1 <= a <= inf
+    11 <= b <= inf
+
+We're back to the successors of the ``while``. It's an ``if``! Let's first check
+that the condition may hold… And it doesn't! Let's skip it then, and go further.
+The next if is also never reached, so it's a skip again, and the final if may be
+true (but we're not sure if it always is, remember that the intervals are an
+over-estimation). So we need to visit both the true branch and the false branch
+(i.e., in our case, the next statement). And merge the results.
+
+As it turns out, there's no change in the if body, and the return statement only
+consumes the equations without modifying them.
+
 Running this code through ``pythran -P``, which optimizes the code
 then prints the python code back, gives:
 
@@ -143,13 +196,46 @@ then prints the python code back, gives:
         return (a_, b, 10)
 
 The two first prints have been removed, because they were guarded by conditions
-that never hold. ``b == 9`` never holds because ``b`` starts at ``10`` and
-only grows. ``b == 10`` never holds either because the while loop is always
-entered at least once, and Pythran knows that thanks to the ``assert``.
+that never hold.
 
-And as Pythran doesn't perform any kind of modelisation of the accumulation in
-``a`` and ``b``, it cannot get smarter than this, but well, that's already a
-decent start ;-)
+Programming Nits
+================
+
+Using a naive control-flow based approach has some advantages. For instance, in the
+following code:
+
+.. code-block:: python
+
+    def foo(a):
+        if a > 12:
+            b = 1
+        else:
+            b = 2
+        if a > 1:
+            b = 2
+        return b
+
+Because the analysis explores the control flow graph in a depth-first manner,
+when visiting the children of ``if a > 12``, it finds ``if a > 1`` and knows
+*for sure* that the condition holds, thus ending up with ``b == 2`` upon the
+return. Then when visiting the ``else`` branch, it records ``b == 2`` and also
+ends up with ``b == 2`` upon the return.
+
+In the end, ``pythran -P`` on the above snippets yields:
+
+.. code-block:: python
+
+    def foo(a):
+        return 2
+
+
+Let's be honest, this algorithm is super greedy, and if we find a sequence of ``if``
+statements, it has an exponential complexity (and this happens a soon as we
+unroll a loop with a condition in its body). In that case we fall back to a
+less accurate but faster algorithm, that performs a tree transversal instead of
+a control-flow graph transversal. This approach performs an union of the states after each if,
+which leads to ``-inf <= a <= inf; 1 <= b <= 2`` after the first ``if`` in the
+example above.
 
 Conclusion
 ==========
