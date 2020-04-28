@@ -138,7 +138,7 @@ value, so we have:
     10 <= c <= 10``
 
 Then comes a ``while`` statement. A while usually has two successors: its body,
-and the next statement. But in that case we evaluate the condition and see that
+and the next statement. In that case we evaluate the condition and see that
 it always holds, because we have ``1 <= a``, so we first perform a first round
 of the body, getting, through the two accumulation (let's drop ``c`` for the
 sake of clarity):
@@ -161,8 +161,8 @@ So we decide that right before the test, we have:
     -inf <= a <= inf
     11 <= b <= inf
 
-It's safe to apply the condition at the entry point too, so let's constraint our
-intervals once more.
+It's safe to apply the condition at the entry point too, so let's constrain our
+intervals once more to get the constraints in the body:
 
 .. code::
 
@@ -231,7 +231,7 @@ In the end, ``pythran -P`` on the above snippets yields:
 
 Let's be honest, this algorithm is super greedy, and if we find a sequence of ``if``
 statements, it has an exponential complexity (and this happens a soon as we
-unroll a loop with a condition in its body). In that case we fall back to a
+unroll a loop with a condition in its body). In that case (4 threaded ifs, as of now) we fall back to a
 less accurate but faster algorithm, that performs a tree transversal instead of
 a control-flow graph transversal. This approach performs an union of the states after each if,
 which leads to ``-inf <= a <= inf; 1 <= b <= 2`` after the first ``if`` in the
