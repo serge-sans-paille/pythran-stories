@@ -5,20 +5,30 @@ Pythran 0.9.7 - memes tra
 :category: release
 :lang: en
 :authors: serge-sans-paille
-:summary: Pythran version bump, fixing a few performance issues and benchmarking
+:summary: Pythran version bump, supporting Python 3.9, fixing a few performance issues and benchmarking
           the release.
 
-With version 0.9.6, Pythran introduced a new numpy expression computation engine
+Fedora *rawhide* has been moving to Python 3.9, which `broke the pythran package
+<https://bugzilla.redhat.com/show_bug.cgi?id=1818006>`_. This is unsurprising,
+as Python 3.9 changes the `ast <https://docs.python.org/3/library/ast.html>`_
+representation, so `gast <https://github.com/serge-sans-paille/gast>`_ and
+`beniget <https://github.com/serge-sans-paille/beniget>`_, two packages
+*pythran*
+depends on for the AST abstraction, needed to adapt.  As of *pythran* **0.9.7**,
+*gast* has moved to **0.4.0** and *beniget* to **0.3.0**, both support Python 3.9
+and all these packages are now compatible. Good.
+
+With version 0.9.6, *pythran* introduced a new *numpy* expression computation engine
 that solved a few issues but also introduced a performance regression for
 various kernels. I've been working on fixing that aspect, and I'm quite happy
 with the result, showcased in version 0.9.7.
 
-Performance is a critical aspect of Pythran, so it comes at no surprise that the
+Performance is a critical aspect of *pythran*, so it comes at no surprise that the
 expression evaluation engine got rewritten several times. To evaluate the
 difference between 0.9.5 and 0.9.7, let's use the `numpy benchmark
 <https://github.com/serge-sans-paille/numpy-benchmarks/>`_ project. It contains
 a collection of high-level kernels, and was recently granted a few options to
-easien comparison of performance across project version.
+ease comparison of performance across project version.
 
 .. code-block:: console
 
@@ -41,8 +51,8 @@ there's still room for improvement, as shown by ``grayscott`` and
 so that's expected, but the slowdown still need some investigation…
 
 
-The ``np-bench`` script also makes it possible to compare pythran with cpython
-or numba. Let's try that:
+The ``np-bench`` script also makes it possible to compare *pythran* with *cpython*
+or *numba*. Let's try that:
 
 .. code-block:: console
 
@@ -58,13 +68,14 @@ Interestingly, unoptimized python is still ahead for a few benchmarks, that
 prove to be too complex to optimize (?) Another subject that needs
 investigation.
 
-The kernel are mostly high-level ones, and that doesn't always match numba's
-reuqirements, which explains that it sometimes just scoops.
+The kernel are mostly high-level ones, and that doesn't always match *numba*'s
+requirements, which explains that it sometimes just scoops.
 
-Overall Pythran performance are still satisfying, but we definitily need to
+Overall *pythran* performance are still satisfying, but we definitively need to
 investigate why we lost performance compared to 0.9.5 in a few cases, and why we
 don't manage to generate faster code for ``peridoic-dist`` and ``cronbach``.
 
-And if you're interested in investigating the benchmarks, all source are
-available in
-https://github.com/serge-sans-paille/numpy-benchmarks/tree/master/numpy_benchmarks/benchmarks
+That was a short post, the changelog is, as always, `available online
+<https://pythran.readthedocs.io/en/latest/Changelog.html>`_, and if you're
+interested in investigating the benchmarks, all source are available in
+`the tree <https://github.com/serge-sans-paille/numpy-benchmarks/tree/master/numpy_benchmarks/benchmarks>`. Enjoy!
