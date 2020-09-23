@@ -1,5 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2020-04-23T00:00:00+02:00</updated><entry><title>Basic Value Range Analysis</title><link href="http://serge-sans-paille.github.io/pythran-stories/basic-value-range-analysis.html" rel="alternate"></link><published>2020-04-23T00:00:00+02:00</published><updated>2020-04-23T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2020-04-23:/pythran-stories/basic-value-range-analysis.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a significant improvment in its value range
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2020-09-23T00:00:00+02:00</updated><entry><title>Pythran 0.9.7 - memes tra</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-097-memes-tra.html" rel="alternate"></link><published>2020-09-23T00:00:00+02:00</published><updated>2020-09-23T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2020-09-23:/pythran-stories/pythran-097-memes-tra.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, supporting Python 3.9, fixing a few performance issues and benchmarking
+the release.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Fedora &lt;em&gt;rawhide&lt;/em&gt; has been moving to Python 3.9, which &lt;a class="reference external" href="https://bugzilla.redhat.com/show_bug.cgi?id=1818006"&gt;broke the pythran package&lt;/a&gt;. This is unsurprising,
+as Python 3.9 changes the &lt;a class="reference external" href="https://docs.python.org/3/library/ast.html"&gt;ast&lt;/a&gt;
+representation, so &lt;a class="reference external" href="https://github.com/serge-sans-paille/gast"&gt;gast&lt;/a&gt; and
+&lt;a class="reference external" href="https://github.com/serge-sans-paille/beniget"&gt;beniget&lt;/a&gt;, two packages
+&lt;em&gt;pythran&lt;/em&gt;
+depends on for the AST abstraction, needed to adapt.  As of &lt;em&gt;pythran&lt;/em&gt; &lt;strong&gt;0.9.7&lt;/strong&gt;,
+&lt;em&gt;gast&lt;/em&gt; has moved to &lt;strong&gt;0.4.0&lt;/strong&gt; and &lt;em&gt;beniget&lt;/em&gt; to &lt;strong&gt;0.3.0&lt;/strong&gt;, both support Python 3.9
+and all these packages are now compatible. Good.&lt;/p&gt;
+&lt;p&gt;With version 0.9.6, &lt;em&gt;pythran&lt;/em&gt; introduced a new &lt;em&gt;numpy&lt;/em&gt; expression computation engine
+that solved a few issues but also introduced a performance regression for
+various kernels. I've been working on fixing that aspect, and I'm quite happy
+with the result, showcased in version 0.9.7.&lt;/p&gt;
+&lt;p&gt;Performance is a critical aspect of &lt;em&gt;pythran&lt;/em&gt;, so it comes at no surprise that the
+expression evaluation engine got rewritten several times. To evaluate the
+difference between 0.9.5 and 0.9.7, let's use the &lt;a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/"&gt;numpy benchmark&lt;/a&gt; project. It contains
+a collection of high-level kernels, and was recently granted a few options to
+ease comparison of performance across project version.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;$&lt;/span&gt; pip install &lt;span class="nv"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.5
+&lt;span class="gp"&gt;$&lt;/span&gt; np-bench run -tpythran -p0.9.5- -o &lt;span class="m"&gt;095&lt;/span&gt;.log
+&lt;span class="gp"&gt;$&lt;/span&gt; pip install &lt;span class="nv"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.7
+&lt;span class="gp"&gt;$&lt;/span&gt; np-bench run -tpythran -p0.9.7- -o &lt;span class="m"&gt;097&lt;/span&gt;.log
+&lt;span class="gp"&gt;$&lt;/span&gt; np-bench format &lt;span class="m"&gt;095&lt;/span&gt;.log &lt;span class="m"&gt;097&lt;/span&gt;.log -tsvg --logscale --normalize&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.5-pythran
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Which gives:&lt;/p&gt;
+&lt;object data="./images/2020-09-23-pythran-evolve.svg" type="image/svg+xml"&gt;
+&lt;/object&gt;
+&lt;p&gt;There are quite a few things to tell on that comparison: some benchmarks are in
+much better shape (especially &lt;tt class="docutils literal"&gt;laplacien&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;wave&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;diffusuon&lt;/tt&gt;) but
+there's still room for improvement, as shown by &lt;tt class="docutils literal"&gt;grayscott&lt;/tt&gt; and
+&lt;tt class="docutils literal"&gt;local_maxima&lt;/tt&gt;. The performance boost is due to the better expression engine,
+so that's expected, but the slowdown still needs some investigation…&lt;/p&gt;
+&lt;p&gt;The &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;np-bench&lt;/span&gt;&lt;/tt&gt; script also makes it possible to compare &lt;em&gt;pythran&lt;/em&gt; with &lt;em&gt;cpython&lt;/em&gt;
+or &lt;em&gt;numba&lt;/em&gt;. Let's try that:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;$&lt;/span&gt; pip install -U pythran numba
+&lt;span class="gp"&gt;$&lt;/span&gt; np-bench run -tpythran -tnumba -tpython -oall.log
+&lt;span class="gp"&gt;$&lt;/span&gt; np-bench format all.log -tsvg --logscale --normalize&lt;span class="o"&gt;=&lt;/span&gt;python
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Which gives:&lt;/p&gt;
+&lt;object data="./images/2020-09-23-pythran-all.svg" type="image/svg+xml"&gt;
+&lt;/object&gt;
+&lt;p&gt;Interestingly, unoptimized python is still ahead for a few benchmarks. That wasn't the case a few years ago. If I recall correctly, taht's due to &lt;em&gt;numpy&lt;/em&gt; now performing better, but that's just an educated guess… Another subject that needs investigation :-).&lt;/p&gt;
+&lt;p&gt;The kernel are mostly high-level ones, and that doesn't always match &lt;em&gt;numba&lt;/em&gt;'s
+requirements, which explains that it sometimes just gives up.&lt;/p&gt;
+&lt;p&gt;Overall &lt;em&gt;pythran&lt;/em&gt; performance are still satisfying, but we definitively need to
+investigate why we lost performance compared to 0.9.5 in a few cases, and why we
+don't manage to generate faster code for &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;peridoic-dist&lt;/span&gt;&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;cronbach&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;That was a short post, the changelog is, as always, &lt;a class="reference external" href="https://pythran.readthedocs.io/en/latest/Changelog.html"&gt;available online&lt;/a&gt;, and if you're
+interested in investigating the benchmarks, all source are available in
+&lt;cite&gt;the tree &amp;lt;https://github.com/serge-sans-paille/numpy-benchmarks/tree/master/numpy_benchmarks/benchmarks&amp;gt;&lt;/cite&gt;. Enjoy!&lt;/p&gt;
+</content></entry><entry><title>Basic Value Range Analysis</title><link href="http://serge-sans-paille.github.io/pythran-stories/basic-value-range-analysis.html" rel="alternate"></link><published>2020-04-23T00:00:00+02:00</published><updated>2020-04-23T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2020-04-23:/pythran-stories/basic-value-range-analysis.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a significant improvment in its value range
 analysis. Let's discuss some implementation details through a bunch of
 examples.&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;Not every story begins with an issue, but this one does. And with a quite old
