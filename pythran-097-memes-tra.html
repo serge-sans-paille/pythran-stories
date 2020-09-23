@@ -138,9 +138,12 @@
 <a href="./category/release.html"><i class="icon-folder-open"></i>release</a>.
 
 
-</footer><!-- /.post-info -->                </div>
-                <p>Fedora <em>rawhide</em> has been moving to Python 3.9, which <a class="reference external" href="https://bugzilla.redhat.com/show_bug.cgi?id=1818006">broke the pythran package</a>. This is unsurprising,
-as Python 3.9 changes the <a class="reference external" href="https://docs.python.org/3/library/ast.html">ast</a>
+</footer><!-- /.post-info -->
+</div>
+<p>Fedora <em>rawhide</em> has been moving to Python 3.9, which
+<a class="reference external" href="https://bugzilla.redhat.com/show_bug.cgi?id=1818006">broke the pythran package</a>.
+This is unsurprising, as Python 3.9 changes the
+<a class="reference external" href="https://docs.python.org/3/library/ast.html">ast</a>
 representation, so <a class="reference external" href="https://github.com/serge-sans-paille/gast">gast</a> and
 <a class="reference external" href="https://github.com/serge-sans-paille/beniget">beniget</a>, two packages
 <em>pythran</em>
@@ -151,11 +154,11 @@ and all these packages are now compatible. Good.</p>
 that solved a few issues but also introduced a performance regression for
 various kernels. I've been working on fixing that aspect, and I'm quite happy
 with the result, showcased in version 0.9.7.</p>
-<p>Performance is a critical aspect of <em>pythran</em>, so it comes at no surprise that the
+<p>Performance is a critical aspect of <em>pythran</em>, so it comes as no surprise that the
 expression evaluation engine got rewritten several times. To evaluate the
 difference between 0.9.5 and 0.9.7, let's use the <a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/">numpy benchmark</a> project. It contains
 a collection of high-level kernels, and was recently granted a few options to
-ease comparison of performance across project version.</p>
+ease comparison of performance across project versions.</p>
 <div class="highlight"><pre><span></span><span class="gp">$</span> pip install <span class="nv">pythran</span><span class="o">==</span><span class="m">0</span>.9.5
 <span class="gp">$</span> np-bench run -tpythran -p0.9.5- -o <span class="m">095</span>.log
 <span class="gp">$</span> pip install <span class="nv">pythran</span><span class="o">==</span><span class="m">0</span>.9.7
@@ -166,12 +169,12 @@ ease comparison of performance across project version.</p>
 <object data="./images/2020-09-23-pythran-evolve.svg" type="image/svg+xml">
 </object>
 <p>There are quite a few things to tell on that comparison: some benchmarks are in
-much better shape (especially <tt class="docutils literal">laplacien</tt>, <tt class="docutils literal">wave</tt> and <tt class="docutils literal">diffusuon</tt>) but
+much better shape (especially <tt class="docutils literal">laplacien</tt>, <tt class="docutils literal">wave</tt> and <tt class="docutils literal">diffusion</tt>) but
 there's still room for improvement, as shown by <tt class="docutils literal">grayscott</tt> and
 <tt class="docutils literal">local_maxima</tt>. The performance boost is due to the better expression engine,
 so that's expected, but the slowdown still needs some investigation…</p>
-<p>The <tt class="docutils literal"><span class="pre">np-bench</span></tt> script also makes it possible to compare <em>pythran</em> with <em>cpython</em>
-or <em>numba</em>. Let's try that:</p>
+<p>The <tt class="docutils literal"><span class="pre">np-bench</span></tt> script also makes it possible to compare <em>Pythran</em> with <em>CPython</em>
+or <em>Numba</em>. Let's try that:</p>
 <div class="highlight"><pre><span></span><span class="gp">$</span> pip install -U pythran numba
 <span class="gp">$</span> np-bench run -tpythran -tnumba -tpython -oall.log
 <span class="gp">$</span> np-bench format all.log -tsvg --logscale --normalize<span class="o">=</span>python
@@ -179,15 +182,21 @@ or <em>numba</em>. Let's try that:</p>
 <p>Which gives:</p>
 <object data="./images/2020-09-23-pythran-all.svg" type="image/svg+xml">
 </object>
-<p>Interestingly, unoptimized python is still ahead for a few benchmarks. That wasn't the case a few years ago. If I recall correctly, taht's due to <em>numpy</em> now performing better, but that's just an educated guess… Another subject that needs investigation :-).</p>
-<p>The kernel are mostly high-level ones, and that doesn't always match <em>numba</em>'s
+<p>Interestingly, unoptimized Python is still ahead for a few benchmarks. That wasn't the case a few years ago.
+If I recall correctly, that's due to <em>numpy</em> now performing better, but that's
+just an educated guess… Another subject to investigate :-).</p>
+<p>The kernels are mostly high-level ones, and that doesn't always match <em>numba</em>'s
 requirements, which explains that it sometimes just gives up.</p>
-<p>Overall <em>pythran</em> performance are still satisfying, but we definitively need to
+<p>Overall <em>pythran</em> performance are still satisfying, but we definitely need to
 investigate why we lost performance compared to 0.9.5 in a few cases, and why we
-don't manage to generate faster code for <tt class="docutils literal"><span class="pre">peridoic-dist</span></tt> and <tt class="docutils literal">cronbach</tt>.</p>
-<p>That was a short post, the changelog is, as always, <a class="reference external" href="https://pythran.readthedocs.io/en/latest/Changelog.html">available online</a>, and if you're
-interested in investigating the benchmarks, all source are available in
-<cite>the tree &lt;https://github.com/serge-sans-paille/numpy-benchmarks/tree/master/numpy_benchmarks/benchmarks&gt;</cite>. Enjoy!</p>
+don't manage to generate faster code for
+<tt class="docutils literal"><span class="pre">periodic-dist</span></tt> and
+<tt class="docutils literal">cronbach</tt>.</p>
+<p>That was a short post, the changelog is, as always,
+<a class="reference external" href="https://pythran.readthedocs.io/en/latest/Changelog.html">available online</a>,
+and if you're interested in investigating the benchmarks, all sources are available in
+<a class="reference-external" href="https://github.com/serge-sans-paille/numpy-benchmarks/tree/master/numpy_benchmarks/benchmarks">the tree</a>.
+Enjoy!</p>
 
                 </div><!-- /.entry-content -->
         </article>
@@ -199,9 +208,9 @@ interested in investigating the benchmarks, all source are available in
 <li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
     <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
     <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
-<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i>social</h4></li>
 <li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
-    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>GitHub</a></li>
 
 <li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
 <li>
