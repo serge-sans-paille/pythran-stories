@@ -44,11 +44,11 @@ Which gives:
 .. image:: ./images/2020-09-23-pythran-evolve.svg
 
 
-There's quite a few things to tell on that comparison: some benchmarks are in
+There are quite a few things to tell on that comparison: some benchmarks are in
 much better shape (especially ``laplacien``, ``wave`` and ``diffusuon``) but
 there's still room for improvement, as shown by ``grayscott`` and
 ``local_maxima``. The performance boost is due to the better expression engine,
-so that's expected, but the slowdown still need some investigation…
+so that's expected, but the slowdown still needs some investigation…
 
 
 The ``np-bench`` script also makes it possible to compare *pythran* with *cpython*
@@ -64,12 +64,10 @@ Which gives:
 
 .. image:: ./images/2020-09-23-pythran-all.svg
 
-Interestingly, unoptimized python is still ahead for a few benchmarks, that
-prove to be too complex to optimize (?) Another subject that needs
-investigation.
+Interestingly, unoptimized python is still ahead for a few benchmarks. That wasn't the case a few years ago. If I recall correctly, taht's due to *numpy* now performing better, but that's just an educated guess… Another subject that needs investigation :-).
 
 The kernel are mostly high-level ones, and that doesn't always match *numba*'s
-requirements, which explains that it sometimes just scoops.
+requirements, which explains that it sometimes just gives up.
 
 Overall *pythran* performance are still satisfying, but we definitively need to
 investigate why we lost performance compared to 0.9.5 in a few cases, and why we
