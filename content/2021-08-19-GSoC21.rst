@@ -67,8 +67,8 @@ looked into the public open issues now and then and helped fix them.
 
 When using Pythran to improve SciPy algorithms, I found some important modules are not 
 supported or got false result in Pythran currently, e.g. boolean arguments 
-such as ``keepdims`` was not supported in Pythran because the return type
-would change based on true/false of ``keepdims``. Therefore, I made a general
+such as ``keepdims`` were not supported in Pythran because the return type
+would change based on the value of ``keepdims`` (True or False). Therefore, I made a general
 support for such cases.
 
 
@@ -81,9 +81,9 @@ support for such cases.
 Issues
 ------
 
-In addition to the above mentioned, I digged out more issues in Pythran while
+In addition to the above-mentioned issues, I dug up more issues in Pythran while
 using it, so I opened many issues in Pythran. My mentors often helped solve 
-those issues and I'll test if it works. 
+those issues and then I tested whether the fixes worked. 
 
 
 #. [closed] `Pythran makes np.searchsorted much slower <https://github.com/serge-sans-paille/pythran/issues/1793>`_ 
@@ -104,16 +104,16 @@ Work Left
 =========
 
 As the project proceeded, I found it was difficult to find 
-suitable algorithms to be implemented. A suitable algorithm for Pythran should meet  at least three requirements:
+suitable algorithms to be implemented. A suitable algorithm for Pythran should meet at least three requirements:
 
-* Is currently slow 
-* Do not have modules that Pythran doesn't support, e.g. class type, imported SciPy modules.
-* Has obvious loops so that the speedup would be large. 
+* It is currently slow. 
+* It does not have modules that Pythran doesn't support, e.g. class type, imported SciPy modules.
+* It has obvious loops so that the speedup would be large. 
 
 I looked through almost all the algorithms but found little.
 Moreover, in our past experience 
-with Pythran,  we often run into some things that are easy to get wrong, such as 
-using arrays that are views as input to a Pythranized function, the use of different dtypes. 
+with Pythran, we often run into some things that are easy to get wrong, such as 
+using arrays that are views as input to a Pythranized function, or the use of different dtypes. 
 Therefore, we need better testing and we decided to change the plan to 
 write better testing infrastructure for Pythran extensions: 
 `WIP: TST: add tests for Pythran somersd <https://github.com/scipy/scipy/pull/14559#>`_
@@ -130,10 +130,10 @@ Special thanks to my mentors, Ralf and Serge, who provided immense support
 for me to get through the difficulties.
 I’m very fortunate to get the chance to dive into and contribute to SciPy 
 and Pythran this summer, especially with such awesome mentors. 
-I have learnt a lot, intellectual or spiritual. I would love to continue contributing to SciPy and Pythran in the future :)
+I have learnt a lot, both intellectually and spiritually. I would love to continue contributing to SciPy and Pythran in the future :)
 
 
-Thanks to Google Summer of Code and Python Software Foundation! 
+Thanks to Google Summer of Code and the Python Software Foundation! 
 
 .. |SciPy| image:: https://img.shields.io/badge/SciPy-1F618D
 .. |accelerate| image:: https://img.shields.io/badge/accelerate-A9DFBF
