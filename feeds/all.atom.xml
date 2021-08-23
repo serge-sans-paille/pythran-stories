@@ -1,5 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2020-09-23T00:00:00+02:00</updated><entry><title>Pythran 0.9.7 - memes tra</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-097-memes-tra.html" rel="alternate"></link><published>2020-09-23T00:00:00+02:00</published><updated>2020-09-23T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2020-09-23:/pythran-stories/pythran-097-memes-tra.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, supporting Python 3.9, fixing a few performance issues and benchmarking
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2021-08-19T00:00:00+02:00</updated><entry><title>GSoC’21 Improve performance through the use of Pythran</title><link href="http://serge-sans-paille.github.io/pythran-stories/gsoc21-improve-performance-through-the-use-of-pythran.html" rel="alternate"></link><published>2021-08-19T00:00:00+02:00</published><updated>2021-08-19T00:00:00+02:00</updated><author><name>Xingyu Liu</name></author><id>tag:serge-sans-paille.github.io,2021-08-19:/pythran-stories/gsoc21-improve-performance-through-the-use-of-pythran.html</id><summary type="html">&lt;p class="first last"&gt;This project is about using Pythran to accelerate algorithms in SciPy and
+writing benchmarks for the algorithms. Let's look into the details of the project.&lt;/p&gt;
+</summary><content type="html">&lt;div class="section" id="project-overview"&gt;
+&lt;h2&gt;Project Overview&lt;/h2&gt;
+&lt;p&gt;There are a lot of algorithms in &lt;a class="reference external" href="https://github.com/scipy/scipy"&gt;SciPy&lt;/a&gt; that use &lt;a class="reference external" href="https://github.com/cython/cython"&gt;Cython&lt;/a&gt; to improve
+the performance of code that would be too slow as pure Python,
+e.g. algorithms in &lt;tt class="docutils literal"&gt;scipy.spatial&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;scipy.stats&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;scipy.optimize&lt;/tt&gt;.
+Recently, SciPy added experimental support for &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran"&gt;Pythran&lt;/a&gt;,
+to make it easier to accelerate Python code.
+Compared with Cython, Pythran is more readable and even faster.
+Furthermore, SciPy uses &lt;a class="reference external" href="https://asv.readthedocs.io/"&gt;Airspeed Velocity&lt;/a&gt; for performance benchmarking.
+Therefore, our project includes:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Writing benchmarks for the algorithms in SciPy&lt;/li&gt;
+&lt;li&gt;Accelerating SciPy algorithms with Pythran.&lt;/li&gt;
+&lt;li&gt;Find and solve potential issues in Pythran&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;My full proposal can be accessed &lt;a class="reference external" href="https://docs.google.com/document/d/1nM7dYbmModiukQw-sSOVGz6t5S6HC0VVWucYadI_aMQ/edit?usp=sharing"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="what-i-have-done"&gt;
+&lt;h2&gt;What I have done&lt;/h2&gt;
+&lt;div class="section" id="pull-requests"&gt;
+&lt;h3&gt;Pull Requests&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;SciPy&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;In SciPy, I mainly worked on writing benchmarks to measure the performance
+of algorithms and using Pythran to accelerate those algorithms. Also, I
+looked into the public open issues now and then and helped fix them.&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14018"&gt;BENCH: add benchmark for f_oneway&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14163"&gt;BENCH: add benchmark for energy_distance and wasserstein_distance&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14228#"&gt;BENCH: add more benchmarks for inferential statistics tests&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14224#"&gt;MAINT: Modify to use new random API in benchmarks&lt;/a&gt;: Most of current benchmarks uses &lt;tt class="docutils literal"&gt;np.random.seed()&lt;/tt&gt;, but it is recommended to use &lt;tt class="docutils literal"&gt;np.random.default_rng()&lt;/tt&gt; instead.&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy"&gt;BENCH: add benchmark for somersd&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14308"&gt;ENH: use Pythran to speedup somersd and _tau_b&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="bug" src="https://img.shields.io/badge/bug-5D6D7E" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14458"&gt;DOC: clarify meaning of rvalue in stats.linregress&lt;/a&gt; : helped fix a bug and review the PR.&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="bug" src="https://img.shields.io/badge/bug-5D6D7E" /&gt; &lt;img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14338"&gt;BUG: fix stats.binned_statistic_dd issue with values close to bin edge&lt;/a&gt; : helped fix a bug.&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/13957"&gt;ENH: Pythran implementation of _compute_prob_outside_square and _compute_prob_inside_method to speedup stats.ks_2samp&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14345"&gt;ENH: improved binned_statistic_dd via Pythran&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14429"&gt;ENH: improve cspline1d, qspline1d, and relative funcs via Pythran&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14430"&gt;ENH: improve siegelslopes via pythran&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="On Hold" src="https://img.shields.io/badge/OnHold-F5B7B1" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14154"&gt;ENH: Pythran implementation of _cdf_distance&lt;/a&gt; : Pythran version is slightly better than the Python one after fixing &lt;tt class="docutils literal"&gt;np.searchsorted()&lt;/tt&gt;. When SciPy begin using SIMD in the future, it may be faster so this PR is currently on hold.&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="On Hold" src="https://img.shields.io/badge/OnHold-F5B7B1" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14314"&gt;WIP: ENH: improve _count_paths_outside_method via pythran&lt;/a&gt; : This PR got stuck in a Mac specific error and we haven’t find out why.&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="On Hold" src="https://img.shields.io/badge/OnHold-F5B7B1" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14376"&gt;WIP: ENH: improve sort_vertices_of_regions via Pythran and made it more readable&lt;/a&gt; : There are currently two tests we can’t pass because 1. With Pythran we can’t do inplace sort 2. The input type will change in the Pythran function&lt;/li&gt;
+&lt;li&gt;&lt;img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /&gt; &lt;img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /&gt; &lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14473"&gt;ENH: improve _sosfilt_float via Pythran&lt;/a&gt;  : &lt;tt class="docutils literal"&gt;_sosfilt_float&lt;/tt&gt; is already implemented in Cython. We were considering to replace it but found Pythran performance is not much better than Cython's, and Pythran does not support &lt;tt class="docutils literal"&gt;object&lt;/tt&gt; type, so we decided not to merge it.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Pythran&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;When using Pythran to improve SciPy algorithms, I found some important modules are not
+supported or got false result in Pythran currently, e.g. boolean arguments
+such as &lt;tt class="docutils literal"&gt;keepdims&lt;/tt&gt; were not supported in Pythran because the return type
+would change based on the value of &lt;tt class="docutils literal"&gt;keepdims&lt;/tt&gt; (True or False). Therefore, I made a general
+support for such cases.&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;&lt;img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /&gt; &lt;img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1830"&gt;Import test cases from scipy&lt;/a&gt; : Import Pythran functions in SciPy as test case in Pythran&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /&gt; &lt;img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1869#"&gt;Feature/add keep dims&lt;/a&gt; : support keepdims argument in &lt;tt class="docutils literal"&gt;np.mean()&lt;/tt&gt; in Pythran&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /&gt; &lt;img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1876"&gt;Support boolean arguments in numpy unique&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /&gt; &lt;img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /&gt; &lt;img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1878"&gt;General implementation of supporting immediate arguments&lt;/a&gt;: Generalize the above two solutions to support immediate arguments.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;div class="section" id="issues"&gt;
+&lt;h3&gt;Issues&lt;/h3&gt;
+&lt;p&gt;In addition to the above-mentioned issues, I dug up more issues in Pythran while
+using it, so I opened many issues in Pythran. My mentors often helped solve
+those issues and then I tested whether the fixes worked.&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1793"&gt;Pythran makes np.searchsorted much slower&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1753"&gt;Pythran may make a function slower?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1792"&gt;u_values[u_sorter].searchsort would cause &amp;quot;Function path is chained attributes and name&amp;quot; but np.search would not&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1791"&gt;all_values.sort() would cause compilation error but np.sort(all_values) would not&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1792"&gt;u_values[u_sorter].searchsort would cause &amp;quot;Function path is chained attributes and name&amp;quot; but np.searchsort would not&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1804"&gt;Support scipy.special.binom?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1815"&gt;Got AttributeError: module 'scipy' has no attribute 'special' when building scipy with special import&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1818"&gt;Got compilation error when the inner variable type changes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1819"&gt;Can't index an 2d array like a1[int, tuple]&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1820"&gt;keep_dims is not supported in np.mean()&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1850"&gt;can't use np.expand_dims with specified keyword argument&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Open" src="https://img.shields.io/badge/Open-2ea44f" /&gt; &lt;a class="reference external" href="https://github.com/scipy/scipy/issues/14315"&gt;bus error on Mac but works fine on Linux for _count_paths_outside_method pythran version&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img alt="Open" src="https://img.shields.io/badge/Open-2ea44f" /&gt; &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1858"&gt;array assignment res[cond1] = ax[cond1] works fine for int[] or float[] or float[:,:] but not int[:,:]&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="work-left"&gt;
+&lt;h2&gt;Work Left&lt;/h2&gt;
+&lt;p&gt;As the project proceeded, I found it was difficult to find
+suitable algorithms to be implemented. A suitable algorithm for Pythran should meet at least three requirements:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;It is currently slow.&lt;/li&gt;
+&lt;li&gt;It does not have modules that Pythran doesn't support, e.g. class type, imported SciPy modules.&lt;/li&gt;
+&lt;li&gt;It has obvious loops so that the speedup would be large.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I looked through almost all the algorithms but found little.
+Moreover, in our past experience
+with Pythran, we often run into some things that are easy to get wrong, such as
+using arrays that are views as input to a Pythranized function, or the use of different dtypes.
+Therefore, we need better testing and we decided to change the plan to
+write better testing infrastructure for Pythran extensions:
+&lt;a class="reference external" href="https://github.com/scipy/scipy/pull/14559#"&gt;WIP: TST: add tests for Pythran somersd&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="project-experience"&gt;
+&lt;h2&gt;Project Experience&lt;/h2&gt;
+&lt;p&gt;It has been a great experience working on this project in GSoC'21,
+my mentors are really friendly and responsive,
+and the community are also always willing to help.&lt;/p&gt;
+&lt;p&gt;Special thanks to my mentors, Ralf and Serge, who provided immense support
+for me to get through the difficulties.
+I’m very fortunate to get the chance to dive into and contribute to SciPy
+and Pythran this summer, especially with such awesome mentors.
+I have learnt a lot, both intellectually and spiritually. I would love to continue contributing to SciPy and Pythran in the future :)&lt;/p&gt;
+&lt;p&gt;Thanks to Google Summer of Code and the Python Software Foundation!&lt;/p&gt;
+&lt;/div&gt;
+</content></entry><entry><title>Pythran 0.9.7 - memes tra</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-097-memes-tra.html" rel="alternate"></link><published>2020-09-23T00:00:00+02:00</published><updated>2020-09-23T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2020-09-23:/pythran-stories/pythran-097-memes-tra.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, supporting Python 3.9, fixing a few performance issues and benchmarking
 the release.&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;Fedora &lt;em&gt;rawhide&lt;/em&gt; has been moving to Python 3.9, which &lt;a class="reference external" href="https://bugzilla.redhat.com/show_bug.cgi?id=1818006"&gt;broke the Pythran package&lt;/a&gt;. This is unsurprising,
 as Python 3.9 changes the &lt;a class="reference external" href="https://docs.python.org/3/library/ast.html"&gt;ast&lt;/a&gt;

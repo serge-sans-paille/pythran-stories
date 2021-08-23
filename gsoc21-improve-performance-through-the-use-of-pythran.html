@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>GSoC’21 Improve performance through the use of Pythran</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="serge-sans-paille and other pythraners">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="./theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
+
+    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="./index.html">Pythran stories </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="./category/benchmark.html">
+						<i class="icon-folder-open icon-large"></i>benchmark
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/compilation.html">
+						<i class="icon-folder-open icon-large"></i>compilation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/cython.html">
+						<i class="icon-folder-open icon-large"></i>cython
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/engineering.html">
+						<i class="icon-folder-open icon-large"></i>engineering
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="./category/examples.html">
+						<i class="icon-folder-open icon-large"></i>examples
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/optimisation.html">
+						<i class="icon-folder-open icon-large"></i>optimisation
+					</a>
+                  </li>
+                  <li >
+                    <a href="./category/release.html">
+						<i class="icon-folder-open icon-large"></i>release
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to GSoC’21 Improve performance through the use of Pythran">
+                                        GSoC’21 Improve performance through the use of Pythran
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2021-08-19T00:00:00+02:00">
+        <i class="icon-calendar"></i>Thu 19 August 2021
+</abbr>
+<span class="label">By</span>
+<a href="./author/xingyu-liu.html"><i class="icon-user"></i>Xingyu Liu</a>
+<span class="label">Category</span>
+<a href="./category/examples.html"><i class="icon-folder-open"></i>examples</a>.
+
+
+</footer><!-- /.post-info -->                </div>
+                <div class="section" id="project-overview">
+<h2>Project Overview</h2>
+<p>There are a lot of algorithms in <a class="reference external" href="https://github.com/scipy/scipy">SciPy</a> that use <a class="reference external" href="https://github.com/cython/cython">Cython</a> to improve
+the performance of code that would be too slow as pure Python,
+e.g. algorithms in <tt class="docutils literal">scipy.spatial</tt>, <tt class="docutils literal">scipy.stats</tt> and <tt class="docutils literal">scipy.optimize</tt>.
+Recently, SciPy added experimental support for <a class="reference external" href="https://github.com/serge-sans-paille/pythran">Pythran</a>,
+to make it easier to accelerate Python code.
+Compared with Cython, Pythran is more readable and even faster.
+Furthermore, SciPy uses <a class="reference external" href="https://asv.readthedocs.io/">Airspeed Velocity</a> for performance benchmarking.
+Therefore, our project includes:</p>
+<ul class="simple">
+<li>Writing benchmarks for the algorithms in SciPy</li>
+<li>Accelerating SciPy algorithms with Pythran.</li>
+<li>Find and solve potential issues in Pythran</li>
+</ul>
+<p>My full proposal can be accessed <a class="reference external" href="https://docs.google.com/document/d/1nM7dYbmModiukQw-sSOVGz6t5S6HC0VVWucYadI_aMQ/edit?usp=sharing">here</a>.</p>
+</div>
+<div class="section" id="what-i-have-done">
+<h2>What I have done</h2>
+<div class="section" id="pull-requests">
+<h3>Pull Requests</h3>
+<p><strong>SciPy</strong></p>
+<p>In SciPy, I mainly worked on writing benchmarks to measure the performance
+of algorithms and using Pythran to accelerate those algorithms. Also, I
+looked into the public open issues now and then and helped fix them.</p>
+<ol class="arabic simple">
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14018">BENCH: add benchmark for f_oneway</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14163">BENCH: add benchmark for energy_distance and wasserstein_distance</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14228#">BENCH: add more benchmarks for inferential statistics tests</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14224#">MAINT: Modify to use new random API in benchmarks</a>: Most of current benchmarks uses <tt class="docutils literal">np.random.seed()</tt>, but it is recommended to use <tt class="docutils literal">np.random.default_rng()</tt> instead.</li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="benchmark" src="https://img.shields.io/badge/benchmark-F9E79F" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/scipy/scipy">BENCH: add benchmark for somersd</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14308">ENH: use Pythran to speedup somersd and _tau_b</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="bug" src="https://img.shields.io/badge/bug-5D6D7E" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14458">DOC: clarify meaning of rvalue in stats.linregress</a> : helped fix a bug and review the PR.</li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="bug" src="https://img.shields.io/badge/bug-5D6D7E" /> <img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14338">BUG: fix stats.binned_statistic_dd issue with values close to bin edge</a> : helped fix a bug.</li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/13957">ENH: Pythran implementation of _compute_prob_outside_square and _compute_prob_inside_method to speedup stats.ks_2samp</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14345">ENH: improved binned_statistic_dd via Pythran</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14429">ENH: improve cspline1d, qspline1d, and relative funcs via Pythran</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="Under Review" src="https://img.shields.io/badge/UnderReview-2ea44f" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14430">ENH: improve siegelslopes via pythran</a></li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="On Hold" src="https://img.shields.io/badge/OnHold-F5B7B1" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14154">ENH: Pythran implementation of _cdf_distance</a> : Pythran version is slightly better than the Python one after fixing <tt class="docutils literal">np.searchsorted()</tt>. When SciPy begin using SIMD in the future, it may be faster so this PR is currently on hold.</li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="On Hold" src="https://img.shields.io/badge/OnHold-F5B7B1" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14314">WIP: ENH: improve _count_paths_outside_method via pythran</a> : This PR got stuck in a Mac specific error and we haven’t find out why.</li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="On Hold" src="https://img.shields.io/badge/OnHold-F5B7B1" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14376">WIP: ENH: improve sort_vertices_of_regions via Pythran and made it more readable</a> : There are currently two tests we can’t pass because 1. With Pythran we can’t do inplace sort 2. The input type will change in the Pythran function</li>
+<li><img alt="SciPy" src="https://img.shields.io/badge/SciPy-1F618D" /> <img alt="accelerate" src="https://img.shields.io/badge/accelerate-A9DFBF" /> <img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/scipy/scipy/pull/14473">ENH: improve _sosfilt_float via Pythran</a>  : <tt class="docutils literal">_sosfilt_float</tt> is already implemented in Cython. We were considering to replace it but found Pythran performance is not much better than Cython's, and Pythran does not support <tt class="docutils literal">object</tt> type, so we decided not to merge it.</li>
+</ol>
+<p><strong>Pythran</strong></p>
+<p>When using Pythran to improve SciPy algorithms, I found some important modules are not
+supported or got false result in Pythran currently, e.g. boolean arguments
+such as <tt class="docutils literal">keepdims</tt> were not supported in Pythran because the return type
+would change based on the value of <tt class="docutils literal">keepdims</tt> (True or False). Therefore, I made a general
+support for such cases.</p>
+<ol class="arabic simple">
+<li><img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /> <img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1830">Import test cases from scipy</a> : Import Pythran functions in SciPy as test case in Pythran</li>
+<li><img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /> <img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1869#">Feature/add keep dims</a> : support keepdims argument in <tt class="docutils literal">np.mean()</tt> in Pythran</li>
+<li><img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /> <img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1876">Support boolean arguments in numpy unique</a></li>
+<li><img alt="Pythran" src="https://img.shields.io/badge/Pythran-EC7063" /> <img alt="feature" src="https://img.shields.io/badge/feature-F5CBA7" /> <img alt="Merged" src="https://img.shields.io/badge/Merged-76448A" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/pull/1878">General implementation of supporting immediate arguments</a>: Generalize the above two solutions to support immediate arguments.</li>
+</ol>
+</div>
+<div class="section" id="issues">
+<h3>Issues</h3>
+<p>In addition to the above-mentioned issues, I dug up more issues in Pythran while
+using it, so I opened many issues in Pythran. My mentors often helped solve
+those issues and then I tested whether the fixes worked.</p>
+<ol class="arabic simple">
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1793">Pythran makes np.searchsorted much slower</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1753">Pythran may make a function slower?</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1792">u_values[u_sorter].searchsort would cause &quot;Function path is chained attributes and name&quot; but np.search would not</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1791">all_values.sort() would cause compilation error but np.sort(all_values) would not</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1792">u_values[u_sorter].searchsort would cause &quot;Function path is chained attributes and name&quot; but np.searchsort would not</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1804">Support scipy.special.binom?</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1815">Got AttributeError: module 'scipy' has no attribute 'special' when building scipy with special import</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1818">Got compilation error when the inner variable type changes</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1819">Can't index an 2d array like a1[int, tuple]</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1820">keep_dims is not supported in np.mean()</a></li>
+<li><img alt="Closed" src="https://img.shields.io/badge/Closed-A6ACAF" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1850">can't use np.expand_dims with specified keyword argument</a></li>
+<li><img alt="Open" src="https://img.shields.io/badge/Open-2ea44f" /> <a class="reference external" href="https://github.com/scipy/scipy/issues/14315">bus error on Mac but works fine on Linux for _count_paths_outside_method pythran version</a></li>
+<li><img alt="Open" src="https://img.shields.io/badge/Open-2ea44f" /> <a class="reference external" href="https://github.com/serge-sans-paille/pythran/issues/1858">array assignment res[cond1] = ax[cond1] works fine for int[] or float[] or float[:,:] but not int[:,:]</a></li>
+</ol>
+</div>
+</div>
+<div class="section" id="work-left">
+<h2>Work Left</h2>
+<p>As the project proceeded, I found it was difficult to find
+suitable algorithms to be implemented. A suitable algorithm for Pythran should meet at least three requirements:</p>
+<ul class="simple">
+<li>It is currently slow.</li>
+<li>It does not have modules that Pythran doesn't support, e.g. class type, imported SciPy modules.</li>
+<li>It has obvious loops so that the speedup would be large.</li>
+</ul>
+<p>I looked through almost all the algorithms but found little.
+Moreover, in our past experience
+with Pythran, we often run into some things that are easy to get wrong, such as
+using arrays that are views as input to a Pythranized function, or the use of different dtypes.
+Therefore, we need better testing and we decided to change the plan to
+write better testing infrastructure for Pythran extensions:
+<a class="reference external" href="https://github.com/scipy/scipy/pull/14559#">WIP: TST: add tests for Pythran somersd</a></p>
+</div>
+<div class="section" id="project-experience">
+<h2>Project Experience</h2>
+<p>It has been a great experience working on this project in GSoC'21,
+my mentors are really friendly and responsive,
+and the community are also always willing to help.</p>
+<p>Special thanks to my mentors, Ralf and Serge, who provided immense support
+for me to get through the difficulties.
+I’m very fortunate to get the chance to dive into and contribute to SciPy
+and Pythran this summer, especially with such awesome mentors.
+I have learnt a lot, both intellectually and spiritually. I would love to continue contributing to SciPy and Pythran in the future :)</p>
+<p>Thanks to Google Summer of Code and the Python Software Foundation!</p>
+</div>
+
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
+    <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
+    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
+<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
+<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
+    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="./category/benchmark.html">
+    <i class="icon-folder-open icon-large"></i>benchmark
+</a>
+</li>
+<li>
+<a href="./category/compilation.html">
+    <i class="icon-folder-open icon-large"></i>compilation
+</a>
+</li>
+<li>
+<a href="./category/cython.html">
+    <i class="icon-folder-open icon-large"></i>cython
+</a>
+</li>
+<li>
+<a href="./category/engineering.html">
+    <i class="icon-folder-open icon-large"></i>engineering
+</a>
+</li>
+<li>
+<a href="./category/examples.html">
+    <i class="icon-folder-open icon-large"></i>examples
+</a>
+</li>
+<li>
+<a href="./category/optimisation.html">
+    <i class="icon-folder-open icon-large"></i>optimisation
+</a>
+</li>
+<li>
+<a href="./category/release.html">
+    <i class="icon-folder-open icon-large"></i>release
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./theme/js/jquery-1.7.2.min.js"></script>
+    <script src="./theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
