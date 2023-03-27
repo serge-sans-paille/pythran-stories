@@ -1,257 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Pythran stories</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="serge-sans-paille and other pythraners">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Archives</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
 
-    <!-- Le styles -->
-    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-      .sidebar-nav {
-        padding: 9px 0;
-      }
-      .tag-1 {
-        font-size: 13pt;
-      }
-      .tag-2 {
-        font-size: 10pt;
-      }
-      .tag-2 {
-        font-size: 8pt;
-      }
-      .tag-4 {
-        font-size: 6pt;
-     }
-    </style>
-    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
-        <link href="./theme/css/font-awesome.css" rel="stylesheet">
-
-    <link href="./theme/css/pygments.css" rel="stylesheet">
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="./theme/images/favicon.ico">
-    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
-
-    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
-
-  </head>
-
-  <body>
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="./index.html">Pythran stories </a>
-          <div class="nav-collapse">
-            <ul class="nav">
-                          <li class="divider-vertical"></li>
-                  <li >
-                    <a href="./category/benchmark.html">
-						<i class="icon-folder-open icon-large"></i>benchmark
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/compilation.html">
-						<i class="icon-folder-open icon-large"></i>compilation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/cython.html">
-						<i class="icon-folder-open icon-large"></i>cython
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/engineering.html">
-						<i class="icon-folder-open icon-large"></i>engineering
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/examples.html">
-						<i class="icon-folder-open icon-large"></i>examples
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/optimisation.html">
-						<i class="icon-folder-open icon-large"></i>optimisation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/release.html">
-						<i class="icon-folder-open icon-large"></i>release
-					</a>
-                  </li>
-
-                          <ul class="nav pull-right">
-                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
-                          </ul>
-
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
             </ul>
-            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="span9" id="content">
-<section id="content">
-<h1>Archives for Pythran stories</h1>
-
-<dl>
-	<dt>Thu 19 August 2021</dt>
-	<dd><a href='gsoc21-improve-performance-through-the-use-of-pythran.html'>GSoC’21 Improve performance through the use of Pythran</a></dd>
-	<dt>Wed 23 September 2020</dt>
-	<dd><a href='pythran-097-memes-tra.html'>Pythran 0.9.7 - memes tra</a></dd>
-	<dt>Thu 23 April 2020</dt>
-	<dd><a href='basic-value-range-analysis.html'>Basic Value Range Analysis</a></dd>
-	<dt>Wed 06 November 2019</dt>
-	<dd><a href='pythran-094-hollsent.html'>Pythran 0.9.4 - Hollsent</a></dd>
-	<dt>Mon 18 March 2019</dt>
-	<dd><a href='gast-beniget-use-def-chains-for-python-programs.html'>Gast, Beniget! Use-Def chains for Python Programs</a></dd>
-	<dt>Wed 06 March 2019</dt>
-	<dd><a href='source-to-source-transformation-of-a-python-kernel.html'>Source-to-source transformation of a Python kernel</a></dd>
-	<dt>Sun 20 January 2019</dt>
-	<dd><a href='pythran-091-is-out.html'>Pythran 0.9.1 is out!</a></dd>
-	<dt>Wed 28 November 2018</dt>
-	<dd><a href='pythran-as-a-bridge-between-fast-prototyping-and-code-deployment.html'>Pythran as a bridge between fast prototyping and code deployment</a></dd>
-	<dt>Sun 25 November 2018</dt>
-	<dd><a href='getting-the-best-of-every-world-cython-and-pythran-working-together.html'>Getting the best of every world: Cython and Pythran working together</a></dd>
-	<dt>Wed 31 October 2018</dt>
-	<dd><a href='bye-bye-boostsimd-welcome-xsimd.html'>Bye bye boost.simd, welcome xsimd</a></dd>
-	<dt>Sun 05 August 2018</dt>
-	<dd><a href='what-is-the-air-speed-velocity-of-pythran.html'>What is the air speed velocity of Pythran?</a></dd>
-	<dt>Wed 11 July 2018</dt>
-	<dd><a href='testing-pythran-on-random-kernels.html'>Testing Pythran on random kernels</a></dd>
-	<dt>Wed 16 May 2018</dt>
-	<dd><a href='an-incursion-into-basic-ml-gradient-descent-compiled-with-pythran.html'>An incursion into basic ML - Gradient Descent compiled with Pythran</a></dd>
-	<dt>Mon 29 January 2018</dt>
-	<dd><a href='shrinking-pythran-generated-binaries.html'>Shrinking Pythran-Generated Binaries</a></dd>
-	<dt>Fri 12 January 2018</dt>
-	<dd><a href='being-more-than-a-translator.html'>Being more than a translator</a></dd>
-	<dt>Wed 08 November 2017</dt>
-	<dd><a href='the-capsule-corporation.html'>the Capsule Corporation</a></dd>
-	<dt>Sun 22 October 2017</dt>
-	<dd><a href='pythran-083-is-out.html'>Pythran 0.8.3 is out!</a></dd>
-	<dt>Fri 30 June 2017</dt>
-	<dd><a href='toward-a-simpler-and-faster-pythran-compiler.html'>Toward a Simpler and Faster Pythran Compiler</a></dd>
-	<dt>Sat 10 December 2016</dt>
-	<dd><a href='from-pythran-import-typing.html'>from pythran import typing</a></dd>
-	<dt>Mon 18 July 2016</dt>
-	<dd><a href='pythran-tutorial.html'>Pythran Tutorial</a></dd>
-	<dt>Mon 04 July 2016</dt>
-	<dd><a href='learn-pythran-by-practice.html'>Learn Pythran by practice</a></dd>
-	<dt>Thu 16 June 2016</dt>
-	<dd><a href='pythran-075-is-out.html'>Pythran 0.7.5 is out!</a></dd>
-	<dt>Wed 08 June 2016</dt>
-	<dd><a href='benchmarking-before-the-release.html'>Benchmarking Before the Release</a></dd>
-	<dt>Wed 25 May 2016</dt>
-	<dd><a href='costless-abstraction-with-pythran-broadcasting.html'>Costless Abstraction with Pythran: Broadcasting</a></dd>
-	<dt>Mon 18 April 2016</dt>
-	<dd><a href='identifier-binding-computation.html'>Identifier Binding Computation</a></dd>
-	<dt>Tue 05 April 2016</dt>
-	<dd><a href='micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html'>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</a></dd>
-	<dt>Tue 29 March 2016</dt>
-	<dd><a href='compiler-flags.html'>Compiler Flags</a></dd>
-	<dt>Wed 09 March 2016</dt>
-	<dd><a href='pythran-case-resampling.html'>Pythran Case: Resampling</a></dd>
-	<dt>Thu 07 January 2016</dt>
-	<dd><a href='pythran-074-is-out.html'>Pythran 0.7.4 is out!</a></dd>
-</dl>
-</section>
-        </div><!--/span-->
-
-                <div class="span3 well sidebar-nav" id="sidebar">
-<ul class="nav nav-list">
-<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
-    <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
-    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
-<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
-<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
-    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
-
-<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
-<li>
-<a href="./category/benchmark.html">
-    <i class="icon-folder-open icon-large"></i>benchmark
-</a>
-</li>
-<li>
-<a href="./category/compilation.html">
-    <i class="icon-folder-open icon-large"></i>compilation
-</a>
-</li>
-<li>
-<a href="./category/cython.html">
-    <i class="icon-folder-open icon-large"></i>cython
-</a>
-</li>
-<li>
-<a href="./category/engineering.html">
-    <i class="icon-folder-open icon-large"></i>engineering
-</a>
-</li>
-<li>
-<a href="./category/examples.html">
-    <i class="icon-folder-open icon-large"></i>examples
-</a>
-</li>
-<li>
-<a href="./category/optimisation.html">
-    <i class="icon-folder-open icon-large"></i>optimisation
-</a>
-</li>
-<li>
-<a href="./category/release.html">
-    <i class="icon-folder-open icon-large"></i>release
-</a>
-</li>
-
-<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-
-
-</ul>        </div><!--/.well -->
-
-      </div><!--/row-->
-
-      <hr>
-
-      <footer>
-        <address id="about">
-                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
-                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
-        </address><!-- /#about -->
-
-        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
-                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
-      </footer>
-
-    </div><!--/.fluid-container-->
-
-
-
-    <!-- Le javascript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./theme/js/jquery-1.7.2.min.js"></script>
-    <script src="./theme/js/bootstrap.min.js"></script>
-  </body>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="list">
+            <h2>Archives for Pythran stories</h2>
+            <ul>
+                    <li><a href="./gsoc21-improve-performance-through-the-use-of-pythran.html">GSoC’21 Improve performance through the use of Pythran</a>
+                        <time>Aug 2021</time>
+                    </li>
+                    <li><a href="./xsimd-again.html">xsimd - again</a>
+                        <time>May 2021</time>
+                    </li>
+                    <li><a href="./pythran-097-memes-tra.html">Pythran 0.9.7 - memes tra</a>
+                        <time>Sep 2020</time>
+                    </li>
+                    <li><a href="./basic-value-range-analysis.html">Basic Value Range Analysis</a>
+                        <time>Apr 2020</time>
+                    </li>
+                    <li><a href="./pythran-094-hollsent.html">Pythran 0.9.4 - Hollsent</a>
+                        <time>Nov 2019</time>
+                    </li>
+                    <li><a href="./gast-beniget-use-def-chains-for-python-programs.html">Gast, Beniget! Use-Def chains for Python Programs</a>
+                        <time>Mar 2019</time>
+                    </li>
+                    <li><a href="./source-to-source-transformation-of-a-python-kernel.html">Source-to-source transformation of a Python kernel</a>
+                        <time>Mar 2019</time>
+                    </li>
+                    <li><a href="./pythran-091-is-out.html">Pythran 0.9.1 is out!</a>
+                        <time>Jan 2019</time>
+                    </li>
+                    <li><a href="./pythran-as-a-bridge-between-fast-prototyping-and-code-deployment.html">Pythran as a bridge between fast prototyping and code deployment</a>
+                        <time>Nov 2018</time>
+                    </li>
+                    <li><a href="./bye-bye-boostsimd-welcome-xsimd.html">Bye bye boost.simd, welcome xsimd</a>
+                        <time>Oct 2018</time>
+                    </li>
+                    <li><a href="./what-is-the-air-speed-velocity-of-pythran.html">What is the air speed velocity of Pythran?</a>
+                        <time>Aug 2018</time>
+                    </li>
+                    <li><a href="./shrinking-pythran-generated-binaries.html">Shrinking Pythran-Generated Binaries</a>
+                        <time>Jan 2018</time>
+                    </li>
+                    <li><a href="./the-capsule-corporation.html">the Capsule Corporation</a>
+                        <time>Nov 2017</time>
+                    </li>
+                    <li><a href="./toward-a-simpler-and-faster-pythran-compiler.html">Toward a Simpler and Faster Pythran Compiler</a>
+                        <time>Jun 2017</time>
+                    </li>
+                    <li><a href="./from-pythran-import-typing.html">from pythran import typing</a>
+                        <time>Dec 2016</time>
+                    </li>
+                    <li><a href="./pythran-075-is-out.html">Pythran 0.7.5 is out!</a>
+                        <time>Jun 2016</time>
+                    </li>
+                    <li><a href="./identifier-binding-computation.html">Identifier Binding Computation</a>
+                        <time>Apr 2016</time>
+                    </li>
+                    <li><a href="./micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html">Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</a>
+                        <time>Apr 2016</time>
+                    </li>
+                    <li><a href="./compiler-flags.html">Compiler Flags</a>
+                        <time>Mar 2016</time>
+                    </li>
+                    <li><a href="./pythran-case-resampling.html">Pythran Case: Resampling</a>
+                        <time>Mar 2016</time>
+                    </li>
+                    <li><a href="./pythran-074-is-out.html">Pythran 0.7.4 is out!</a>
+                        <time>Jan 2016</time>
+                    </li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
 </html>

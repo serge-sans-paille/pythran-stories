@@ -1,145 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>from pythran import typing</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="serge-sans-paille and other pythraners">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - from pythran import typing</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
 
-    <!-- Le styles -->
-    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-      .sidebar-nav {
-        padding: 9px 0;
-      }
-      .tag-1 {
-        font-size: 13pt;
-      }
-      .tag-2 {
-        font-size: 10pt;
-      }
-      .tag-2 {
-        font-size: 8pt;
-      }
-      .tag-4 {
-        font-size: 6pt;
-     }
-    </style>
-    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
-        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
 
-    <link href="./theme/css/pygments.css" rel="stylesheet">
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="./theme/images/favicon.ico">
-    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
-
-    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
-
-  </head>
-
-  <body>
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="./index.html">Pythran stories </a>
-          <div class="nav-collapse">
-            <ul class="nav">
-                          <li class="divider-vertical"></li>
-                  <li >
-                    <a href="./category/benchmark.html">
-						<i class="icon-folder-open icon-large"></i>benchmark
-					</a>
-                  </li>
-                  <li class="active">
-                    <a href="./category/compilation.html">
-						<i class="icon-folder-open icon-large"></i>compilation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/cython.html">
-						<i class="icon-folder-open icon-large"></i>cython
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/engineering.html">
-						<i class="icon-folder-open icon-large"></i>engineering
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/examples.html">
-						<i class="icon-folder-open icon-large"></i>examples
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/optimisation.html">
-						<i class="icon-folder-open icon-large"></i>optimisation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/release.html">
-						<i class="icon-folder-open icon-large"></i>release
-					</a>
-                  </li>
-
-                          <ul class="nav pull-right">
-                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
-                          </ul>
-
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
             </ul>
-            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to from pythran import typing">
-                                        from pythran import typing
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2016-12-10T00:00:00+01:00">
-        <i class="icon-calendar"></i>Sat 10 December 2016
-</abbr>
-<span class="label">By</span>
-<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
-<span class="label">Category</span>
-<a href="./category/compilation.html"><i class="icon-folder-open"></i>compilation</a>.
-
-
-</footer><!-- /.post-info -->                </div>
-                <p>Pythran is currently part of <a class="reference external" href="http://opendreamkit.org/">OpenDreamKit</a>,
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a                         class="active" href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>from pythran import typing</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2016-12-10 00:00:00+01:00">Dec 10, 2016</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/compilation.html"><em>compilation</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p>Pythran is currently part of <a class="reference external" href="http://opendreamkit.org/">OpenDreamKit</a>,
 a project that aims at improving the open source computational mathematics
 ecosystem.</p>
 <p>The goal of Pythran is indeed to improve some Python kernel computations, but
@@ -150,7 +86,7 @@ a <a class="reference external" href="http://stackoverflow.com/questions/1381571
 
 <span class="c1">#pythran export create_grid(float [])</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="k">def</span> <span class="nf">create_grid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
@@ -160,30 +96,30 @@ a <a class="reference external" href="http://stackoverflow.com/questions/1381571
     <span class="k">return</span> <span class="n">fast_grid</span>
 </pre></div>
 <p>An attempt to compile it with Pythran would return a very long C++ template instantiation trace, with very little clue concerning the origin of the problem.</p>
-<div class="highlight"><pre><span></span>&gt; pythran create_grid.py
-In file included from /tmp/tmpP0xYa2.cpp:10:
-In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
-In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
-./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large <span class="o">(</span><span class="m">18446744073709551615</span> elements<span class="o">)</span>
-      value_type buffer<span class="o">[</span>N ? N : <span class="m">1</span><span class="o">]</span><span class="p">;</span>
-                        ^~~~~~~~~
-./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class <span class="s1">&#39;pythonic::types::array&lt;long, 18446744073709551615&gt;&#39;</span> requested here
-      array&lt;long, value&gt; _shape<span class="p">;</span>
-                         ^
+<div class="highlight"><pre><span></span>&gt;<span class="w"> </span>pythran<span class="w"> </span>create_grid.py
+In<span class="w"> </span>file<span class="w"> </span>included<span class="w"> </span>from<span class="w"> </span>/tmp/tmpP0xYa2.cpp:10:
+In<span class="w"> </span>file<span class="w"> </span>included<span class="w"> </span>from<span class="w"> </span>./pythran/pythonic/include/types/ndarray.hpp:12:
+In<span class="w"> </span>file<span class="w"> </span>included<span class="w"> </span>from<span class="w"> </span>./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
+./pythran/pythonic/include/types/tuple.hpp:122:25:<span class="w"> </span>error:<span class="w"> </span>array<span class="w"> </span>is<span class="w"> </span>too<span class="w"> </span>large<span class="w"> </span><span class="o">(</span><span class="m">18446744073709551615</span><span class="w"> </span>elements<span class="o">)</span>
+<span class="w">      </span>value_type<span class="w"> </span>buffer<span class="o">[</span>N<span class="w"> </span>?<span class="w"> </span>N<span class="w"> </span>:<span class="w"> </span><span class="m">1</span><span class="o">]</span><span class="p">;</span>
+<span class="w">                        </span>^~~~~~~~~
+./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26:<span class="w"> </span>note:<span class="w"> </span><span class="k">in</span><span class="w"> </span>instantiation<span class="w"> </span>of<span class="w"> </span>template<span class="w"> </span>class<span class="w"> </span><span class="s1">&#39;pythonic::types::array&lt;long, 18446744073709551615&gt;&#39;</span><span class="w"> </span>requested<span class="w"> </span>here
+<span class="w">      </span>array&lt;long,<span class="w"> </span>value&gt;<span class="w"> </span>_shape<span class="p">;</span>
+<span class="w">                         </span>^
 <span class="o">[</span>...<span class="o">]</span>
-                                    ^
-./pythran/pythonic/include/utils/seq.hpp:19:19: note: use -ftemplate-depth<span class="o">=</span>N to increase recursive template instantiation depth
-    struct gens : gens&lt;N - <span class="m">1</span>, N - <span class="m">1</span>, S...&gt; <span class="o">{</span>
-                  ^
-<span class="m">3</span> errors generated.
-CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
-E: <span class="o">(</span><span class="s1">&#39;error: Command &quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&quot; failed with exit status 1&#39;</span>,<span class="o">)</span>
+<span class="w">                                    </span>^
+./pythran/pythonic/include/utils/seq.hpp:19:19:<span class="w"> </span>note:<span class="w"> </span>use<span class="w"> </span>-ftemplate-depth<span class="o">=</span>N<span class="w"> </span>to<span class="w"> </span>increase<span class="w"> </span>recursive<span class="w"> </span>template<span class="w"> </span>instantiation<span class="w"> </span>depth
+<span class="w">    </span>struct<span class="w"> </span>gens<span class="w"> </span>:<span class="w"> </span>gens&lt;N<span class="w"> </span>-<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>N<span class="w"> </span>-<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>S...&gt;<span class="w"> </span><span class="o">{</span>
+<span class="w">                  </span>^
+<span class="m">3</span><span class="w"> </span>errors<span class="w"> </span>generated.
+CRITICAL<span class="w"> </span>Cover<span class="w"> </span>me<span class="w"> </span>Jack.<span class="w"> </span>Jack?<span class="w"> </span>Jaaaaack!!!!
+E:<span class="w"> </span><span class="o">(</span><span class="s1">&#39;error: Command &quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&quot; failed with exit status 1&#39;</span>,<span class="o">)</span>
 
-What we now have is a slightly friendlier message:
+What<span class="w"> </span>we<span class="w"> </span>now<span class="w"> </span>have<span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span>slightly<span class="w"> </span>friendlier<span class="w"> </span>message:
 </pre></div>
-<div class="highlight"><pre><span></span>&gt; pythran create_grid.py
-CRITICAL You shall not pass!
-E: Dimension mismatch when slicing <span class="sb">`</span>Array<span class="o">[</span>2d, float<span class="o">]</span><span class="sb">`</span> <span class="o">(</span>create_grid.py, line <span class="m">7</span><span class="o">)</span>
+<div class="highlight"><pre><span></span>&gt;<span class="w"> </span>pythran<span class="w"> </span>create_grid.py
+CRITICAL<span class="w"> </span>You<span class="w"> </span>shall<span class="w"> </span>not<span class="w"> </span>pass!
+E:<span class="w"> </span>Dimension<span class="w"> </span>mismatch<span class="w"> </span>when<span class="w"> </span>slicing<span class="w"> </span><span class="sb">`</span>Array<span class="o">[</span>2d,<span class="w"> </span>float<span class="o">]</span><span class="sb">`</span><span class="w"> </span><span class="o">(</span>create_grid.py,<span class="w"> </span>line<span class="w"> </span><span class="m">7</span><span class="o">)</span>
 </pre></div>
 <p>Indeed, the correct declaration for <tt class="docutils literal">z</tt> was <tt class="docutils literal">z = <span class="pre">np.zeros((N,</span> N, 3))</tt>.</p>
 <div class="section" id="a-quick-glance-at-pythran-typing-system">
@@ -193,7 +129,7 @@ matters is not the type of an object, but its structure, i.e. the available
 methods and fields: <em>If it walks like a duck and talks like a duck, then it's a
 duck</em>. That's a kind of <a class="reference external" href="https://en.wikipedia.org/wiki/Structural_type_system">structural typing</a>.</p>
 <p>On the opposite side C++ uses a static type system, and if you adhere to OOP
-<a class="footnote-reference" href="#id5" id="id1">[1]</a> you may require an object to derive from the <tt class="docutils literal">Duck</tt> class to be
+<a class="footnote-reference" href="#footnote-2" id="footnote-reference-1">[1]</a> you may require an object to derive from the <tt class="docutils literal">Duck</tt> class to be
 considered a duck; That's a kind of <a class="reference external" href="https://en.wikipedia.org/wiki/Nominal_type_system">nominal typing</a>.</p>
 <p>Pythran uses a trick to make both world meet: <em>ad-hoc polymorphism</em>, as
 supported in C++ through <tt class="docutils literal">template</tt> meta programing. Upon a template
@@ -207,9 +143,9 @@ Python code:</p>
 </pre></div>
 <p>integer, for instance <tt class="docutils literal">str</tt>, <tt class="docutils literal">list</tt>, <tt class="docutils literal">int</tt>. The C++ equivalent would
 be (taking into account move semantics):</p>
-<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-<span class="k">auto</span> <span class="n">twice</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">twice</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 <p>In Python's case, type checking is done at runtime, during a lookup in <tt class="docutils literal">s</tt> for
@@ -339,7 +275,7 @@ over-approximation defined above, is a <tt class="docutils literal">(Any, Any, A
         <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">n</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 <p>It runs into some troubles. The <tt class="docutils literal">return</tt> from the <tt class="docutils literal">True</tt> branch sets the
 return type of <tt class="docutils literal">foo</tt> to <tt class="docutils literal">int</tt> but the one from the <tt class="docutils literal">False</tt> branch sets it
@@ -352,7 +288,7 @@ generally described as a parametric type, <tt class="docutils literal">Optional[
 meeting an <tt class="docutils literal">if</tt>, we generate a new copy of the variable environment for each
 branch, and we <em>merge</em> (not <em>unify</em>) the environments.</p>
 <p>Likewise, if the condition is <em>explicitely</em> a check for <tt class="docutils literal">None</tt>, as in:</p>
-<div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">stuff</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">stuff</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
@@ -369,7 +305,7 @@ generic to be done there.</p>
 <p>Type inference computes that v is of type <tt class="docutils literal">Optional[T0]</tt>, which is not compatible with <tt class="docutils literal">v + 1</tt> and a <tt class="docutils literal">PythranTypeError</tt> is raised. A compatible way to write this would be:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>  <span class="c1"># or do stuff</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span>
@@ -391,7 +327,7 @@ second <tt class="docutils literal">append</tt> because unification between an <
 (see the <a class="reference external" href="http://shed-skin.blogspot.fr/2011/09/shed-skin-09.html">blogpost announce on the topic</a>. Several test cases
 of Pythran test suite would fail with a stricter typing, so let's try to
 achieve the same behavior as Shedskin, within HM.</p>
-<p>The trick here is to consider a scalar as a tuple of four elements <a class="footnote-reference" href="#id4" id="id2">[0]</a>, one per
+<p>The trick here is to consider a scalar as a tuple of four elements <a class="footnote-reference" href="#footnote-1" id="footnote-reference-2">[0]</a>, one per
 scalar type we want to support. And then apply the following rule: the actual
 type of the scalar is the type of the first non variable type, starting from
 the lower index. Under that assumption,</p>
@@ -455,7 +391,7 @@ to spot a few <em>errors</em> in the tests, mostly code that was incorrect with
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_shadow_import2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span>
-        <span class="sd">&#39;&#39;&#39;def shadow_import2(s):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;def shadow_import2(s):</span>
 <span class="sd">               for set in s : set.add(1)&#39;&#39;&#39;</span><span class="p">,</span>
         <span class="p">[{</span><span class="mi">1</span><span class="p">},{</span><span class="mi">2</span><span class="p">}],</span>
         <span class="n">shadow_import2</span><span class="o">=</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span>
@@ -477,20 +413,20 @@ correctly typed, while Pythran correctly type checks it without annotation.</p>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
 </pre></div>
 <p>If we turn the <tt class="docutils literal">1</tt> into <tt class="docutils literal">&quot;1&quot;</tt>, we get the following error:</p>
-<div class="highlight"><pre><span></span>&gt; pythran wc.py
-CRITICAL You shall not pass!
-E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>int<span class="sb">`</span> and <span class="sb">`</span>str<span class="sb">`</span> <span class="o">(</span>wc.py, line <span class="m">5</span><span class="o">)</span>
+<div class="highlight"><pre><span></span>&gt;<span class="w"> </span>pythran<span class="w"> </span>wc.py
+CRITICAL<span class="w"> </span>You<span class="w"> </span>shall<span class="w"> </span>not<span class="w"> </span>pass!
+E:<span class="w"> </span>Invalid<span class="w"> </span>operand<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="sb">`</span>+<span class="sb">`</span>:<span class="w"> </span><span class="sb">`</span>int<span class="sb">`</span><span class="w"> </span>and<span class="w"> </span><span class="sb">`</span>str<span class="sb">`</span><span class="w"> </span><span class="o">(</span>wc.py,<span class="w"> </span>line<span class="w"> </span><span class="m">5</span><span class="o">)</span>
 </pre></div>
 <p>And if we remove the <tt class="docutils literal">0</tt>, <tt class="docutils literal">d.get(word)</tt> may return <tt class="docutils literal">None</tt> and the error message becomes:</p>
-<div class="highlight"><pre><span></span>&gt; pythran wc.py
-CRITICAL You shall not pass!
-E: Invalid operand <span class="k">for</span> <span class="sb">`</span>+<span class="sb">`</span>: <span class="sb">`</span>Option<span class="o">[</span>T0<span class="o">]</span><span class="sb">`</span> and <span class="sb">`</span>int<span class="sb">`</span> <span class="o">(</span>wc.py, line <span class="m">5</span><span class="o">)</span>
+<div class="highlight"><pre><span></span>&gt;<span class="w"> </span>pythran<span class="w"> </span>wc.py
+CRITICAL<span class="w"> </span>You<span class="w"> </span>shall<span class="w"> </span>not<span class="w"> </span>pass!
+E:<span class="w"> </span>Invalid<span class="w"> </span>operand<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="sb">`</span>+<span class="sb">`</span>:<span class="w"> </span><span class="sb">`</span>Option<span class="o">[</span>T0<span class="o">]</span><span class="sb">`</span><span class="w"> </span>and<span class="w"> </span><span class="sb">`</span>int<span class="sb">`</span><span class="w"> </span><span class="o">(</span>wc.py,<span class="w"> </span>line<span class="w"> </span><span class="m">5</span><span class="o">)</span>
 </pre></div>
 <p>Great!</p>
 <p>Considering Numpy functions, we don't model all of them in tog, but we can
 still detect several interesting errors. For instance on a gaussian kernel
 (<a class="reference external" href="http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy">error-safe version from stackexchange</a>):</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="k">def</span> <span class="nf">vectorized_RBF_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
     <span class="n">X2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># sum colums of the matrix</span>
     <span class="n">K0</span> <span class="o">=</span> <span class="n">X2</span> <span class="o">+</span> <span class="n">X2</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">X</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span>
@@ -501,9 +437,9 @@ still detect several interesting errors. For instance on a gaussian kernel
     <span class="k">return</span> <span class="n">vectorized_RBF_kernel</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
 </pre></div>
 <p>Pythran correctly catches the error on <tt class="docutils literal">vectorized_RBF_kernel</tt> call:</p>
-<div class="highlight"><pre><span></span>&gt; pythran gaussian.py
-CRITICAL You shall not pass!
-E: Invalid argument <span class="nb">type</span> <span class="k">for</span> <span class="k">function</span> call to <span class="sb">`</span>Callable<span class="o">[[</span>int, T3<span class="o">]</span>, ...<span class="o">]</span><span class="sb">`</span>, tried Callable<span class="o">[[</span>Array<span class="o">[</span><span class="m">1</span> d+, T0<span class="o">]</span>, T1<span class="o">]</span>, Array<span class="o">[</span><span class="m">1</span> d+, T2<span class="o">]]</span> <span class="o">(</span>gaussian.py, line <span class="m">9</span><span class="o">)</span>
+<div class="highlight"><pre><span></span>&gt;<span class="w"> </span>pythran<span class="w"> </span>gaussian.py
+CRITICAL<span class="w"> </span>You<span class="w"> </span>shall<span class="w"> </span>not<span class="w"> </span>pass!
+E:<span class="w"> </span>Invalid<span class="w"> </span>argument<span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">function</span><span class="w"> </span>call<span class="w"> </span>to<span class="w"> </span><span class="sb">`</span>Callable<span class="o">[[</span>int,<span class="w"> </span>T3<span class="o">]</span>,<span class="w"> </span>...<span class="o">]</span><span class="sb">`</span>,<span class="w"> </span>tried<span class="w"> </span>Callable<span class="o">[[</span>Array<span class="o">[</span><span class="m">1</span><span class="w"> </span>d+,<span class="w"> </span>T0<span class="o">]</span>,<span class="w"> </span>T1<span class="o">]</span>,<span class="w"> </span>Array<span class="o">[</span><span class="m">1</span><span class="w"> </span>d+,<span class="w"> </span>T2<span class="o">]]</span><span class="w"> </span><span class="o">(</span>gaussian.py,<span class="w"> </span>line<span class="w"> </span><span class="m">9</span><span class="o">)</span>
 </pre></div>
 </div>
 <div class="section" id="conclusion">
@@ -522,100 +458,43 @@ me with relevant insights, criticisms and great ideas. Thanks to <a class="refer
 <a class="reference external" href="http://www.logilab.fr/">Logilab</a> for their support. Thanks to Lancelot Six,
 w1gz and Nicolas M. Thiéry for proof reading this post too :-)</p>
 <p>And last, I'm in debt to all Pythran users for keeping the motivation high!</p>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
+<table class="docutils footnote" frame="void" id="footnote-1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[0]</a></td><td>That could be more actually, for instance to distinguish single
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-2">[0]</a></td><td>That could be more actually, for instance to distinguish single
 precision float from double prcesion float, the <tt class="docutils literal">float32</tt> and <tt class="docutils literal">float64</tt>
 from numpy. But four types is enough for the envisonned type checking.</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
+<table class="docutils footnote" frame="void" id="footnote-2" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>The OOP style in C++ is not enforced by the Standard Library as much as it is in the Java SDK though.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-1">[1]</a></td><td>The OOP style in C++ is not enforced by the Standard Library as much as it is in the Java SDK though.</td></tr>
 </tbody>
 </table>
 </div>
 </div>
 
-                </div><!-- /.entry-content -->
-        </article>
-</section>
-        </div><!--/span-->
-
-                <div class="span3 well sidebar-nav" id="sidebar">
-<ul class="nav nav-list">
-<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
-    <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
-    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
-<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
-<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
-    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
-
-<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
-<li>
-<a href="./category/benchmark.html">
-    <i class="icon-folder-open icon-large"></i>benchmark
-</a>
-</li>
-<li>
-<a href="./category/compilation.html">
-    <i class="icon-folder-open icon-large"></i>compilation
-</a>
-</li>
-<li>
-<a href="./category/cython.html">
-    <i class="icon-folder-open icon-large"></i>cython
-</a>
-</li>
-<li>
-<a href="./category/engineering.html">
-    <i class="icon-folder-open icon-large"></i>engineering
-</a>
-</li>
-<li>
-<a href="./category/examples.html">
-    <i class="icon-folder-open icon-large"></i>examples
-</a>
-</li>
-<li>
-<a href="./category/optimisation.html">
-    <i class="icon-folder-open icon-large"></i>optimisation
-</a>
-</li>
-<li>
-<a href="./category/release.html">
-    <i class="icon-folder-open icon-large"></i>release
-</a>
-</li>
-
-<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-
-
-</ul>        </div><!--/.well -->
-
-      </div><!--/row-->
-
-      <hr>
-
-      <footer>
-        <address id="about">
-                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
-                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
-        </address><!-- /#about -->
-
-        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
-                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
-      </footer>
-
-    </div><!--/.fluid-container-->
-
-
-
-    <!-- Le javascript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./theme/js/jquery-1.7.2.min.js"></script>
-    <script src="./theme/js/bootstrap.min.js"></script>
-  </body>
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
 </html>

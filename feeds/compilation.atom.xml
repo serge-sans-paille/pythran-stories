@@ -13,7 +13,7 @@ file in &lt;a class="reference external" href="https://scikit-image.org/"&gt;sci
 written in &lt;a class="reference external" href="https://cython.org/"&gt;cython&lt;/a&gt;, with a few annotations:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c"&gt;# cython: wraparound=False&lt;/span&gt;
 
-&lt;span class="k"&gt;cdef&lt;/span&gt; &lt;span class="kr"&gt;inline&lt;/span&gt; &lt;span class="kt"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="nf"&gt;_clip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;nogil&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="k"&gt;cdef&lt;/span&gt; &lt;span class="kr"&gt;inline&lt;/span&gt; &lt;span class="kt"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="nf"&gt;_clip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;nogil&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -21,7 +21,7 @@ written in &lt;a class="reference external" href="https://cython.org/"&gt;cython
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
 
 
-&lt;span class="k"&gt;cdef&lt;/span&gt; &lt;span class="kr"&gt;inline&lt;/span&gt; &lt;span class="kt"&gt;cnp&lt;/span&gt;.&lt;span class="kt"&gt;double_t&lt;/span&gt; &lt;span class="nf"&gt;_integ&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cnp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;double_t&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;rl&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;cl&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;nogil&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="k"&gt;cdef&lt;/span&gt; &lt;span class="kr"&gt;inline&lt;/span&gt; &lt;span class="kt"&gt;cnp&lt;/span&gt;.&lt;span class="kt"&gt;double_t&lt;/span&gt; &lt;span class="nf"&gt;_integ&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cnp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;double_t&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;rl&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;cl&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;nogil&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
 
     &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;_clip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;_clip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -37,7 +37,7 @@ written in &lt;a class="reference external" href="https://cython.org/"&gt;cython
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The translation to python, and thus to pythran, would be:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export _integ(float64[::], int, int, int, int)&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;_clip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
@@ -93,11 +93,11 @@ be useful for practical cases.&lt;/p&gt;
         &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;-=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
         &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-        &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;wtf&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;wtf&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-        &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;wtf&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;wtf&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-        &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;ok&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;ok&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It's a control flow analysis, so it follows the control flow starting from the
@@ -153,7 +153,7 @@ then prints the python code back, gives:&lt;/p&gt;
         &lt;span class="n"&gt;a_&lt;/span&gt; &lt;span class="o"&gt;-=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
         &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-        &lt;span class="n"&gt;builtins&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;builtins&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ok&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a_&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The two first prints have been removed, because they were guarded by conditions
@@ -194,7 +194,7 @@ example above.&lt;/p&gt;
 &lt;p&gt;Use &lt;tt class="docutils literal"&gt;assert&lt;/tt&gt; statements! Pythran can extract precious information from them,
 and there's no runtime cost unless you ask so ;-)&lt;/p&gt;
 &lt;/div&gt;
-</content></entry><entry><title>Gast, Beniget! Use-Def chains for Python Programs</title><link href="http://serge-sans-paille.github.io/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html" rel="alternate"></link><published>2019-03-18T00:00:00+01:00</published><updated>2019-03-18T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-18:/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html</id><summary type="html">&lt;p class="first last"&gt;Many tools manipulate the Python AST to analyse or transform it.
+</content><category term="compilation"></category></entry><entry><title>Gast, Beniget! Use-Def chains for Python Programs</title><link href="http://serge-sans-paille.github.io/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html" rel="alternate"></link><published>2019-03-18T00:00:00+01:00</published><updated>2019-03-18T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-18:/pythran-stories/gast-beniget-use-def-chains-for-python-programs.html</id><summary type="html">&lt;p class="first last"&gt;Many tools manipulate the Python AST to analyse or transform it.
 Let's propose a collection of analyse those tools can leverage on: &lt;strong&gt;beniget&lt;/strong&gt;.&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;In spite of its dynamic nature, the Python language has been granted a rich
 ecosystem of Abstract Syntax Tree(AST) analysis and transformations. Off the top of my head, I can already cite:&lt;/p&gt;
@@ -228,12 +228,12 @@ elimination&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;The following statements are annotated with &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt; (resp. &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;) to mark that the annotated statement defines (resp. uses) the associated identifier.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;           &lt;span class="c1"&gt;# DEF(a)&lt;/span&gt;
 &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;       &lt;span class="c1"&gt;# DEF(b) USE(a)&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;     &lt;span class="c1"&gt;# USE(a, b)&lt;/span&gt;
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;     &lt;span class="c1"&gt;# USE(a, b)&lt;/span&gt;
 &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;           &lt;span class="c1"&gt;# USE(c)&lt;/span&gt;
     &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;12&amp;quot;&lt;/span&gt;    &lt;span class="c1"&gt;# DEF(a&amp;#39;)&lt;/span&gt;
 &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;      &lt;span class="c1"&gt;# DEF(a&amp;#39;&amp;#39;)&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;        &lt;span class="c1"&gt;# USE(a&amp;#39;, a&amp;#39;&amp;#39;)&lt;/span&gt;
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;        &lt;span class="c1"&gt;# USE(a&amp;#39;, a&amp;#39;&amp;#39;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;From these annotations, using a data-flow analysis, one can build the def-use chains as:&lt;/p&gt;
 &lt;pre class="code literal-block"&gt;
@@ -254,7 +254,7 @@ DEF(a'') -&amp;gt; USE(a'') # print(a)
 &lt;div class="section" id="detect-unused-imports"&gt;
 &lt;h3&gt;Detect Unused Imports&lt;/h3&gt;
 &lt;p&gt;This is a very basic usage: look for &lt;tt class="docutils literal"&gt;DEF&lt;/tt&gt; without any &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;, and warn about them, focusing on imported values.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;beniget&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;gast&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;ast&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;beniget&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;gast&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;ast&lt;/span&gt;
 
 &lt;span class="c1"&gt;# parse some simple statements&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;code&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;from math import cos, sin; print(cos(3))&amp;quot;&lt;/span&gt;
@@ -271,7 +271,7 @@ DEF(a'') -&amp;gt; USE(a'') # print(a)
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;imported&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
 &lt;span class="o"&gt;...&lt;/span&gt;   &lt;span class="n"&gt;ud&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;duc&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chains&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
 &lt;span class="o"&gt;...&lt;/span&gt;   &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;ud&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;users&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Unused import: {}&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ud&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;
+&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Unused import: &lt;/span&gt;&lt;span class="si"&gt;{}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ud&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;
 &lt;span class="n"&gt;Unused&lt;/span&gt; &lt;span class="n"&gt;import&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;sin&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;At that point, the astute reader has already noted that due to the dynamic
@@ -328,14 +328,14 @@ function.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;random&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;
 &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;There's a chance that &lt;tt class="docutils literal"&gt;a&lt;/tt&gt; is unbound while executing &lt;tt class="docutils literal"&gt;print(a)&lt;/tt&gt;. It would be possible to combine &lt;tt class="docutils literal"&gt;beniget&lt;/tt&gt; with a dummy code transformation to detect this issue by generating dummy top-level definitions and checking if they have any &lt;tt class="docutils literal"&gt;USE&lt;/tt&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;  &lt;span class="c1"&gt;# if any of those have a USE, then we have a potential issue&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;  &lt;span class="c1"&gt;# if any of those have a USE, then we have a potential issue&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;random&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;
 &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="limitations"&gt;
@@ -363,7 +363,7 @@ it!&lt;/p&gt;
 &lt;p&gt;Also, thanks a bunch to Ashwin Vishnu, Pierrick Brunet and Jean Laroche for proof reading this post o/&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-</content></entry><entry><title>Source-to-source transformation of a Python kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/source-to-source-transformation-of-a-python-kernel.html" rel="alternate"></link><published>2019-03-06T00:00:00+01:00</published><updated>2019-03-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-06:/pythran-stories/source-to-source-transformation-of-a-python-kernel.html</id><summary type="html">&lt;p class="first last"&gt;Pythran can also be used as a source-to-source transformation engine.
+</content><category term="compilation"></category></entry><entry><title>Source-to-source transformation of a Python kernel</title><link href="http://serge-sans-paille.github.io/pythran-stories/source-to-source-transformation-of-a-python-kernel.html" rel="alternate"></link><published>2019-03-06T00:00:00+01:00</published><updated>2019-03-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-03-06:/pythran-stories/source-to-source-transformation-of-a-python-kernel.html</id><summary type="html">&lt;p class="first last"&gt;Pythran can also be used as a source-to-source transformation engine.
 This post showcases some recent transformation on a high-level code.&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;If you're curious or genuinely interested into how Pythran transforms your
 code, but not brave enough to dive into the generated C++ code, Pythran
@@ -373,17 +373,17 @@ the fact we have two backends: a C++ backend and a Python backend.&lt;/p&gt;
 &lt;div class="section" id="using-pythran-as-a-source-to-source-compiler"&gt;
 &lt;h2&gt;Using Pythran as a Source-to-Source Compiler&lt;/h2&gt;
 &lt;p&gt;Pythran can be used as a source-to-source engine through the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-P&lt;/span&gt;&lt;/tt&gt; flag.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; cat sample.py
-def fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="o"&gt;)&lt;/span&gt;:
-    &lt;span class="k"&gt;return&lt;/span&gt; n &lt;span class="k"&gt;if&lt;/span&gt; n &amp;lt; &lt;span class="m"&gt;2&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; fibo&lt;span class="o"&gt;(&lt;/span&gt;n - &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; + fibo&lt;span class="o"&gt;(&lt;/span&gt;n - &lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-def test&lt;span class="o"&gt;()&lt;/span&gt;:
-    print&lt;span class="o"&gt;(&lt;/span&gt;fibo&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;10&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-&amp;gt; pythran -P sample.py
-def fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="o"&gt;)&lt;/span&gt;:
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;n &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;n &amp;lt; &lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;fibo&lt;span class="o"&gt;((&lt;/span&gt;n - &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; + fibo&lt;span class="o"&gt;((&lt;/span&gt;n - &lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;))))&lt;/span&gt;
-def test&lt;span class="o"&gt;()&lt;/span&gt;:
-    __builtin__.print&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;55&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; __builtin__.None
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;cat&lt;span class="w"&gt; &lt;/span&gt;sample.py
+def&lt;span class="w"&gt; &lt;/span&gt;fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="o"&gt;)&lt;/span&gt;:
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;&amp;lt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;+&lt;span class="w"&gt; &lt;/span&gt;fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+def&lt;span class="w"&gt; &lt;/span&gt;test&lt;span class="o"&gt;()&lt;/span&gt;:
+&lt;span class="w"&gt;    &lt;/span&gt;print&lt;span class="o"&gt;(&lt;/span&gt;fibo&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;10&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;-P&lt;span class="w"&gt; &lt;/span&gt;sample.py
+def&lt;span class="w"&gt; &lt;/span&gt;fibo&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="o"&gt;)&lt;/span&gt;:
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;&amp;lt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;fibo&lt;span class="o"&gt;((&lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;+&lt;span class="w"&gt; &lt;/span&gt;fibo&lt;span class="o"&gt;((&lt;/span&gt;n&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;))))&lt;/span&gt;
+def&lt;span class="w"&gt; &lt;/span&gt;test&lt;span class="o"&gt;()&lt;/span&gt;:
+&lt;span class="w"&gt;    &lt;/span&gt;__builtin__.print&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;55&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;__builtin__.None
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;What happened? Pythran analyzed the body of &lt;tt class="docutils literal"&gt;fibo&lt;/tt&gt; and found out it was a
 pure function (no effect on global state nor arguments) called with a literal,
@@ -398,23 +398,23 @@ wherever Python would implicit add it.&lt;/p&gt;
 proposes. For instance, the following code implements an (arguably) high level
 way of computing the wighted sum between five integers:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# wsum.py&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;.2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;.3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;.2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;.1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This code is okay from Numpy point of view, but how does Pythran handle it?
 Surely, building a temporary array just for the sake of performing a
 point-to-point array operation is not the most efficient way of performing
 these operation!&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran -P wsum.py
-import numpy as __pythran_import_numpy
-def wsum&lt;span class="o"&gt;(&lt;/span&gt;v, w, x, y, z&lt;span class="o"&gt;)&lt;/span&gt;:
-    &lt;span class="k"&gt;return&lt;/span&gt; __builtin__.sum&lt;span class="o"&gt;(((&lt;/span&gt;v * &lt;span class="m"&gt;0&lt;/span&gt;.1&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;w * &lt;span class="m"&gt;0&lt;/span&gt;.2&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;x * &lt;span class="m"&gt;0&lt;/span&gt;.3&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;y * &lt;span class="m"&gt;0&lt;/span&gt;.2&lt;span class="o"&gt;)&lt;/span&gt;, &lt;span class="o"&gt;(&lt;/span&gt;z * &lt;span class="m"&gt;0&lt;/span&gt;.1&lt;span class="o"&gt;)))&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;-P&lt;span class="w"&gt; &lt;/span&gt;wsum.py
+import&lt;span class="w"&gt; &lt;/span&gt;numpy&lt;span class="w"&gt; &lt;/span&gt;as&lt;span class="w"&gt; &lt;/span&gt;__pythran_import_numpy
+def&lt;span class="w"&gt; &lt;/span&gt;wsum&lt;span class="o"&gt;(&lt;/span&gt;v,&lt;span class="w"&gt; &lt;/span&gt;w,&lt;span class="w"&gt; &lt;/span&gt;x,&lt;span class="w"&gt; &lt;/span&gt;y,&lt;span class="w"&gt; &lt;/span&gt;z&lt;span class="o"&gt;)&lt;/span&gt;:
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;__builtin__.sum&lt;span class="o"&gt;(((&lt;/span&gt;v&lt;span class="w"&gt; &lt;/span&gt;*&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.1&lt;span class="o"&gt;)&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;w&lt;span class="w"&gt; &lt;/span&gt;*&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.2&lt;span class="o"&gt;)&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;x&lt;span class="w"&gt; &lt;/span&gt;*&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.3&lt;span class="o"&gt;)&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;y&lt;span class="w"&gt; &lt;/span&gt;*&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.2&lt;span class="o"&gt;)&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;z&lt;span class="w"&gt; &lt;/span&gt;*&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.1&lt;span class="o"&gt;)))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Fascinating! (Yes, I'm self-congratulating there). Pythran understood that a
 Numpy operation on fixed-size array was involved, so it first performed the
 broadcasting on its own, resulting in:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;__pythran_import_numpy&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;__pythran_import_numpy&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wsum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;__builtin__&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__pythran_import_numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([(&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.2&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.3&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.2&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;z&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;)]))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -428,25 +428,25 @@ to &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::array&amp;lt;
 &lt;p&gt;Let's inspect the assembly generated from the above code, instantiated with the
 Pythran annotation &lt;tt class="docutils literal"&gt;#pythran export wsum(float64, float64, float64, float64,
 float64)&lt;/tt&gt; and compiled with Clang 6.0&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++ pythran wsum.py
-&amp;gt; objdump -S -C wsum.*.so
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;wsum.py
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;objdump&lt;span class="w"&gt; &lt;/span&gt;-S&lt;span class="w"&gt; &lt;/span&gt;-C&lt;span class="w"&gt; &lt;/span&gt;wsum.*.so
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-...  movsd  0x12d4&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm0
-...  movsd  0x18&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm2
-...  mulsd  %xmm0,%xmm2
-...  movsd  0x12ca&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm1
-...  movsd  0x10&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm3
-...  mulsd  %xmm1,%xmm3
-...  movsd  0x8&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm4
-...  mulsd  0x12ba&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm4
-...  movsd  &lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm5
-...  mulsd  %xmm0,%xmm5
-...  movsd  0x20&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm0
-...  mulsd  %xmm1,%xmm0
-...  addsd  %xmm5,%xmm0
-...  addsd  %xmm4,%xmm0
-...  addsd  %xmm3,%xmm0
-...  addsd  %xmm2,%xmm0
+...&lt;span class="w"&gt;  &lt;/span&gt;movsd&lt;span class="w"&gt;  &lt;/span&gt;0x12d4&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm0
+...&lt;span class="w"&gt;  &lt;/span&gt;movsd&lt;span class="w"&gt;  &lt;/span&gt;0x18&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm2
+...&lt;span class="w"&gt;  &lt;/span&gt;mulsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm0,%xmm2
+...&lt;span class="w"&gt;  &lt;/span&gt;movsd&lt;span class="w"&gt;  &lt;/span&gt;0x12ca&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm1
+...&lt;span class="w"&gt;  &lt;/span&gt;movsd&lt;span class="w"&gt;  &lt;/span&gt;0x10&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm3
+...&lt;span class="w"&gt;  &lt;/span&gt;mulsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm1,%xmm3
+...&lt;span class="w"&gt;  &lt;/span&gt;movsd&lt;span class="w"&gt;  &lt;/span&gt;0x8&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm4
+...&lt;span class="w"&gt;  &lt;/span&gt;mulsd&lt;span class="w"&gt;  &lt;/span&gt;0x12ba&lt;span class="o"&gt;(&lt;/span&gt;%rip&lt;span class="o"&gt;)&lt;/span&gt;,%xmm4
+...&lt;span class="w"&gt;  &lt;/span&gt;movsd&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm5
+...&lt;span class="w"&gt;  &lt;/span&gt;mulsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm0,%xmm5
+...&lt;span class="w"&gt;  &lt;/span&gt;movsd&lt;span class="w"&gt;  &lt;/span&gt;0x20&lt;span class="o"&gt;(&lt;/span&gt;%rsp&lt;span class="o"&gt;)&lt;/span&gt;,%xmm0
+...&lt;span class="w"&gt;  &lt;/span&gt;mulsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm1,%xmm0
+...&lt;span class="w"&gt;  &lt;/span&gt;addsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm5,%xmm0
+...&lt;span class="w"&gt;  &lt;/span&gt;addsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm4,%xmm0
+...&lt;span class="w"&gt;  &lt;/span&gt;addsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm3,%xmm0
+...&lt;span class="w"&gt;  &lt;/span&gt;addsd&lt;span class="w"&gt;  &lt;/span&gt;%xmm2,%xmm0
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;No single call to a memory allocator, no branching, just a plain listing of
@@ -458,21 +458,21 @@ that's how it is.&lt;/p&gt;
 &lt;p&gt;As a tribute to Victor Stinner's &lt;tt class="docutils literal"&gt;perf&lt;/tt&gt; module, and as a conclusion to this
 small experiment, let's ensure we get some speedup, event for such a small
 kernel:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; rm *.so
-&amp;gt; python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;from wsum import wsum&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;rm&lt;span class="w"&gt; &lt;/span&gt;*.so
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;perf&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;from wsum import wsum&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
 .....................
-Mean +- std dev: &lt;span class="m"&gt;3&lt;/span&gt;.73 us +- &lt;span class="m"&gt;0&lt;/span&gt;.11 us
-&amp;gt; &lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++ pythran wsum.py
-&amp;gt; python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;from wsum import wsum&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
+Mean&lt;span class="w"&gt; &lt;/span&gt;+-&lt;span class="w"&gt; &lt;/span&gt;std&lt;span class="w"&gt; &lt;/span&gt;dev:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;.73&lt;span class="w"&gt; &lt;/span&gt;us&lt;span class="w"&gt; &lt;/span&gt;+-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.11&lt;span class="w"&gt; &lt;/span&gt;us
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CXX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang++&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;wsum.py
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;perf&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;from wsum import wsum&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
 .....................
-Mean +- std dev: &lt;span class="m"&gt;190&lt;/span&gt; ns +- &lt;span class="m"&gt;3&lt;/span&gt; ns
+Mean&lt;span class="w"&gt; &lt;/span&gt;+-&lt;span class="w"&gt; &lt;/span&gt;std&lt;span class="w"&gt; &lt;/span&gt;dev:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;190&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;ns&lt;span class="w"&gt; &lt;/span&gt;+-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;ns
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And out of curiosity, let's check the timing with the transformed Python kernel.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; rm *.so
-&amp;gt; pythran -P wsum.py &lt;span class="p"&gt;|&lt;/span&gt; sed &lt;span class="s1"&gt;&amp;#39;s,__builtin__.,,&amp;#39;&lt;/span&gt; &amp;gt; wsum2.py
-&amp;gt; python -m perf timeit -s &lt;span class="s1"&gt;&amp;#39;from wsum2 import wsum&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;rm&lt;span class="w"&gt; &lt;/span&gt;*.so
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;-P&lt;span class="w"&gt; &lt;/span&gt;wsum.py&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;sed&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;s,__builtin__.,,&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;wsum2.py
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;perf&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;from wsum2 import wsum&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;wsum(1.,2.,3.,4.,5.)&amp;#39;&lt;/span&gt;
 .....................
-Mean +- std dev: &lt;span class="m"&gt;308&lt;/span&gt; ns +- &lt;span class="m"&gt;7&lt;/span&gt; ns
+Mean&lt;span class="w"&gt; &lt;/span&gt;+-&lt;span class="w"&gt; &lt;/span&gt;std&lt;span class="w"&gt; &lt;/span&gt;dev:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;308&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;ns&lt;span class="w"&gt; &lt;/span&gt;+-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;7&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;ns
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Fine! Pythran did the job in both cases :-)&lt;/p&gt;
 &lt;/div&gt;
@@ -483,7 +483,7 @@ representation so that translated code compiles to an efficient native library.
 Still, being able to debug it at Python level is very valuable, and it can even
 generate faster Python code in some cases!&lt;/p&gt;
 &lt;/div&gt;
-</content></entry><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:/pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a type checking ability, called &lt;em&gt;tog&lt;/em&gt;. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)&lt;/p&gt;
+</content><category term="compilation"></category></entry><entry><title>from pythran import typing</title><link href="http://serge-sans-paille.github.io/pythran-stories/from-pythran-import-typing.html" rel="alternate"></link><published>2016-12-10T00:00:00+01:00</published><updated>2016-12-10T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-12-10:/pythran-stories/from-pythran-import-typing.html</id><summary type="html">&lt;p class="first last"&gt;Pythran recently gained a type checking ability, called &lt;em&gt;tog&lt;/em&gt;. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;Pythran is currently part of &lt;a class="reference external" href="http://opendreamkit.org/"&gt;OpenDreamKit&lt;/a&gt;,
 a project that aims at improving the open source computational mathematics
 ecosystem.&lt;/p&gt;
@@ -495,7 +495,7 @@ a &lt;a class="reference external" href="http://stackoverflow.com/questions/1381
 
 &lt;span class="c1"&gt;#pythran export create_grid(float [])&lt;/span&gt;
 
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;create_grid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="n"&gt;z&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zeros&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
@@ -505,30 +505,30 @@ a &lt;a class="reference external" href="http://stackoverflow.com/questions/1381
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fast_grid&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;An attempt to compile it with Pythran would return a very long C++ template instantiation trace, with very little clue concerning the origin of the problem.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran create_grid.py
-In file included from /tmp/tmpP0xYa2.cpp:10:
-In file included from ./pythran/pythonic/include/types/ndarray.hpp:12:
-In file included from ./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
-./pythran/pythonic/include/types/tuple.hpp:122:25: error: array is too large &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;18446744073709551615&lt;/span&gt; elements&lt;span class="o"&gt;)&lt;/span&gt;
-      value_type buffer&lt;span class="o"&gt;[&lt;/span&gt;N ? N : &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-                        ^~~~~~~~~
-./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26: note: in instantiation of template class &lt;span class="s1"&gt;&amp;#39;pythonic::types::array&amp;lt;long, 18446744073709551615&amp;gt;&amp;#39;&lt;/span&gt; requested here
-      array&amp;lt;long, value&amp;gt; _shape&lt;span class="p"&gt;;&lt;/span&gt;
-                         ^
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;create_grid.py
+In&lt;span class="w"&gt; &lt;/span&gt;file&lt;span class="w"&gt; &lt;/span&gt;included&lt;span class="w"&gt; &lt;/span&gt;from&lt;span class="w"&gt; &lt;/span&gt;/tmp/tmpP0xYa2.cpp:10:
+In&lt;span class="w"&gt; &lt;/span&gt;file&lt;span class="w"&gt; &lt;/span&gt;included&lt;span class="w"&gt; &lt;/span&gt;from&lt;span class="w"&gt; &lt;/span&gt;./pythran/pythonic/include/types/ndarray.hpp:12:
+In&lt;span class="w"&gt; &lt;/span&gt;file&lt;span class="w"&gt; &lt;/span&gt;included&lt;span class="w"&gt; &lt;/span&gt;from&lt;span class="w"&gt; &lt;/span&gt;./pythran/pythonic/include/utils/broadcast_copy.hpp:4:
+./pythran/pythonic/include/types/tuple.hpp:122:25:&lt;span class="w"&gt; &lt;/span&gt;error:&lt;span class="w"&gt; &lt;/span&gt;array&lt;span class="w"&gt; &lt;/span&gt;is&lt;span class="w"&gt; &lt;/span&gt;too&lt;span class="w"&gt; &lt;/span&gt;large&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;18446744073709551615&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;elements&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="w"&gt;      &lt;/span&gt;value_type&lt;span class="w"&gt; &lt;/span&gt;buffer&lt;span class="o"&gt;[&lt;/span&gt;N&lt;span class="w"&gt; &lt;/span&gt;?&lt;span class="w"&gt; &lt;/span&gt;N&lt;span class="w"&gt; &lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;                        &lt;/span&gt;^~~~~~~~~
+./pythran/pythonic/include/types/numpy_iexpr.hpp:57:26:&lt;span class="w"&gt; &lt;/span&gt;note:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;instantiation&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;template&lt;span class="w"&gt; &lt;/span&gt;class&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;pythonic::types::array&amp;lt;long, 18446744073709551615&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;requested&lt;span class="w"&gt; &lt;/span&gt;here
+&lt;span class="w"&gt;      &lt;/span&gt;array&amp;lt;long,&lt;span class="w"&gt; &lt;/span&gt;value&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;_shape&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;                         &lt;/span&gt;^
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-                                    ^
-./pythran/pythonic/include/utils/seq.hpp:19:19: note: use -ftemplate-depth&lt;span class="o"&gt;=&lt;/span&gt;N to increase recursive template instantiation depth
-    struct gens : gens&amp;lt;N - &lt;span class="m"&gt;1&lt;/span&gt;, N - &lt;span class="m"&gt;1&lt;/span&gt;, S...&amp;gt; &lt;span class="o"&gt;{&lt;/span&gt;
-                  ^
-&lt;span class="m"&gt;3&lt;/span&gt; errors generated.
-CRITICAL Cover me Jack. Jack? Jaaaaack!!!!
-E: &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;error: Command &amp;quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&amp;quot; failed with exit status 1&amp;#39;&lt;/span&gt;,&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="w"&gt;                                    &lt;/span&gt;^
+./pythran/pythonic/include/utils/seq.hpp:19:19:&lt;span class="w"&gt; &lt;/span&gt;note:&lt;span class="w"&gt; &lt;/span&gt;use&lt;span class="w"&gt; &lt;/span&gt;-ftemplate-depth&lt;span class="o"&gt;=&lt;/span&gt;N&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;increase&lt;span class="w"&gt; &lt;/span&gt;recursive&lt;span class="w"&gt; &lt;/span&gt;template&lt;span class="w"&gt; &lt;/span&gt;instantiation&lt;span class="w"&gt; &lt;/span&gt;depth
+&lt;span class="w"&gt;    &lt;/span&gt;struct&lt;span class="w"&gt; &lt;/span&gt;gens&lt;span class="w"&gt; &lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;gens&amp;lt;N&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;N&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;S...&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;                  &lt;/span&gt;^
+&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;errors&lt;span class="w"&gt; &lt;/span&gt;generated.
+CRITICAL&lt;span class="w"&gt; &lt;/span&gt;Cover&lt;span class="w"&gt; &lt;/span&gt;me&lt;span class="w"&gt; &lt;/span&gt;Jack.&lt;span class="w"&gt; &lt;/span&gt;Jack?&lt;span class="w"&gt; &lt;/span&gt;Jaaaaack!!!!
+E:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;error: Command &amp;quot;clang++-3.8 -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -D__PYTHRAN__=2 -I./pythran -I./pythran/pythonic/patch -I/home/serge/.venvs/pythran/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpP0xYa2.cpp -o /tmp/tmpM2Eiso/tmp/tmpP0xYa2.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden&amp;quot; failed with exit status 1&amp;#39;&lt;/span&gt;,&lt;span class="o"&gt;)&lt;/span&gt;
 
-What we now have is a slightly friendlier message:
+What&lt;span class="w"&gt; &lt;/span&gt;we&lt;span class="w"&gt; &lt;/span&gt;now&lt;span class="w"&gt; &lt;/span&gt;have&lt;span class="w"&gt; &lt;/span&gt;is&lt;span class="w"&gt; &lt;/span&gt;a&lt;span class="w"&gt; &lt;/span&gt;slightly&lt;span class="w"&gt; &lt;/span&gt;friendlier&lt;span class="w"&gt; &lt;/span&gt;message:
 &lt;/pre&gt;&lt;/div&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran create_grid.py
-CRITICAL You shall not pass!
-E: Dimension mismatch when slicing &lt;span class="sb"&gt;`&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;2d, float&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;create_grid.py, line &lt;span class="m"&gt;7&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;create_grid.py
+CRITICAL&lt;span class="w"&gt; &lt;/span&gt;You&lt;span class="w"&gt; &lt;/span&gt;shall&lt;span class="w"&gt; &lt;/span&gt;not&lt;span class="w"&gt; &lt;/span&gt;pass!
+E:&lt;span class="w"&gt; &lt;/span&gt;Dimension&lt;span class="w"&gt; &lt;/span&gt;mismatch&lt;span class="w"&gt; &lt;/span&gt;when&lt;span class="w"&gt; &lt;/span&gt;slicing&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;2d,&lt;span class="w"&gt; &lt;/span&gt;float&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;create_grid.py,&lt;span class="w"&gt; &lt;/span&gt;line&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;7&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Indeed, the correct declaration for &lt;tt class="docutils literal"&gt;z&lt;/tt&gt; was &lt;tt class="docutils literal"&gt;z = &lt;span class="pre"&gt;np.zeros((N,&lt;/span&gt; N, 3))&lt;/tt&gt;.&lt;/p&gt;
 &lt;div class="section" id="a-quick-glance-at-pythran-typing-system"&gt;
@@ -538,7 +538,7 @@ matters is not the type of an object, but its structure, i.e. the available
 methods and fields: &lt;em&gt;If it walks like a duck and talks like a duck, then it's a
 duck&lt;/em&gt;. That's a kind of &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Structural_type_system"&gt;structural typing&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;On the opposite side C++ uses a static type system, and if you adhere to OOP
-&lt;a class="footnote-reference" href="#id5" id="id1"&gt;[1]&lt;/a&gt; you may require an object to derive from the &lt;tt class="docutils literal"&gt;Duck&lt;/tt&gt; class to be
+&lt;a class="footnote-reference" href="#footnote-2" id="footnote-reference-1"&gt;[1]&lt;/a&gt; you may require an object to derive from the &lt;tt class="docutils literal"&gt;Duck&lt;/tt&gt; class to be
 considered a duck; That's a kind of &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Nominal_type_system"&gt;nominal typing&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Pythran uses a trick to make both world meet: &lt;em&gt;ad-hoc polymorphism&lt;/em&gt;, as
 supported in C++ through &lt;tt class="docutils literal"&gt;template&lt;/tt&gt; meta programing. Upon a template
@@ -552,9 +552,9 @@ Python code:&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;integer, for instance &lt;tt class="docutils literal"&gt;str&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;list&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;int&lt;/tt&gt;. The C++ equivalent would
 be (taking into account move semantics):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
-&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;typename&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;twice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In Python's case, type checking is done at runtime, during a lookup in &lt;tt class="docutils literal"&gt;s&lt;/tt&gt; for
@@ -684,7 +684,7 @@ over-approximation defined above, is a &lt;tt class="docutils literal"&gt;(Any, 
         &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;
     &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It runs into some troubles. The &lt;tt class="docutils literal"&gt;return&lt;/tt&gt; from the &lt;tt class="docutils literal"&gt;True&lt;/tt&gt; branch sets the
 return type of &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; to &lt;tt class="docutils literal"&gt;int&lt;/tt&gt; but the one from the &lt;tt class="docutils literal"&gt;False&lt;/tt&gt; branch sets it
@@ -697,7 +697,7 @@ generally described as a parametric type, &lt;tt class="docutils literal"&gt;Opt
 meeting an &lt;tt class="docutils literal"&gt;if&lt;/tt&gt;, we generate a new copy of the variable environment for each
 branch, and we &lt;em&gt;merge&lt;/em&gt; (not &lt;em&gt;unify&lt;/em&gt;) the environments.&lt;/p&gt;
 &lt;p&gt;Likewise, if the condition is &lt;em&gt;explicitely&lt;/em&gt; a check for &lt;tt class="docutils literal"&gt;None&lt;/tt&gt;, as in:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;stuff&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;stuff&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -714,7 +714,7 @@ generic to be done there.&lt;/p&gt;
 &lt;p&gt;Type inference computes that v is of type &lt;tt class="docutils literal"&gt;Optional[T0]&lt;/tt&gt;, which is not compatible with &lt;tt class="docutils literal"&gt;v + 1&lt;/tt&gt; and a &lt;tt class="docutils literal"&gt;PythranTypeError&lt;/tt&gt; is raised. A compatible way to write this would be:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;pass&lt;/span&gt;  &lt;span class="c1"&gt;# or do stuff&lt;/span&gt;
     &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
@@ -736,7 +736,7 @@ second &lt;tt class="docutils literal"&gt;append&lt;/tt&gt; because unification 
 (see the &lt;a class="reference external" href="http://shed-skin.blogspot.fr/2011/09/shed-skin-09.html"&gt;blogpost announce on the topic&lt;/a&gt;. Several test cases
 of Pythran test suite would fail with a stricter typing, so let's try to
 achieve the same behavior as Shedskin, within HM.&lt;/p&gt;
-&lt;p&gt;The trick here is to consider a scalar as a tuple of four elements &lt;a class="footnote-reference" href="#id4" id="id2"&gt;[0]&lt;/a&gt;, one per
+&lt;p&gt;The trick here is to consider a scalar as a tuple of four elements &lt;a class="footnote-reference" href="#footnote-1" id="footnote-reference-2"&gt;[0]&lt;/a&gt;, one per
 scalar type we want to support. And then apply the following rule: the actual
 type of the scalar is the type of the first non variable type, starting from
 the lower index. Under that assumption,&lt;/p&gt;
@@ -800,7 +800,7 @@ to spot a few &lt;em&gt;errors&lt;/em&gt; in the tests, mostly code that was inc
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_shadow_import2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run_test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-        &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;def shadow_import2(s):&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;def shadow_import2(s):&lt;/span&gt;
 &lt;span class="sd"&gt;               for set in s : set.add(1)&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
         &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;},{&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
         &lt;span class="n"&gt;shadow_import2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;]]]&lt;/span&gt;
@@ -822,20 +822,20 @@ correctly typed, while Pythran correctly type checks it without annotation.&lt;/
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;If we turn the &lt;tt class="docutils literal"&gt;1&lt;/tt&gt; into &lt;tt class="docutils literal"&gt;&amp;quot;1&amp;quot;&lt;/tt&gt;, we get the following error:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran wc.py
-CRITICAL You shall not pass!
-E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;str&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;wc.py
+CRITICAL&lt;span class="w"&gt; &lt;/span&gt;You&lt;span class="w"&gt; &lt;/span&gt;shall&lt;span class="w"&gt; &lt;/span&gt;not&lt;span class="w"&gt; &lt;/span&gt;pass!
+E:&lt;span class="w"&gt; &lt;/span&gt;Invalid&lt;span class="w"&gt; &lt;/span&gt;operand&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;and&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;str&lt;span class="sb"&gt;`&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;wc.py,&lt;span class="w"&gt; &lt;/span&gt;line&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And if we remove the &lt;tt class="docutils literal"&gt;0&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;d.get(word)&lt;/tt&gt; may return &lt;tt class="docutils literal"&gt;None&lt;/tt&gt; and the error message becomes:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran wc.py
-CRITICAL You shall not pass!
-E: Invalid operand &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;: &lt;span class="sb"&gt;`&lt;/span&gt;Option&lt;span class="o"&gt;[&lt;/span&gt;T0&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt; and &lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;wc.py, line &lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;wc.py
+CRITICAL&lt;span class="w"&gt; &lt;/span&gt;You&lt;span class="w"&gt; &lt;/span&gt;shall&lt;span class="w"&gt; &lt;/span&gt;not&lt;span class="w"&gt; &lt;/span&gt;pass!
+E:&lt;span class="w"&gt; &lt;/span&gt;Invalid&lt;span class="w"&gt; &lt;/span&gt;operand&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;+&lt;span class="sb"&gt;`&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;Option&lt;span class="o"&gt;[&lt;/span&gt;T0&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;and&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;int&lt;span class="sb"&gt;`&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;wc.py,&lt;span class="w"&gt; &lt;/span&gt;line&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Great!&lt;/p&gt;
 &lt;p&gt;Considering Numpy functions, we don't model all of them in tog, but we can
 still detect several interesting errors. For instance on a gaussian kernel
 (&lt;a class="reference external" href="http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy"&gt;error-safe version from stackexchange&lt;/a&gt;):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;vectorized_RBF_kernel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sigma&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;X2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;multiply&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;# sum colums of the matrix&lt;/span&gt;
     &lt;span class="n"&gt;K0&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X2&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;X2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;
@@ -846,9 +846,9 @@ still detect several interesting errors. For instance on a gaussian kernel
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;vectorized_RBF_kernel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Pythran correctly catches the error on &lt;tt class="docutils literal"&gt;vectorized_RBF_kernel&lt;/tt&gt; call:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran gaussian.py
-CRITICAL You shall not pass!
-E: Invalid argument &lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; call to &lt;span class="sb"&gt;`&lt;/span&gt;Callable&lt;span class="o"&gt;[[&lt;/span&gt;int, T3&lt;span class="o"&gt;]&lt;/span&gt;, ...&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;, tried Callable&lt;span class="o"&gt;[[&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T0&lt;span class="o"&gt;]&lt;/span&gt;, T1&lt;span class="o"&gt;]&lt;/span&gt;, Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; d+, T2&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;gaussian.py, line &lt;span class="m"&gt;9&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;gaussian.py
+CRITICAL&lt;span class="w"&gt; &lt;/span&gt;You&lt;span class="w"&gt; &lt;/span&gt;shall&lt;span class="w"&gt; &lt;/span&gt;not&lt;span class="w"&gt; &lt;/span&gt;pass!
+E:&lt;span class="w"&gt; &lt;/span&gt;Invalid&lt;span class="w"&gt; &lt;/span&gt;argument&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;function&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;call&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;Callable&lt;span class="o"&gt;[[&lt;/span&gt;int,&lt;span class="w"&gt; &lt;/span&gt;T3&lt;span class="o"&gt;]&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;tried&lt;span class="w"&gt; &lt;/span&gt;Callable&lt;span class="o"&gt;[[&lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;d+,&lt;span class="w"&gt; &lt;/span&gt;T0&lt;span class="o"&gt;]&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;T1&lt;span class="o"&gt;]&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;Array&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;d+,&lt;span class="w"&gt; &lt;/span&gt;T2&lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;gaussian.py,&lt;span class="w"&gt; &lt;/span&gt;line&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;9&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="conclusion"&gt;
@@ -867,23 +867,23 @@ me with relevant insights, criticisms and great ideas. Thanks to &lt;a class="re
 &lt;a class="reference external" href="http://www.logilab.fr/"&gt;Logilab&lt;/a&gt; for their support. Thanks to Lancelot Six,
 w1gz and Nicolas M. Thiéry for proof reading this post too :-)&lt;/p&gt;
 &lt;p&gt;And last, I'm in debt to all Pythran users for keeping the motivation high!&lt;/p&gt;
-&lt;table class="docutils footnote" frame="void" id="id4" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-1" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id2"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;That could be more actually, for instance to distinguish single
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-2"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;That could be more actually, for instance to distinguish single
 precision float from double prcesion float, the &lt;tt class="docutils literal"&gt;float32&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;float64&lt;/tt&gt;
 from numpy. But four types is enough for the envisonned type checking.&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;table class="docutils footnote" frame="void" id="id5" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-2" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;The OOP style in C++ is not enforced by the Standard Library as much as it is in the Java SDK though.&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-1"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;The OOP style in C++ is not enforced by the Standard Library as much as it is in the Java SDK though.&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-</content></entry><entry><title>Identifier Binding Computation</title><link href="http://serge-sans-paille.github.io/pythran-stories/identifier-binding-computation.html" rel="alternate"></link><published>2016-04-18T00:00:00+02:00</published><updated>2016-04-18T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-04-18:/pythran-stories/identifier-binding-computation.html</id><summary type="html">&lt;p class="first last"&gt;Alias analysis is a poor term to describe the processing done by
+</content><category term="compilation"></category></entry><entry><title>Identifier Binding Computation</title><link href="http://serge-sans-paille.github.io/pythran-stories/identifier-binding-computation.html" rel="alternate"></link><published>2016-04-18T00:00:00+02:00</published><updated>2016-04-18T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-04-18:/pythran-stories/identifier-binding-computation.html</id><summary type="html">&lt;p class="first last"&gt;Alias analysis is a poor term to describe the processing done by
 Pythran that is going to be described here. It could rather be named
 &lt;em&gt;static computation of identifier binding&lt;/em&gt;, in the sense that it
 tries to give an over-approximation of which values an identifier can
@@ -899,7 +899,7 @@ the &lt;a class="reference external" href="https://docs.python.org/2/library/doc
 &lt;tt class="docutils literal"&gt;test_typing.py&lt;/tt&gt;. So the reader still has a strong warranty that the output
 described is the one she would get by running the commands herself.&lt;/p&gt;
 &lt;p&gt;The curious reader can verify this statement by running &lt;tt class="docutils literal"&gt;python &lt;span class="pre"&gt;-m&lt;/span&gt; doctest&lt;/tt&gt;
-with Pythran in its &lt;tt class="docutils literal"&gt;PYTHONPATH&lt;/tt&gt; &lt;a class="citation-reference" href="#git-version" id="id1"&gt;[git-version]&lt;/a&gt; on the article source, which is in fact what
+with Pythran in its &lt;tt class="docutils literal"&gt;PYTHONPATH&lt;/tt&gt; &lt;a class="citation-reference" href="#git-version" id="citation-reference-1"&gt;[git-version]&lt;/a&gt; on the article source, which is in fact what
 I did before posting it &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;:-)&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="static-computation-of-identifier-binding"&gt;
@@ -927,7 +927,7 @@ an identifier, as shown by the following code:&lt;/p&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
 &lt;span class="go"&gt;1&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Nothing prevents this to happen in Python &lt;a class="footnote-reference" href="#id4" id="id2"&gt;[0]&lt;/a&gt;, so Pythran takes great care in
+&lt;p&gt;Nothing prevents this to happen in Python &lt;a class="footnote-reference" href="#footnote-1" id="footnote-reference-1"&gt;[0]&lt;/a&gt;, so Pythran takes great care in
 not confusing &lt;em&gt;identifiers&lt;/em&gt; and &lt;em&gt;values&lt;/em&gt;. And The ill-named Alias Analysis is
 the tool we use to solve this problem. In the particular case above, this
 analysis tells us that the identifier &lt;tt class="docutils literal"&gt;id&lt;/tt&gt; in the call expression &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;id([1])&lt;/span&gt;&lt;/tt&gt;
@@ -980,7 +980,7 @@ in the function call, as they share the same value.&lt;/p&gt;
 &lt;p&gt;identifier &lt;tt class="docutils literal"&gt;i&lt;/tt&gt; can be bound to a great deal of values, and we cannot track them individually.
 Instead Pythran only keep tracks of values that are bound to an identifier. All
 the others are hidden between the terms of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;&amp;lt;unbound-value&amp;gt;&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
-&lt;p&gt;So let's start to write some simple equations &lt;a class="footnote-reference" href="#id5" id="id3"&gt;[1]&lt;/a&gt;, with a few test cases demonstrated as Python code which needs some initialization:&lt;/p&gt;
+&lt;p&gt;So let's start to write some simple equations &lt;a class="footnote-reference" href="#footnote-2" id="footnote-reference-2"&gt;[1]&lt;/a&gt;, with a few test cases demonstrated as Python code which needs some initialization:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;ast&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran.analyses.aliases&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;passmanager&lt;/span&gt;
@@ -1196,7 +1196,7 @@ and the content of the iterator&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
 &lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(a):&lt;/span&gt;
 &lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;   for i in a:&lt;/span&gt;
-&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;       {i}&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;       &lt;/span&gt;&lt;span class="si"&gt;{i}&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="go"&gt;{i} =&amp;gt; [&amp;#39;|i|&amp;#39;]&lt;/span&gt;
@@ -1205,7 +1205,7 @@ and the content of the iterator&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
 &lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(a, b):&lt;/span&gt;
 &lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    for i in [a, b]:&lt;/span&gt;
-&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;          {i}&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;          &lt;/span&gt;&lt;span class="si"&gt;{i}&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="go"&gt;{i} =&amp;gt; [&amp;#39;|a|&amp;#39;, &amp;#39;|b|&amp;#39;]&lt;/span&gt;
@@ -1219,7 +1219,7 @@ potentially creating more aliasing:&lt;/p&gt;
 &lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;def foo(a, b):&lt;/span&gt;
 &lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    if a: c=a&lt;/span&gt;
 &lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    else: c=b&lt;/span&gt;
-&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    return {c}&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="gp"&gt;... &lt;/span&gt;&lt;span class="s1"&gt;    return &lt;/span&gt;&lt;span class="si"&gt;{c}&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;Aliases&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -1270,7 +1270,7 @@ we can remove the whole instruction:&lt;/p&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran.backend&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Python&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fun&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DeadCodeElimination&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Python&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;&lt;span class="nb"&gt;print&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Python&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="go"&gt;def useless0(x):&lt;/span&gt;
 &lt;span class="go"&gt;    return (x + 1)&lt;/span&gt;
 &lt;span class="go"&gt;def useless1(x):&lt;/span&gt;
@@ -1286,33 +1286,33 @@ we can remove the whole instruction:&lt;/p&gt;
 &lt;div class="section" id="acknowledgments"&gt;
 &lt;h2&gt;Acknowledgments&lt;/h2&gt;
 &lt;p&gt;Thanks a lot to Pierrick Brunet for his careful review, and to Florent Cayré from &lt;a class="reference external" href="https://www.logilab.fr/"&gt;Logilab&lt;/a&gt; for his advices that helped &lt;strong&gt;a lot&lt;/strong&gt; to improve the post. And of course to &lt;a class="reference external" href="http://opendreamkit.org/"&gt;OpenDreamKit&lt;/a&gt; for funding this work!&lt;/p&gt;
-&lt;table class="docutils footnote" frame="void" id="id4" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-1" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id2"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Except the sanity of the developer, but who never used the &lt;tt class="docutils literal"&gt;id&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;len&lt;/tt&gt; identifiers?&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-1"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Except the sanity of the developer, but who never used the &lt;tt class="docutils literal"&gt;id&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;len&lt;/tt&gt; identifiers?&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;table class="docutils footnote" frame="void" id="id5" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-2" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id3"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Starting from this note, the identifiers from the &lt;a class="reference external" href="https://docs.python.org/2/library/ast.html"&gt;ast&lt;/a&gt; module are used.&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-2"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Starting from this note, the identifiers from the &lt;a class="reference external" href="https://docs.python.org/2/library/ast.html"&gt;ast&lt;/a&gt; module are used.&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;table class="docutils citation" frame="void" id="git-version" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[git-version]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;The Pythran commit id used for this article is &lt;tt class="docutils literal"&gt;f38a16491ea644fbaed15e8facbcabf869637b39&lt;/tt&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#citation-reference-1"&gt;[git-version]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;The Pythran commit id used for this article is &lt;tt class="docutils literal"&gt;f38a16491ea644fbaed15e8facbcabf869637b39&lt;/tt&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;/div&gt;
-</content></entry><entry><title>Compiler Flags</title><link href="http://serge-sans-paille.github.io/pythran-stories/compiler-flags.html" rel="alternate"></link><published>2016-03-29T00:00:00+02:00</published><updated>2016-03-29T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-29:/pythran-stories/compiler-flags.html</id><summary type="html">&lt;p class="first last"&gt;Playing with compiler forwarded by Pythran to GCC (or Clang) can yield surprising results, let's explore this!&lt;/p&gt;
+</content><category term="compilation"></category></entry><entry><title>Compiler Flags</title><link href="http://serge-sans-paille.github.io/pythran-stories/compiler-flags.html" rel="alternate"></link><published>2016-03-29T00:00:00+02:00</published><updated>2016-03-29T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-03-29:/pythran-stories/compiler-flags.html</id><summary type="html">&lt;p class="first last"&gt;Playing with compiler forwarded by Pythran to GCC (or Clang) can yield surprising results, let's explore this!&lt;/p&gt;
 </summary><content type="html">&lt;div class="section" id="when-size-matters"&gt;
 &lt;h2&gt;When Size Matters&lt;/h2&gt;
 &lt;p&gt;Everything started a few days ago with a Pythran user complaining about the
 size of the binaries generated by Pythran. In essence, take the following code
 &lt;cite&gt;cda.py&lt;/cite&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export closest_distance_arrays(float, float, float[], float[])&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;math&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;closest_distance_arrays&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lat1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;long1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;latitudes&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;longitudes&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;degrees_to_radians&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;180.0&lt;/span&gt;
@@ -1326,18 +1326,18 @@ size of the binaries generated by Pythran. In essence, take the following code
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arc&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;arc&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It doesn't even weight a kilobyte, and when benchmarked, it runs in a few milliseconds:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;100&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.95 msec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
+&lt;span class="m"&gt;100&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;loops,&lt;span class="w"&gt; &lt;/span&gt;best&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.95&lt;span class="w"&gt; &lt;/span&gt;msec&lt;span class="w"&gt; &lt;/span&gt;per&lt;span class="w"&gt; &lt;/span&gt;loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Thanks to the &lt;tt class="docutils literal"&gt;#pythran export&lt;/tt&gt; annotation, Pythran can turn it into a native
 library that runs slightly faster than the Python version:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py
-&amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.17 msec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;cda.py
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
+&lt;span class="m"&gt;1000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;loops,&lt;span class="w"&gt; &lt;/span&gt;best&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.17&lt;span class="w"&gt; &lt;/span&gt;msec&lt;span class="w"&gt; &lt;/span&gt;per&lt;span class="w"&gt; &lt;/span&gt;loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It is, however, a very big binary:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; ls -lh cda.so
--rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton &lt;span class="m"&gt;1&lt;/span&gt;.3M Mar &lt;span class="m"&gt;29&lt;/span&gt; &lt;span class="m"&gt;18&lt;/span&gt;:10 cda.so*
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;ls&lt;span class="w"&gt; &lt;/span&gt;-lh&lt;span class="w"&gt; &lt;/span&gt;cda.so
+-rwxr-xr-x&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;sguelton&lt;span class="w"&gt; &lt;/span&gt;sguelton&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.3M&lt;span class="w"&gt; &lt;/span&gt;Mar&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;18&lt;/span&gt;:10&lt;span class="w"&gt; &lt;/span&gt;cda.so*
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Who wants to multiply the binary size by &lt;tt class="docutils literal"&gt;2e3&lt;/tt&gt; to get less than a &lt;tt class="docutils literal"&gt;x2&lt;/tt&gt; speedup?&lt;/p&gt;
 &lt;/div&gt;
@@ -1346,31 +1346,31 @@ library that runs slightly faster than the Python version:&lt;/p&gt;
 &lt;p&gt;One can call Pythran with the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-v&lt;/span&gt;&lt;/tt&gt; flag to inspect part of its internal,
 especially the C++ compiler call done to perform object code generation and
 linking:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -v
-running build_ext
-running build_src
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;cda.py&lt;span class="w"&gt; &lt;/span&gt;-v
+running&lt;span class="w"&gt; &lt;/span&gt;build_ext
+running&lt;span class="w"&gt; &lt;/span&gt;build_src
 build_src
-building extension &lt;span class="s2"&gt;&amp;quot;cda&amp;quot;&lt;/span&gt; sources
-build_src: building npy-pkg config files
-new_compiler returns distutils.unixccompiler.UnixCCompiler
-INFO     customize UnixCCompiler
-customize UnixCCompiler using build_ext
+building&lt;span class="w"&gt; &lt;/span&gt;extension&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;cda&amp;quot;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;sources
+build_src:&lt;span class="w"&gt; &lt;/span&gt;building&lt;span class="w"&gt; &lt;/span&gt;npy-pkg&lt;span class="w"&gt; &lt;/span&gt;config&lt;span class="w"&gt; &lt;/span&gt;files
+new_compiler&lt;span class="w"&gt; &lt;/span&gt;returns&lt;span class="w"&gt; &lt;/span&gt;distutils.unixccompiler.UnixCCompiler
+INFO&lt;span class="w"&gt;     &lt;/span&gt;customize&lt;span class="w"&gt; &lt;/span&gt;UnixCCompiler
+customize&lt;span class="w"&gt; &lt;/span&gt;UnixCCompiler&lt;span class="w"&gt; &lt;/span&gt;using&lt;span class="w"&gt; &lt;/span&gt;build_ext
 ********************************************************************************
 distutils.unixccompiler.UnixCCompiler
-&lt;span class="nv"&gt;linker_exe&lt;/span&gt;    &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="nv"&gt;compiler_so&lt;/span&gt;   &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fPIC&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="nv"&gt;archiver&lt;/span&gt;      &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;x86_64-linux-gnu-gcc-ar&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;rc&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="nv"&gt;preprocessor&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-E&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="nv"&gt;linker_so&lt;/span&gt;     &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;x86_64-linux-gnu-gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-pthread&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-shared&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-O1&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-Bsymbolic-functions&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-z,relro&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wdate-time&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-D_FORTIFY_SOURCE=2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fstack-protector-strong&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wformat&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Werror=format-security&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wl,-z,relro&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="nv"&gt;compiler_cxx&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;g++&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="nv"&gt;ranlib&lt;/span&gt;        &lt;span class="o"&gt;=&lt;/span&gt; None
-&lt;span class="nv"&gt;compiler&lt;/span&gt;      &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;, &lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="nv"&gt;libraries&lt;/span&gt;     &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[]&lt;/span&gt;
-&lt;span class="nv"&gt;library_dirs&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[]&lt;/span&gt;
-&lt;span class="nv"&gt;include_dirs&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/usr/include/python2.7&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;linker_exe&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;compiler_so&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fPIC&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;archiver&lt;/span&gt;&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;x86_64-linux-gnu-gcc-ar&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;rc&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;preprocessor&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-E&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;linker_so&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;x86_64-linux-gnu-gcc&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-pthread&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-shared&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wl,-O1&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wl,-Bsymbolic-functions&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wl,-z,relro&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wdate-time&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-D_FORTIFY_SOURCE=2&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fstack-protector-strong&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wformat&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Werror=format-security&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wl,-z,relro&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;compiler_cxx&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;g++&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;ranlib&lt;/span&gt;&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;None
+&lt;span class="nv"&gt;compiler&lt;/span&gt;&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gcc&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-DNDEBUG&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fwrapv&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wall&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-Wstrict-prototypes&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-fno-strict-aliasing&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-g&amp;#39;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-O2&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;libraries&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;
+&lt;span class="nv"&gt;library_dirs&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;
+&lt;span class="nv"&gt;include_dirs&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/usr/include/python2.7&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-INFO     Generated module: cda
-INFO     Output: /home/sguelton/sources/pythran/cda.so
+INFO&lt;span class="w"&gt;     &lt;/span&gt;Generated&lt;span class="w"&gt; &lt;/span&gt;module:&lt;span class="w"&gt; &lt;/span&gt;cda
+INFO&lt;span class="w"&gt;     &lt;/span&gt;Output:&lt;span class="w"&gt; &lt;/span&gt;/home/sguelton/sources/pythran/cda.so
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;That's a pretty long trace, but that's what verbose mode is for. The
 enlightened reader noticed that we use &lt;tt class="docutils literal"&gt;distutils&lt;/tt&gt; under the hood to abstract
@@ -1379,12 +1379,12 @@ the compiler calls, and that's why we're getting some funky compiler flags like
 &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fstack-protector-strong&lt;/span&gt; &lt;span class="pre"&gt;-Wformat&lt;/span&gt; &lt;span class="pre"&gt;-Werror=format-security&lt;/span&gt; &lt;span class="pre"&gt;-Wl,-z,relro&lt;/span&gt;&lt;/tt&gt;.
 That's the default for native python extensions on my distrib. Funny enough the
 last ones are hardening flags used to improve the security of the binary and I
-wrote a (passionating) article about it for Quarkslab &lt;a class="footnote-reference" href="#id4" id="id1"&gt;[0]&lt;/a&gt;.&lt;/p&gt;
+wrote a (passionating) article about it for Quarkslab &lt;a class="footnote-reference" href="#footnote-1" id="footnote-reference-1"&gt;[0]&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;It turns out &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-g&lt;/span&gt;&lt;/tt&gt; (and C++) is responsible for the fat binary: if we simply
 strip the binary, we get back to a decent size:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; strip cda.so
-&amp;gt; ls -lh cda.so
--rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 151K Mar &lt;span class="m"&gt;29&lt;/span&gt; &lt;span class="m"&gt;18&lt;/span&gt;:26 cda.so
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;strip&lt;span class="w"&gt; &lt;/span&gt;cda.so
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;ls&lt;span class="w"&gt; &lt;/span&gt;-lh&lt;span class="w"&gt; &lt;/span&gt;cda.so
+-rwxr-xr-x&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;sguelton&lt;span class="w"&gt; &lt;/span&gt;sguelton&lt;span class="w"&gt; &lt;/span&gt;151K&lt;span class="w"&gt; &lt;/span&gt;Mar&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;18&lt;/span&gt;:26&lt;span class="w"&gt; &lt;/span&gt;cda.so
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;As Pythran users generally don't want the debug info on the generated native
 code, we chose to strip them by default, using the linker flag
@@ -1396,11 +1396,11 @@ symbols.&lt;/p&gt;
 &lt;p&gt;While we're at it, let's call &lt;tt class="docutils literal"&gt;nm&lt;/tt&gt; to check if any symbol remains in the
 binary. After all, the Python interpreter still needs some of them to load the
 native extension!&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; nm -C -D cda.so
-&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt; skipping &amp;gt; &lt;span class="m"&gt;900&lt;/span&gt; entries
-000000000001ed00 u nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_ &lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;, boost::dispatch::tag::cpu_, void&amp;gt;::__kernel_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double*, double*, int, int, int, int const*&lt;span class="o"&gt;)&lt;/span&gt;::PIo2
-000000000001edc0 u nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_ &lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;, boost::dispatch::tag::cpu_, void&amp;gt;::__ieee754_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double, double*&lt;span class="o"&gt;)&lt;/span&gt;::two_over_pi
-000000000001ed40 u nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_ &lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;, boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt; &amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;, boost::dispatch::tag::cpu_, void&amp;gt;::__ieee754_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double, double*&lt;span class="o"&gt;)&lt;/span&gt;::npio2_hw
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;nm&lt;span class="w"&gt; &lt;/span&gt;-C&lt;span class="w"&gt; &lt;/span&gt;-D&lt;span class="w"&gt; &lt;/span&gt;cda.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;skipping&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;900&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;entries
+000000000001ed00&lt;span class="w"&gt; &lt;/span&gt;u&lt;span class="w"&gt; &lt;/span&gt;nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::tag::cpu_,&lt;span class="w"&gt; &lt;/span&gt;void&amp;gt;::__kernel_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double*,&lt;span class="w"&gt; &lt;/span&gt;double*,&lt;span class="w"&gt; &lt;/span&gt;int,&lt;span class="w"&gt; &lt;/span&gt;int,&lt;span class="w"&gt; &lt;/span&gt;int,&lt;span class="w"&gt; &lt;/span&gt;int&lt;span class="w"&gt; &lt;/span&gt;const*&lt;span class="o"&gt;)&lt;/span&gt;::PIo2
+000000000001edc0&lt;span class="w"&gt; &lt;/span&gt;u&lt;span class="w"&gt; &lt;/span&gt;nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::tag::cpu_,&lt;span class="w"&gt; &lt;/span&gt;void&amp;gt;::__ieee754_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double,&lt;span class="w"&gt; &lt;/span&gt;double*&lt;span class="o"&gt;)&lt;/span&gt;::two_over_pi
+000000000001ed40&lt;span class="w"&gt; &lt;/span&gt;u&lt;span class="w"&gt; &lt;/span&gt;nt2::ext::implement&amp;lt;nt2::tag::rem_pio2_&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::meta::scalar_&amp;lt;boost::dispatch::meta::double_&amp;lt;double&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;boost::dispatch::tag::cpu_,&lt;span class="w"&gt; &lt;/span&gt;void&amp;gt;::__ieee754_rem_pio2&lt;span class="o"&gt;(&lt;/span&gt;double,&lt;span class="w"&gt; &lt;/span&gt;double*&lt;span class="o"&gt;)&lt;/span&gt;::npio2_hw
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I can tell you Python is &lt;em&gt;not&lt;/em&gt; using nt2 dispatch mechanism to load native
 extensions. Again, the default compiler settings are responsible for this
@@ -1408,7 +1408,7 @@ noise, and the relevant compiler flag is &lt;tt class="docutils literal"&gt;&lt;
 compiler than only the functions flagged with a special attribute are part of
 the external ABI, the other ones are not exported. As Python uses a single
 entry point to load Pythran modules, namely &lt;tt class="docutils literal"&gt;PyInit_cda&lt;/tt&gt; for Python3 modules
-and &lt;tt class="docutils literal"&gt;initcda&lt;/tt&gt; for Python2 modules &lt;a class="footnote-reference" href="#id5" id="id2"&gt;[1]&lt;/a&gt;, one can add the &lt;tt class="docutils literal"&gt;__attribute__
+and &lt;tt class="docutils literal"&gt;initcda&lt;/tt&gt; for Python2 modules &lt;a class="footnote-reference" href="#footnote-2" id="footnote-reference-2"&gt;[1]&lt;/a&gt;, one can add the &lt;tt class="docutils literal"&gt;__attribute__
 &lt;span class="pre"&gt;((visibility(&amp;quot;default&amp;quot;)))&lt;/span&gt;&lt;/tt&gt; on this symbol and it will be the only exported
 one. This slightly impacts the code size, may decrease loading time and
 eventually gives the compiler more optimization opportunities, but nothing
@@ -1432,11 +1432,11 @@ always inlined, and thus win space. So we flag the &lt;tt class="docutils litera
 with the visibility attribute, but it turns out this triggers abunch of
 different optimization path that gives us a significantly smaller binary, that
 runs slightly faster:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all
-&amp;gt; ls -lh cda.so
--rwxr-xr-x &lt;span class="m"&gt;1&lt;/span&gt; sguelton sguelton 31K Mar &lt;span class="m"&gt;29&lt;/span&gt; &lt;span class="m"&gt;18&lt;/span&gt;:52 cda.so*
-&amp;gt; python -m timeit -s &lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.15 msec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;cda.py&lt;span class="w"&gt; &lt;/span&gt;-fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden&lt;span class="w"&gt; &lt;/span&gt;-fwhole-program&lt;span class="w"&gt; &lt;/span&gt;-Wl,-strip-all
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;ls&lt;span class="w"&gt; &lt;/span&gt;-lh&lt;span class="w"&gt; &lt;/span&gt;cda.so
+-rwxr-xr-x&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;sguelton&lt;span class="w"&gt; &lt;/span&gt;sguelton&lt;span class="w"&gt; &lt;/span&gt;31K&lt;span class="w"&gt; &lt;/span&gt;Mar&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;18&lt;/span&gt;:52&lt;span class="w"&gt; &lt;/span&gt;cda.so*
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;import numpy as np; n = 20000 ; lat, lon = np.random.rand(n), np.random.rand(n); x,y = np.random.rand(), np.random.rand(); from cda import closest_distance_arrays&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;closest_distance_arrays(x,y,lat, lon)&amp;#39;&lt;/span&gt;
+&lt;span class="m"&gt;1000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;loops,&lt;span class="w"&gt; &lt;/span&gt;best&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.15&lt;span class="w"&gt; &lt;/span&gt;msec&lt;span class="w"&gt; &lt;/span&gt;per&lt;span class="w"&gt; &lt;/span&gt;loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;All these flags are now the default on Linux.&lt;/p&gt;
 &lt;/div&gt;
@@ -1444,21 +1444,21 @@ runs slightly faster:&lt;/p&gt;
 &lt;h2&gt;Playing with the optimization flags too&lt;/h2&gt;
 &lt;p&gt;The default optimization flag is &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O2&lt;/span&gt;&lt;/tt&gt;, and that's generally a decent choice.
 On &lt;tt class="docutils literal"&gt;cda.py&lt;/tt&gt;, using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O3&lt;/span&gt;&lt;/tt&gt; does not give much change (gcc 4.9):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3
-&amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.14 msec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;cda.py&lt;span class="w"&gt; &lt;/span&gt;-fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden&lt;span class="w"&gt; &lt;/span&gt;-fwhole-program&lt;span class="w"&gt; &lt;/span&gt;-Wl,-strip-all&lt;span class="w"&gt; &lt;/span&gt;-O3
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="m"&gt;1000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;loops,&lt;span class="w"&gt; &lt;/span&gt;best&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.14&lt;span class="w"&gt; &lt;/span&gt;msec&lt;span class="w"&gt; &lt;/span&gt;per&lt;span class="w"&gt; &lt;/span&gt;loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Asking for code specific to my CPU using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-march=native&lt;/span&gt;&lt;/tt&gt; actually gives some improvments&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -O3 -march&lt;span class="o"&gt;=&lt;/span&gt;native
-&amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.11 msec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;cda.py&lt;span class="w"&gt; &lt;/span&gt;-fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden&lt;span class="w"&gt; &lt;/span&gt;-fwhole-program&lt;span class="w"&gt; &lt;/span&gt;-Wl,-strip-all&lt;span class="w"&gt; &lt;/span&gt;-O3&lt;span class="w"&gt; &lt;/span&gt;-march&lt;span class="o"&gt;=&lt;/span&gt;native
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="m"&gt;1000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;loops,&lt;span class="w"&gt; &lt;/span&gt;best&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.11&lt;span class="w"&gt; &lt;/span&gt;msec&lt;span class="w"&gt; &lt;/span&gt;per&lt;span class="w"&gt; &lt;/span&gt;loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;But the best speedup has a price: relaxing standard compliance with &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Ofast&lt;/span&gt;&lt;/tt&gt;
 can be beneficial if you're not using denormalized numbers, infinity and the
 monstrosity that lies with &lt;tt class="docutils literal"&gt;NaN&lt;/tt&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; pythran cda.py -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native
-&amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;.02 msec per loop
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;cda.py&lt;span class="w"&gt; &lt;/span&gt;-fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden&lt;span class="w"&gt; &lt;/span&gt;-fwhole-program&lt;span class="w"&gt; &lt;/span&gt;-Wl,-strip-all&lt;span class="w"&gt; &lt;/span&gt;-Ofast&lt;span class="w"&gt; &lt;/span&gt;-march&lt;span class="o"&gt;=&lt;/span&gt;native
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="m"&gt;1000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;loops,&lt;span class="w"&gt; &lt;/span&gt;best&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.02&lt;span class="w"&gt; &lt;/span&gt;msec&lt;span class="w"&gt; &lt;/span&gt;per&lt;span class="w"&gt; &lt;/span&gt;loop
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;If you're really into compiler flags tuning, you can try out &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-funroll-loops&lt;/span&gt;&lt;/tt&gt;
 or try to tune the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-finline-limit=N&lt;/span&gt;&lt;/tt&gt; parameter (that actually get mets dow
@@ -1471,12 +1471,12 @@ but that did not helped much on our case. Indeed, automatic vectorization, as
 in « I am using the multimedia instruction set of my CPU » is still a difficult
 task for compilers. Fortunately Pythran helps here, and passing the
 not-so-experimental-anymore-but-still-not-default flag &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-DUSE_BOOST_SIMD&lt;/span&gt;&lt;/tt&gt;
-triggers some hard-coded vectorization based on &lt;tt class="docutils literal"&gt;boost.simd&lt;/tt&gt; &lt;a class="footnote-reference" href="#id7" id="id3"&gt;[3]&lt;/a&gt;, and that
+triggers some hard-coded vectorization based on &lt;tt class="docutils literal"&gt;boost.simd&lt;/tt&gt; &lt;a class="footnote-reference" href="#footnote-4" id="footnote-reference-3"&gt;[3]&lt;/a&gt;, and that
 &lt;strong&gt;did&lt;/strong&gt; help:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; &lt;span class="c1"&gt;# esod mumixam&lt;/span&gt;
-&amp;gt; python -m pythran.run cda.cpp -fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden -fwhole-program -Wl,-strip-all -Ofast -march&lt;span class="o"&gt;=&lt;/span&gt;native -funroll-loops -finline-limit&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;100000000&lt;/span&gt; -DUSE_BOOST_SIMD
-&amp;gt; python -m timeit &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="m"&gt;1000&lt;/span&gt; loops, best of &lt;span class="m"&gt;3&lt;/span&gt;: &lt;span class="m"&gt;462&lt;/span&gt; usec per loo
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;# esod mumixam&lt;/span&gt;
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;pythran.run&lt;span class="w"&gt; &lt;/span&gt;cda.cpp&lt;span class="w"&gt; &lt;/span&gt;-fvisibility&lt;span class="o"&gt;=&lt;/span&gt;hidden&lt;span class="w"&gt; &lt;/span&gt;-fwhole-program&lt;span class="w"&gt; &lt;/span&gt;-Wl,-strip-all&lt;span class="w"&gt; &lt;/span&gt;-Ofast&lt;span class="w"&gt; &lt;/span&gt;-march&lt;span class="o"&gt;=&lt;/span&gt;native&lt;span class="w"&gt; &lt;/span&gt;-funroll-loops&lt;span class="w"&gt; &lt;/span&gt;-finline-limit&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;100000000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;-DUSE_BOOST_SIMD
+&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="m"&gt;1000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;loops,&lt;span class="w"&gt; &lt;/span&gt;best&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;462&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;usec&lt;span class="w"&gt; &lt;/span&gt;per&lt;span class="w"&gt; &lt;/span&gt;loo
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And that's woth 63 kilobytes :-)&lt;/p&gt;
 &lt;/div&gt;
@@ -1487,29 +1487,29 @@ not an exception. One benefit though is that you can get a full control over
 the &lt;em&gt;backend&lt;/em&gt; compiler, which means you can tune it to your needs. Given some
 knowledge and benchmarking effort, it can get you closer to your goal without
 changing the original code.&lt;/p&gt;
-&lt;table class="docutils footnote" frame="void" id="id4" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-1" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;And I am shamelessly advertising it :-) &lt;a class="reference external" href="http://blog.quarkslab.com/clang-hardening-cheat-sheet.html"&gt;http://blog.quarkslab.com/clang-hardening-cheat-sheet.html&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-1"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;And I am shamelessly advertising it :-) &lt;a class="reference external" href="http://blog.quarkslab.com/clang-hardening-cheat-sheet.html"&gt;http://blog.quarkslab.com/clang-hardening-cheat-sheet.html&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;table class="docutils footnote" frame="void" id="id5" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-2" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id2"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;If you really want to inspect the intermediate C++ code generated by pythran use the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-E&lt;/span&gt;&lt;/tt&gt; flag and a &lt;tt class="docutils literal"&gt;cda.cpp&lt;/tt&gt; will be generated.&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-2"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;If you really want to inspect the intermediate C++ code generated by pythran use the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-E&lt;/span&gt;&lt;/tt&gt; flag and a &lt;tt class="docutils literal"&gt;cda.cpp&lt;/tt&gt; will be generated.&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;table class="docutils footnote" frame="void" id="id6" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-3" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
 &lt;tr&gt;&lt;td class="label"&gt;[2]&lt;/td&gt;&lt;td&gt;only GCC needs this, clang turns vectorisation at &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O2&lt;/span&gt;&lt;/tt&gt;. &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-march=native&lt;/span&gt;&lt;/tt&gt; allows it to use a more recent instruction set if available.&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;table class="docutils footnote" frame="void" id="id7" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-4" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id3"&gt;[3]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Thanks Numscale &lt;a class="reference external" href="https://www.numscale.com/boost-simd/"&gt;https://www.numscale.com/boost-simd/&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-3"&gt;[3]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Thanks Numscale &lt;a class="reference external" href="https://www.numscale.com/boost-simd/"&gt;https://www.numscale.com/boost-simd/&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;/div&gt;
-</content></entry></feed>
+</content><category term="compilation"></category></entry></feed>

@@ -17,15 +17,14 @@ expression evaluation engine got rewritten several times. To evaluate the
 difference between versions 0.9.5 and 0.9.7, let's use the &lt;a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/"&gt;NumPy-benchmarks&lt;/a&gt; project. It contains
 a collection of high-level kernels, and was recently granted a few options to
 ease comparison of performance across project versions.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;$&lt;/span&gt; pip install &lt;span class="nv"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.5
-&lt;span class="gp"&gt;$&lt;/span&gt; np-bench run -tpythran -p0.9.5- -o &lt;span class="m"&gt;095&lt;/span&gt;.log
-&lt;span class="gp"&gt;$&lt;/span&gt; pip install &lt;span class="nv"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.7
-&lt;span class="gp"&gt;$&lt;/span&gt; np-bench run -tpythran -p0.9.7- -o &lt;span class="m"&gt;097&lt;/span&gt;.log
-&lt;span class="gp"&gt;$&lt;/span&gt; np-bench format &lt;span class="m"&gt;095&lt;/span&gt;.log &lt;span class="m"&gt;097&lt;/span&gt;.log -tsvg --logscale --normalize&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.5-pythran
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;$ &lt;/span&gt;pip&lt;span class="w"&gt; &lt;/span&gt;install&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.5
+&lt;span class="gp"&gt;$ &lt;/span&gt;np-bench&lt;span class="w"&gt; &lt;/span&gt;run&lt;span class="w"&gt; &lt;/span&gt;-tpythran&lt;span class="w"&gt; &lt;/span&gt;-p0.9.5-&lt;span class="w"&gt; &lt;/span&gt;-o&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;095&lt;/span&gt;.log
+&lt;span class="gp"&gt;$ &lt;/span&gt;pip&lt;span class="w"&gt; &lt;/span&gt;install&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.7
+&lt;span class="gp"&gt;$ &lt;/span&gt;np-bench&lt;span class="w"&gt; &lt;/span&gt;run&lt;span class="w"&gt; &lt;/span&gt;-tpythran&lt;span class="w"&gt; &lt;/span&gt;-p0.9.7-&lt;span class="w"&gt; &lt;/span&gt;-o&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;097&lt;/span&gt;.log
+&lt;span class="gp"&gt;$ &lt;/span&gt;np-bench&lt;span class="w"&gt; &lt;/span&gt;format&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;095&lt;/span&gt;.log&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;097&lt;/span&gt;.log&lt;span class="w"&gt; &lt;/span&gt;-tsvg&lt;span class="w"&gt; &lt;/span&gt;--logscale&lt;span class="w"&gt; &lt;/span&gt;--normalize&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.9.5-pythran
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The result is:&lt;/p&gt;
-&lt;object data="./images/2020-09-23-pythran-evolve.svg" type="image/svg+xml"&gt;
-&lt;/object&gt;
+&lt;object data="./images/2020-09-23-pythran-evolve.svg" type="image/svg+xml"&gt;&lt;/object&gt;
 &lt;p&gt;There are quite a few things to tell on that comparison: some benchmarks are in
 much better shape (especially &lt;tt class="docutils literal"&gt;laplacien&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;wave&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;diffusion&lt;/tt&gt;) but
 there's still room for improvement, as shown by &lt;tt class="docutils literal"&gt;grayscott&lt;/tt&gt; and
@@ -33,13 +32,12 @@ there's still room for improvement, as shown by &lt;tt class="docutils literal"&
 so that's expected, but the slowdown still needs some investigation…&lt;/p&gt;
 &lt;p&gt;The &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;np-bench&lt;/span&gt;&lt;/tt&gt; script also makes it possible to compare &lt;em&gt;Pythran&lt;/em&gt; with &lt;em&gt;CPython&lt;/em&gt;
 or &lt;em&gt;Numba&lt;/em&gt;. Let's try that:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;$&lt;/span&gt; pip install -U pythran numba
-&lt;span class="gp"&gt;$&lt;/span&gt; np-bench run -tpythran -tnumba -tpython -oall.log
-&lt;span class="gp"&gt;$&lt;/span&gt; np-bench format all.log -tsvg --logscale --normalize&lt;span class="o"&gt;=&lt;/span&gt;python
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="gp"&gt;$ &lt;/span&gt;pip&lt;span class="w"&gt; &lt;/span&gt;install&lt;span class="w"&gt; &lt;/span&gt;-U&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;numba
+&lt;span class="gp"&gt;$ &lt;/span&gt;np-bench&lt;span class="w"&gt; &lt;/span&gt;run&lt;span class="w"&gt; &lt;/span&gt;-tpythran&lt;span class="w"&gt; &lt;/span&gt;-tnumba&lt;span class="w"&gt; &lt;/span&gt;-tpython&lt;span class="w"&gt; &lt;/span&gt;-oall.log
+&lt;span class="gp"&gt;$ &lt;/span&gt;np-bench&lt;span class="w"&gt; &lt;/span&gt;format&lt;span class="w"&gt; &lt;/span&gt;all.log&lt;span class="w"&gt; &lt;/span&gt;-tsvg&lt;span class="w"&gt; &lt;/span&gt;--logscale&lt;span class="w"&gt; &lt;/span&gt;--normalize&lt;span class="o"&gt;=&lt;/span&gt;python
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The result is:&lt;/p&gt;
-&lt;object data="./images/2020-09-23-pythran-all.svg" type="image/svg+xml"&gt;
-&lt;/object&gt;
+&lt;object data="./images/2020-09-23-pythran-all.svg" type="image/svg+xml"&gt;&lt;/object&gt;
 &lt;p&gt;Interestingly, unoptimized Python is still ahead for a few benchmarks.
 That wasn't the case a few years ago. If I recall correctly, that's due
 to &lt;em&gt;NumPy&lt;/em&gt; now performing better, but that's just an educated guess…
@@ -52,7 +50,7 @@ don't manage to generate faster code for &lt;tt class="docutils literal"&gt;&lt;
 &lt;p&gt;That was a short post. The changelog is, as always, &lt;a class="reference external" href="https://pythran.readthedocs.io/en/latest/Changelog.html"&gt;available online&lt;/a&gt;, and if you're
 interested in investigating the benchmarks, all the sources are available in
 &lt;a class="reference external" href="https://github.com/serge-sans-paille/numpy-benchmarks/tree/master/numpy_benchmarks/benchmarks"&gt;the tree&lt;/a&gt;. Enjoy!&lt;/p&gt;
-</content></entry><entry><title>Pythran 0.9.4 - Hollsent</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-094-hollsent.html" rel="alternate"></link><published>2019-11-06T00:00:00+01:00</published><updated>2019-11-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-11-06:/pythran-stories/pythran-094-hollsent.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, bringing a lot of unexpected features in!&lt;/p&gt;
+</content><category term="release"></category></entry><entry><title>Pythran 0.9.4 - Hollsent</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-094-hollsent.html" rel="alternate"></link><published>2019-11-06T00:00:00+01:00</published><updated>2019-11-06T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-11-06:/pythran-stories/pythran-094-hollsent.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, bringing a lot of unexpected features in!&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;Pythran 0.9.4 just got &lt;a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/0.9.4post0"&gt;released&lt;/a&gt;, and it has an
 unusual number of unexpected features. Unexpected? Yes, that's the kind of
 features I never thought Pythran would have, but they ended up being possible,
@@ -83,17 +81,17 @@ example is just... well... an example!&lt;/p&gt;
 &lt;h2&gt;Support the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;type(...)&lt;/span&gt;&lt;/tt&gt; builtin&lt;/h2&gt;
 &lt;p&gt;Typing is difficult, so I've always been reluctant to implement type-related
 operators. Here is the implementation of the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;type(...)&lt;/span&gt;&lt;/tt&gt; in &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
-&lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;type_functor&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;::&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;typename&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;type_functor&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;::&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{};&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{};&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Where &lt;tt class="docutils literal"&gt;type_functor&lt;/tt&gt; maintains a binding between types and functors capable of
 building that type, as in:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
-&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;type_functor&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;types&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;functor&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;type_functor&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;types&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;using&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;functor&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;span class="p"&gt;};&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;That's some ugly internals of &lt;tt class="docutils literal"&gt;pythonic&lt;/tt&gt; but the interesting part is that all
@@ -126,7 +124,7 @@ provides use-def chains for Python.&lt;/p&gt;
 &lt;p&gt;Fun fact: &lt;tt class="docutils literal"&gt;gast&lt;/tt&gt; is a relatively small
 package but it's by far the most popular one I created, according to &lt;a class="reference external" href="https://pypistats.org/packages/gast"&gt;pypistats&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
-</content></entry><entry><title>Pythran 0.9.1 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-091-is-out.html" rel="alternate"></link><published>2019-01-20T00:00:00+01:00</published><updated>2019-01-20T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-01-20:/pythran-stories/pythran-091-is-out.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, new PyPI packages + Conda release, Changelog and comments.&lt;/p&gt;
+</content><category term="release"></category></entry><entry><title>Pythran 0.9.1 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-091-is-out.html" rel="alternate"></link><published>2019-01-20T00:00:00+01:00</published><updated>2019-01-20T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2019-01-20:/pythran-stories/pythran-091-is-out.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, new PyPI packages + Conda release, Changelog and comments.&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;Hey folks, it's been a long time since I last did a post to celebrate a
 release. Even if 0.9.1 is only a minor release, we're getting closer to an
 important date, when Python 2 will no longer be officially supported.
@@ -137,14 +135,14 @@ will receive updates. It's in one year, but you'll be warned!&lt;/p&gt;
 &lt;div class="section" id="reminder"&gt;
 &lt;h2&gt;Reminder&lt;/h2&gt;
 &lt;p&gt;Pythran is an ahead-of-time compiler for numeric kernel. The whole idea is that you extract the high-level kernel you wrote using NumPy calls and high level abstractions into an independent module, then run&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pythran my_module.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;my_module.py
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And you end up with a native module that crunch numbers faster; For instance the following kernel:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#from https://github.com/craffel/jax-tutorial/blob/master/you-don-t-know-jax.ipynb&lt;/span&gt;
 
 &lt;span class="c1"&gt;#pythran export net((float64[:,:], float64[:], float64[:], float64), int64[:])&lt;/span&gt;
 
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 
 &lt;span class="c1"&gt;# Sigmoid nonlinearity&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;sigmoid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -166,9 +164,9 @@ will receive updates. It's in one year, but you'll be warned!&lt;/p&gt;
 &lt;div class="section" id="honor-pythranrc-environment-variable-for-config-file-lookup"&gt;
 &lt;h3&gt;Honor PYTHRANRC environment variable for config file lookup&lt;/h3&gt;
 &lt;p&gt;Pythran now honors the &lt;tt class="docutils literal"&gt;PYTHRANRC&lt;/tt&gt; environment variable. You can use it to point to different configuration, say different compiler and/or compiler settings:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;PYTHRANRC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;~/.pythranrc.gcc pythran kernel.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;PYTHRANRC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;~/.pythranrc.gcc&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;kernel.py
 
-&lt;span class="nv"&gt;PYTHRANRC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;~/.pythranrc.clang pythran kernel.py
+&lt;span class="nv"&gt;PYTHRANRC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;~/.pythranrc.clang&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;kernel.py
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="stricter-type-checking-for-export-parameters"&gt;
@@ -199,7 +197,7 @@ will receive updates. It's in one year, but you'll be warned!&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;But this one would still fail:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export array_maker(int)&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;array_maker&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ones&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -226,7 +224,7 @@ will receive updates. It's in one year, but you'll be warned!&lt;/p&gt;
 &lt;div class="section" id="verbose-mode-in-pythran-config-to-debug-compiler-backend-issues"&gt;
 &lt;h3&gt;Verbose mode in &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;pythran-config&lt;/span&gt;&lt;/tt&gt; to debug compiler backend issues&lt;/h3&gt;
 &lt;p&gt;In some cases, knowing about the exact configuration files being loaded by Pythran helps debugging the setup. After all there's the default config file, the one living in your home, or maybe in &lt;tt class="docutils literal"&gt;XDG_CONFIG_HOME&lt;/tt&gt; and the one specified by &lt;tt class="docutils literal"&gt;PYTHRANRC&lt;/tt&gt;. If in doublt, just run&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pythran-config -v
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pythran-config&lt;span class="w"&gt; &lt;/span&gt;-v
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And everything should be crystal-clear.&lt;/p&gt;
 &lt;/div&gt;
@@ -288,210 +286,7 @@ variable. The logic has been completely reworked and it should now works fine.&l
 &lt;/ul&gt;
 &lt;p&gt;Use Pythran, test it, report bug, submit patch. That's what makes a community lively!&lt;/p&gt;
 &lt;/div&gt;
-</content></entry><entry><title>Pythran 0.8.3 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-083-is-out.html" rel="alternate"></link><published>2017-10-22T00:00:00+02:00</published><updated>2017-10-22T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2017-10-22:/pythran-stories/pythran-083-is-out.html</id><summary type="html">&lt;p&gt;Pythran version bump, new PyPI packages + Conda release, and a Changelog commented in a Jupyter notebook.&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blogpost originally was a Jupyter Notebook. You can &lt;a href="notebooks/pythran - 0.8.3.ipynb"&gt;download it&lt;/a&gt; if you want. The conversion was done using &lt;code&gt;nbconvert&lt;/code&gt; and a &lt;a href="notebooks/nbmarkdown.tpl"&gt;custom template&lt;/a&gt; to match the style of the other part of the blog.&lt;/p&gt;
-&lt;h1&gt;Pythran minor version bump&lt;/h1&gt;
-&lt;p&gt;So Pythran just got a version bump. The primary goal of this version is to match the upgrade of the &lt;code&gt;networkx&lt;/code&gt; dependency. Pythran now requires &lt;code&gt;networkx&amp;gt;=2.0&lt;/code&gt;.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pythran&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__version__&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;#39;0.8.3&amp;#39;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;A few extra stuff are bundled in this new version, let's explore them using this notebook.&lt;/p&gt;
-&lt;h1&gt;Fix Jupyter magic&lt;/h1&gt;
-&lt;p&gt;Pythran comes with a Jupyter magic cell extension, very similar to Cython's, that makes it possible to compile Python code with Pythran within a cell.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;load_ext&lt;/span&gt; &lt;span class="n"&gt;pythran&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;magic&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt;&lt;span class="n"&gt;pythran&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;#pythran export fma(float[:], float[:], float[:]))&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fma&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;100000&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;timeit&lt;/span&gt; &lt;span class="n"&gt;fma&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;89.7 µs ± 3.27 µs per loop (mean ± std. dev. of 7 runs, 10000 loops each)
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;There was a bug when a cell was recompiled with the same textual content, but a new set of options. This is fixed in this version, as showcased by the following cell that compiles the same code with more aggressive optimization flags, which results in faster (vectorized) code.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt;&lt;span class="n"&gt;pythran&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;march&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;native&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Ofast&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;DUSE_BOOST_SIMD&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;#pythran export fma(float[:], float[:], float[:]))&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fma&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;timeit&lt;/span&gt; &lt;span class="n"&gt;fma&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;74 µs ± 288 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h1&gt;Support &lt;code&gt;out&lt;/code&gt; param for &lt;code&gt;np.sum&lt;/code&gt;&lt;/h1&gt;
-&lt;p&gt;Many &lt;code&gt;numpy&lt;/code&gt; operation accept an &lt;code&gt;out&lt;/code&gt; parameter, as an alternative output array to place the result of the computation. Pythran now supports this parameter for the &lt;code&gt;numpy.sum&lt;/code&gt; and &lt;code&gt;numpy.prod&lt;/code&gt; operations. It makes it possible to avoid an extra copy.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt;&lt;span class="n"&gt;pythran&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;#pythran export isum(float[:, :], float[:])&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;isum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;[:]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;timeit&lt;/span&gt; &lt;span class="n"&gt;isum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;757 µs ± 11.5 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt;&lt;span class="n"&gt;pythran&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;#pythran export isum(float[:, :], float[:])&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;isum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;timeit&lt;/span&gt; &lt;span class="n"&gt;isum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;314 ns ± 0.574 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h1&gt;Partial Constant Folding&lt;/h1&gt;
-&lt;p&gt;Pythran supports (interprocedural) constant folding since its very start, and it now also supports a degraded version that folds some operation on &lt;code&gt;list&lt;/code&gt; and &lt;code&gt;tuples&lt;/code&gt; when only part of the arguments is constant.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;gast&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;ast&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;passmanager&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;backend&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pythran.optimizations&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;PartialConstantFolding&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt; 
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;code&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
-&lt;span class="s1"&gt;&amp;gt;&amp;gt;&amp;gt; def replicate(n):&lt;/span&gt;
-&lt;span class="s1"&gt;...     return [n] * 8&lt;/span&gt;
-&lt;span class="s1"&gt;&amp;gt;&amp;gt;&amp;gt; &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;node&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;code&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;passmanager&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;PassManager&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;node&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PartialConstantFolding&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;node&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;backend&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Python&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;node&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;def replicate(n):
-    return [n, n, n, n, n, n, n, n]
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h1&gt;Better Cython integration&lt;/h1&gt;
-&lt;p&gt;Since version 0.8.1, and thanks to the work of &lt;a href="https://twitter.com/adriengnt"&gt;Adrien Guinet&lt;/a&gt; funded by &lt;a href="http://opendreamkit.org/"&gt;OpenDreamKit&lt;/a&gt;, Cython has a Pythran mode to delegate Numpy expression computation to the Pythran engine. It's much more stable now, even if it does &lt;em&gt;not&lt;/em&gt; mean stable :-).&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;load_ext&lt;/span&gt; &lt;span class="n"&gt;Cython&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Note that the following cell calls Pythran through Cython though Jupyter magic. What a wonderful world!&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt;&lt;span class="n"&gt;cython&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;# cython: language=c++&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;# cython: np_pythran=True&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt; 
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;cimport&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;cnp&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt; 
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;tax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cnp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ndarray&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ndim&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;tax_seg1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;256303&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.45&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mf"&gt;16164.53&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;tax_seg2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;54057&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;256303&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.42&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mf"&gt;8475.44&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;seg3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;13769&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;54057&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;13769&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;seg4&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;8820&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;13769&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;8820&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;prog_seg3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;seg3&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.0000022376&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;0.2397&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;prog_seg4&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;seg4&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.0000100727&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;0.14&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tax_seg1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tax_seg2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;seg3&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;prog_seg3&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;939.57&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;seg4&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;prog_seg4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;timeit&lt;/span&gt; &lt;span class="n"&gt;tax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;22.9 µs ± 39.4 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;tax_numpy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;tax_seg1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;256303&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.45&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mf"&gt;16164.53&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;tax_seg2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;54057&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;256303&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.42&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mf"&gt;8475.44&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;seg3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;13769&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;54057&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;13769&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;seg4&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;8820&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;13769&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;8820&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;prog_seg3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;seg3&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.0000022376&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;0.2397&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="n"&gt;prog_seg4&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;seg4&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;0.0000100727&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;0.14&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tax_seg1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tax_seg2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;seg3&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;prog_seg3&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;939.57&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;         &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;seg4&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;prog_seg4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;timeit&lt;/span&gt; &lt;span class="n"&gt;tax_numpy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;28.9 µs ± 90 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;tax_numpy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;0.0
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h1&gt;That's all folks&lt;/h1&gt;
-&lt;p&gt;The release is available on &lt;a href="https://github.com/serge-sans-paille/pythran/tree/0.8.3"&gt;Github&lt;/a&gt;, on &lt;a href="https://pypi.python.org/pypi/pythran"&gt;PyPI&lt;/a&gt; and &lt;a href="https://anaconda.org/serge-sans-paille/pythran"&gt;Conda&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Thanks to &lt;a href="https://github.com/Finistere"&gt;Finistere&lt;/a&gt; for his help, to &lt;a href="https://github.com/paugier"&gt;paugier&lt;/a&gt; and &lt;a href="https://github.com/ashwinvis"&gt;ashwinvis&lt;/a&gt; for their bug reports.&lt;/p&gt;
-&lt;p&gt;And if you too feel like contributing, the &lt;a href="https://github.com/serge-sans-paille/pythran/issues"&gt;bug tracker&lt;/a&gt; is a lively place ;-)&lt;/p&gt;</content></entry><entry><title>Pythran 0.7.5 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-075-is-out.html" rel="alternate"></link><published>2016-06-16T00:00:00+02:00</published><updated>2016-06-16T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-06-16:/pythran-stories/pythran-075-is-out.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, new pypi packages and conda release!&lt;/p&gt;
+</content><category term="release"></category></entry><entry><title>Pythran 0.7.5 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-075-is-out.html" rel="alternate"></link><published>2016-06-16T00:00:00+02:00</published><updated>2016-06-16T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-06-16:/pythran-stories/pythran-075-is-out.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, new pypi packages and conda release!&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;The Pythran team (still 2 active developers) is delighted to
 announce the release of Pythran 0.7.5, available on the traditional
 channels:&lt;/p&gt;
@@ -513,9 +308,9 @@ eventually vectorized and parallelized.&lt;/p&gt;
 &lt;p&gt;Following the tradition, each release comes with a code sample. This one
 comes from &lt;a class="reference external" href="http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/"&gt;http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/&lt;/a&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export pythran_pairwise(float64 [][])&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;pythran_pairwise&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sqrt&lt;/span&gt;&lt;span class="p"&gt;(((&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;:]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sqrt&lt;/span&gt;&lt;span class="p"&gt;(((&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;:]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This kernel relies a lot on Numpy's broadcasting, but Pythran can now
 compile it efficiently, which is a really nice improvement! It can rip
@@ -552,7 +347,7 @@ blog:&lt;/p&gt;
 bug reporters and patch providers that helped a lot for this release:&lt;/p&gt;
 &lt;p&gt;&lt;a class="reference external" href="https://github.com/nils-werner"&gt;nils-werner&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/ronbarak"&gt;ronbarak&lt;/a&gt;, &lt;a class="reference external" href="https://twitter.com/fredericoble"&gt;fred oble&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/aguinet"&gt;geekou&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/hainm"&gt;hainm&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/nbecker"&gt;nbecker&lt;/a&gt; and &lt;a class="reference external" href="https://github.com/xantares"&gt;xantares&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
-</content></entry><entry><title>Pythran 0.7.4 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-074-is-out.html" rel="alternate"></link><published>2016-01-07T00:00:00+01:00</published><updated>2016-01-07T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-01-07:/pythran-stories/pythran-074-is-out.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, new pypi packages and conda release!&lt;/p&gt;
+</content><category term="release"></category></entry><entry><title>Pythran 0.7.4 is out!</title><link href="http://serge-sans-paille.github.io/pythran-stories/pythran-074-is-out.html" rel="alternate"></link><published>2016-01-07T00:00:00+01:00</published><updated>2016-01-07T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2016-01-07:/pythran-stories/pythran-074-is-out.html</id><summary type="html">&lt;p class="first last"&gt;Pythran version bump, new pypi packages and conda release!&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;The pythran team (a great total of 2 active developers) is delighted to
 announce the release of Pythran 0.7.4, available on the traditional
 channels:&lt;/p&gt;
@@ -564,11 +359,11 @@ channels:&lt;/p&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;As usual, here is a (new) code sample, once again adapted from a
-stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;[0]&lt;/a&gt; that showcases pythran capability:&lt;/p&gt;
+stackoverflow question &lt;a class="footnote-reference" href="#footnote-1" id="footnote-reference-1"&gt;[0]&lt;/a&gt; that showcases pythran capability:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#pythran export check_mask(bool[][], bool[])&lt;/span&gt;
 &lt;span class="c1"&gt;#  ^~~~~~~ non intrusive top-level annotation&lt;/span&gt;
 
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="c1"&gt;#      ^~~~~~ numpy support (partial)&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_mask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -581,10 +376,10 @@ stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Compiled with:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% pythran check_mask.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;%&lt;span class="w"&gt; &lt;/span&gt;pythran&lt;span class="w"&gt; &lt;/span&gt;check_mask.py
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And benchmarked with:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;% python -m timeit -s &lt;span class="s1"&gt;&amp;#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;check_mask(db, out)&amp;#39;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;%&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;timeit&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;n=10e3 ; import numpy as np;db  = np.array(np.random.randint(2, size=(n, 4)), dtype=bool); out = np.zeros(int(n),dtype=bool); from eq import check_mask&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;check_mask(db, out)&amp;#39;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;On average, the CPython version runs in 137 msec while the pythran version run in 450us on my laptop :-)&lt;/p&gt;
 &lt;p&gt;Here is an extract of the changelog:&lt;/p&gt;
@@ -610,19 +405,19 @@ stackoverflow question &lt;a class="footnote-reference" href="#id3" id="id1"&gt;
     * Better testing (gcc + clang)
 &lt;/pre&gt;
 &lt;p&gt;Again, thanks a lot to Pierrick for his continuous top-quality work, and
-to the OpenDreamKit &lt;a class="footnote-reference" href="#id4" id="id2"&gt;[1]&lt;/a&gt; project that funded (most of) the recent developments!&lt;/p&gt;
+to the OpenDreamKit &lt;a class="footnote-reference" href="#footnote-2" id="footnote-reference-2"&gt;[1]&lt;/a&gt; project that funded (most of) the recent developments!&lt;/p&gt;
 &lt;p&gt;Special thanks to &amp;#64;hainm, &amp;#64;nbecker, &amp;#64;pkoch, &amp;#64;fsteinmetz, &amp;#64;Suor for their
 feedbacks. &lt;em&gt;You&lt;/em&gt; give us the motivation to go on!&lt;/p&gt;
-&lt;table class="docutils footnote" frame="void" id="id3" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-1" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a class="reference external" href="http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays"&gt;http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-1"&gt;[0]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a class="reference external" href="http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays"&gt;http://stackoverflow.com/questions/34500913/numba-slower-for-numpy-bitwise-and-on-boolean-arrays&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;table class="docutils footnote" frame="void" id="id4" rules="none"&gt;
+&lt;table class="docutils footnote" frame="void" id="footnote-2" rules="none"&gt;
 &lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
 &lt;tbody valign="top"&gt;
-&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id2"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a class="reference external" href="http://opendreamkit.org/"&gt;http://opendreamkit.org/&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#footnote-reference-2"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a class="reference external" href="http://opendreamkit.org/"&gt;http://opendreamkit.org/&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-</content></entry></feed>
+</content><category term="release"></category></entry></feed>

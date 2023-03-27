@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - xsimd - again</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a                         class="active" href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>xsimd - again</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2021-05-13 00:00:00+02:00">May 13, 2021</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/engineering.html"><em>engineering</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p><em>Note: I'm publishing this article the 26th of March, 2023, because… I forgot to
+do this when I wrote it some two years ago :-)</em></p>
+<p><a class="reference external" href="https://xsimd.readthedocs.io">xsimd</a> is a header-only C++11 library that
+provides an efficient abstraction for Single Instruction Multiple Data (SIMD)
+programming based on the vector instruction sets available in commodity
+hardware: SSE, AVX, Neon etc.</p>
+<p>Many such libraries exist: <a class="reference external" href="https://github.com/NumScale/boost.simd">boost.simd</a> from which <tt class="docutils literal">xsimd</tt> got originallay
+derived, <a class="reference external" href="https://github.com/aff3ct/MIPP">MIPP</a> from the academia, <a class="reference external" href="https://github.com/aff3ct/MIPP">eve</a> developped by Joel Flacou in C++20, <a class="reference external" href="https://github.com/VcDevel/std-simd">std-simd</a> which implements <em>ISO/IEC TS 19570:2018
+Section 9 &quot;Data-Parallel Types&quot;</em> or <a class="reference external" href="https://github.com/p12tic/libsimdpp">simdpp</a> that supports Intel, ARM, PowerPC and
+MIPP targets.</p>
+<p>Each library support different combination of API, architecture and utilities,
+but the goal of this post is not to discuss the merti of each, just to showcase
+one approach that at least <tt class="docutils literal">simdpp</tt> supports and that wasn't available in
+<tt class="docutils literal">xsimd</tt>.</p>
+<div class="section" id="the-problem">
+<h2>The Problem</h2>
+<p>Let's consider the following code, that performs a school-book mean between two
+vectors:</p>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">:</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">res</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>According to the documentation, the <tt class="docutils literal">xsimd</tt> implementation would be:</p>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">res</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">b_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">simd_type</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">inc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b_type</span><span class="o">::</span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// size for which the vectorization is possible</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">vec_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">inc</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">vec_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">inc</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">b_type</span><span class="w"> </span><span class="n">avec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">load_unaligned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">b_type</span><span class="w"> </span><span class="n">bvec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">load_unaligned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">b_type</span><span class="w"> </span><span class="n">rvec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">avec</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bvec</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">        </span><span class="n">xsimd</span><span class="o">::</span><span class="n">store_unaligned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">rvec</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Remaining part that cannot be vectorize</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vec_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>When compiling this kernel, one need to pass specific architecture flags to tell
+the compiler which architecture is targeted, e.g. <tt class="docutils literal"><span class="pre">-mavx</span></tt> to tell the compiler
+the machine this code is compiled for supports AVX. In turns, <tt class="docutils literal">xsimd</tt> picks
+that architecture and the generic code above actually turns into AVX-specific
+code.</p>
+<p>A problem arise when the target architecture details are not known, for instance
+when distributing a compiled program in the wild: is AVX2 available? SSE4? One
+option is to set minimal requirements, but that means not taking advantage of
+the target actual full potential.</p>
+<p>The (well-known) solution is to generate one version of the code per
+architecture we want to support, and let a <em>runtime dispatcher</em> inspect at
+runtime which version to pick.</p>
+</div>
+<div class="section" id="dispatching-vectorized-kernel">
+<h2>Dispatching Vectorized Kernel</h2>
+<p>Let's take advantage of a new feature of <tt class="docutils literal">xsimd</tt> that makes it possible to
+explicitely state the architecture we want to support:</p>
+<div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">mean</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Arch</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">Arch</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">res</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// this is the only changing line</span>
+<span class="w">        </span><span class="k">using</span><span class="w"> </span><span class="n">b_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">arch</span><span class="o">::</span><span class="n">batch</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">Arch</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">inc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b_type</span><span class="o">::</span><span class="n">size</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">vec_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">inc</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">vec_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">inc</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">b_type</span><span class="w"> </span><span class="n">avec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">load_unaligned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">            </span><span class="n">b_type</span><span class="w"> </span><span class="n">bvec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">load_unaligned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">            </span><span class="n">b_type</span><span class="w"> </span><span class="n">rvec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">avec</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bvec</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">            </span><span class="n">xsimd</span><span class="o">::</span><span class="n">store_unaligned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">rvec</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vec_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+<p>By making the target architecture explicit through a template parameter, it is
+possible to generate different version of the code, one per target architecture,
+while still maintaining a single version of the code.</p>
+<p><tt class="docutils literal">xsimd</tt> now also provides a utility function to create a dispatcher from a
+functor as the one above (that's why we're using a functor, remember <tt class="docutils literal">xsimd</tt>
+supports C++11, so no <tt class="docutils literal">auto</tt> lambda magic ;-):</p>
+<div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">archs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">arch_list</span><span class="o">&lt;</span><span class="n">xsimd</span><span class="o">::</span><span class="n">avx2</span><span class="p">,</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">sse2</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">generic_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xsimd</span><span class="o">::</span><span class="n">arch</span><span class="o">::</span><span class="n">dispatch</span><span class="o">&lt;</span><span class="n">archs</span><span class="o">&gt;</span><span class="p">(</span><span class="n">mean</span><span class="p">{});</span>
+</pre></div>
+<p><tt class="docutils literal">generic_mean</tt> can be called as the original <tt class="docutils literal">mean</tt> function, without
+speicifying the <tt class="docutils literal">Arch</tt> argument. Internally, it performs a runtime dispatch
+depending on the target it's running on. From a developper point of view, one
+needs to specify all targeted platforms at compile-time, say <tt class="docutils literal"><span class="pre">-msse4</span> <span class="pre">-mavx2</span>
+<span class="pre">-mavx512</span></tt>, all three versions of the code will be compiled in the final binary,
+but only the relevant one gets executed (thank you, no <tt class="docutils literal">SIGILL</tt>).</p>
+<p>This is now all documented in
+<a class="reference external" href="https://xsimd.readthedocs.io/en/latest/api/dispatching.html">https://xsimd.readthedocs.io/en/latest/api/dispatching.html</a>!</p>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>Dispatching based on the running platform is not new. The ELF format even has an
+extension to support this pattern through <a class="reference external" href="https://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Function-Attributes.html#index-g_t_0040code_007bifunc_007d-attribute-2529">ifunc</a>.
+Nevertheless it was fun to implement and that's a great addition to <tt class="docutils literal">xsimd</tt>!
+Now I need to think about integrating that in Pythran ;-)</p>
+</div>
+<div class="section" id="acknoledgments">
+<h2>Acknoledgments</h2>
+<p>Thanks a lot to Johan Mabille for the reviews, the jokes and the chatting (in no
+particular order).</p>
+<p>Special thanks to Joël Flacou for inspiring this work in so many ways.</p>
+</div>
+
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>

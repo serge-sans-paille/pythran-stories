@@ -1,145 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Pythran as a bridge between fast prototyping and code deployment</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="serge-sans-paille and other pythraners">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Pythran as a bridge between fast prototyping and code deployment</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
 
-    <!-- Le styles -->
-    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-      .sidebar-nav {
-        padding: 9px 0;
-      }
-      .tag-1 {
-        font-size: 13pt;
-      }
-      .tag-2 {
-        font-size: 10pt;
-      }
-      .tag-2 {
-        font-size: 8pt;
-      }
-      .tag-4 {
-        font-size: 6pt;
-     }
-    </style>
-    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
-        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
 
-    <link href="./theme/css/pygments.css" rel="stylesheet">
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="./theme/images/favicon.ico">
-    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
-
-    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
-
-  </head>
-
-  <body>
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="./index.html">Pythran stories </a>
-          <div class="nav-collapse">
-            <ul class="nav">
-                          <li class="divider-vertical"></li>
-                  <li >
-                    <a href="./category/benchmark.html">
-						<i class="icon-folder-open icon-large"></i>benchmark
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/compilation.html">
-						<i class="icon-folder-open icon-large"></i>compilation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/cython.html">
-						<i class="icon-folder-open icon-large"></i>cython
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/engineering.html">
-						<i class="icon-folder-open icon-large"></i>engineering
-					</a>
-                  </li>
-                  <li class="active">
-                    <a href="./category/examples.html">
-						<i class="icon-folder-open icon-large"></i>examples
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/optimisation.html">
-						<i class="icon-folder-open icon-large"></i>optimisation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/release.html">
-						<i class="icon-folder-open icon-large"></i>release
-					</a>
-                  </li>
-
-                          <ul class="nav pull-right">
-                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
-                          </ul>
-
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
             </ul>
-            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to Pythran as a bridge between fast prototyping and code deployment">
-                                        Pythran as a bridge between fast prototyping and code deployment
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-11-28T00:00:00+01:00">
-        <i class="icon-calendar"></i>Wed 28 November 2018
-</abbr>
-<span class="label">By</span>
-<a href="./author/jean-laroche.html"><i class="icon-user"></i>Jean Laroche</a>
-<span class="label">Category</span>
-<a href="./category/examples.html"><i class="icon-folder-open"></i>examples</a>.
-
-
-</footer><!-- /.post-info -->                </div>
-                <div class="section" id="introduction">
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a                         class="active" href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Pythran as a bridge between fast prototyping and code deployment</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2018-11-28 00:00:00+01:00">Nov 28, 2018</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/examples.html"><em>examples</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <div class="section" id="introduction">
 <h2>Introduction</h2>
 <p>As a researcher/engineer (really, an algorithm developer) in the general area of audio and speech processing, I've always run into the same difficulty at all the companies I've worked at: How to quickly prototype and develop algorithms, and subsequently turn them into efficient code that can be deployed to customers.</p>
 <p>These have always been incompatible goals: For rapid prototyping, over many years, I've used Matlab, then Python with Numpy. Both are wonderful in the level of mathematical abstraction they provide (for example, 1 line to multiply a matrix by a vector), and they're very useful for testing and debugging as they're interpreted and provide a full array of plotting routines for inspecting what's going on in your algorithm. For example, you can put a breakpoint in your program, and when it stops, you can start poking around, executing high-level commands, etc.</p>
@@ -161,7 +97,7 @@ Time-Scale  Modification  of  Audio&quot; IEEE  TRANSACTIONS  ON SPEECH  AND  AU
 <div class="section" id="python-numpy-code">
 <h3>Python/Numpy code</h3>
 <p>The code is shown below. Refer to the paper if you're interested in the &quot;theoretical&quot; explanation for what's being done. As you can see, the Numpy implementation is simple but not trivial, requiring several steps. Note that the algorithm uses both real and complex numbers: the output of the rfft routine is a complex array, and the rotations are complex numbers. Copy the code below into a <tt class="docutils literal">time_scaling.py</tt> file.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
 <span class="k">def</span> <span class="nf">hanning</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
@@ -177,14 +113,14 @@ Time-Scale  Modification  of  Audio&quot; IEEE  TRANSACTIONS  ON SPEECH  AND  AU
     <span class="n">peaks</span> <span class="o">=</span> <span class="mi">2</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">AX</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">AX</span><span class="p">[</span><span class="mi">4</span><span class="p">:]))[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">ii</span><span class="p">,</span><span class="nb">id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peaks</span><span class="p">):</span>
         <span class="c1"># Compute new rotation.</span>
-        <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">1j</span><span class="o">*</span><span class="nb">id</span><span class="o">/</span><span class="n">fftSize</span><span class="o">*</span><span class="p">(</span><span class="n">outputHop</span><span class="o">-</span><span class="n">inputHop</span><span class="p">))</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="nb">id</span><span class="o">/</span><span class="n">fftSize</span><span class="o">*</span><span class="p">(</span><span class="n">outputHop</span><span class="o">-</span><span class="n">inputHop</span><span class="p">))</span>
         <span class="c1"># Cumulate rotation with the one from the previous frame.</span>
         <span class="n">rotations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">*=</span><span class="n">rot</span>
         <span class="c1"># Now spread this rotation to all the neighboring bins (half-way between peaks).</span>
         <span class="k">if</span> <span class="n">ii</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span> <span class="n">left</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">peaks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">id</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">left</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">.5</span><span class="o">*</span><span class="p">(</span><span class="n">peaks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">id</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">ii</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="n">right</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">AX</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span> <span class="n">right</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">peaks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">id</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">right</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">.5</span><span class="o">*</span><span class="p">(</span><span class="n">peaks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">id</span><span class="p">))</span>
         <span class="n">rotations</span><span class="p">[</span><span class="n">left</span><span class="p">:</span><span class="n">right</span><span class="p">]</span><span class="o">=</span><span class="n">rotations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">rotations</span>
 
@@ -233,7 +169,7 @@ Time-Scale  Modification  of  Audio&quot; IEEE  TRANSACTIONS  ON SPEECH  AND  AU
 <p>Now we can run the process function on an audio file. For simplicity I'm using a <tt class="docutils literal">.wav</tt> file: Scipy has a very simple interface for reading or writing a <tt class="docutils literal">.wav</tt> file.
 Note that our process function expects a 1D input array. If you open a stereo <tt class="docutils literal">.wav</tt> file, the array returned by wavfile.read will be 2D. In case this happens I'm only keeping the left channel. You can copy paste the following code into a <tt class="docutils literal">main.py</tt> file:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time_scaling</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">wavfile</span>
 
 <span class="n">sRate</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/Users/jlaroche/temp/MessageInABottleMono.wav&#39;</span><span class="p">)</span>
@@ -275,89 +211,89 @@ Note that if you pass an int instead of a float to the process function <tt clas
 <p>As I explained above, one of the most amazing aspects of Pythran is that it generates self contained C++ code that can be called from any other C++ program. As I explained, the code is self contained in that it does not require any dlls, and makes no call to the Python library. In short, it's a very efficient C++ version of your Python/Numpy algorithm, fully portable to any target architecture.
 To create a c++ version of our process function, we simply do:</p>
 <pre class="code shell literal-block">
-pythran -e time_scaling.py
+pythran<span class="w"> </span>-e<span class="w"> </span>time_scaling.py
 </pre>
 <p>This creates a file time_scaling.cpp that can then be compiled along with the calling code. Note that in this case, the <tt class="docutils literal">#pythran export</tt> declaration is no longer needed. You can take a look at the C++ code, but it will be extremely cryptic and heavily templated... But that's not a problem as this code never need to be hand-tweaked.</p>
 <p>Now, how do we call this <tt class="docutils literal">process()</tt> function from our main C++ program?
 For this, we must pass the audio in a Numpy like array, but the Pythran C++ source code provides convenient functions to do just that.
 This is the main.cpp file:</p>
-<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;      /* printf, scanf, NULL */</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="c1">      /* printf, scanf, NULL */</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
 
-<span class="cp">#include</span> <span class="cpf">&quot;numpy/_numpyconfig.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;time_scaling.cpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;pythonic/include/numpy/array.hpp&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;pythonic/numpy/array.hpp&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;pythonic/include/utils/array_helper.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;pythonic/include/types/ndarray.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;numpy/_numpyconfig.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;time_scaling.cpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;pythonic/include/numpy/array.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;pythonic/numpy/array.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pythonic/include/utils/array_helper.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pythonic/include/types/ndarray.hpp&quot;</span>
 
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">pythonic</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">pythonic</span><span class="p">;</span>
 
 <span class="c1">// Helper to create a float 1D array from a pointer</span>
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-<span class="n">types</span><span class="o">::</span><span class="n">ndarray</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;&gt;</span> <span class="n">arrayFromBuf1D</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">fPtr</span><span class="p">,</span> <span class="kt">long</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">auto</span> <span class="n">shape</span> <span class="o">=</span> <span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
-    <span class="k">return</span> <span class="n">types</span><span class="o">::</span><span class="n">ndarray</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">fPtr</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span><span class="n">types</span><span class="o">::</span><span class="n">ownership</span><span class="o">::</span><span class="n">external</span><span class="p">);</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">types</span><span class="o">::</span><span class="n">ndarray</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">arrayFromBuf1D</span><span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="w"> </span><span class="n">fPtr</span><span class="p">,</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">types</span><span class="o">::</span><span class="n">ndarray</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">types</span><span class="o">::</span><span class="n">pshape</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">fPtr</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span><span class="n">types</span><span class="o">::</span><span class="n">ownership</span><span class="o">::</span><span class="n">external</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="cp">#define MAX_NUM_SAMPS 500*44100</span>
-<span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
 <span class="p">{</span>
-    <span class="c1">// Read audio</span>
-    <span class="kt">char</span><span class="o">*</span> <span class="n">fileName</span> <span class="o">=</span> <span class="s">&quot;./police.raw&quot;</span><span class="p">;</span>
-    <span class="kt">long</span> <span class="n">L</span> <span class="o">=</span> <span class="n">MAX_NUM_SAMPS</span><span class="p">;</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">[]</span><span class="o">&gt;</span> <span class="n">ptr</span><span class="p">(</span><span class="k">new</span> <span class="kt">float</span><span class="p">[</span><span class="n">L</span><span class="p">]);</span>
-    <span class="kt">FILE</span><span class="o">*</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span><span class="s">&quot;rb&quot;</span><span class="p">);</span>
-    <span class="n">L</span> <span class="o">=</span> <span class="n">fread</span><span class="p">(</span><span class="n">ptr</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="n">L</span><span class="p">,</span><span class="n">fd</span><span class="p">);</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Read %d samples</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">L</span><span class="p">);</span>
-    <span class="n">fclose</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Read audio</span>
+<span class="w">    </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">fileName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;./police.raw&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAX_NUM_SAMPS</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">[]</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ptr</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="kt">float</span><span class="p">[</span><span class="n">L</span><span class="p">]);</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span><span class="s">&quot;rb&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fread</span><span class="p">(</span><span class="n">ptr</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="n">L</span><span class="p">,</span><span class="n">fd</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Read %d samples</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">L</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
 
-    <span class="c1">// Create array from our buffer</span>
-    <span class="k">auto</span> <span class="n">inputArray</span> <span class="o">=</span> <span class="n">arrayFromBuf1D</span><span class="p">(</span><span class="n">ptr</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="n">L</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Create array from our buffer</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">inputArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arrayFromBuf1D</span><span class="p">(</span><span class="n">ptr</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="n">L</span><span class="p">);</span>
 
-    <span class="c1">// Call process:</span>
-    <span class="k">auto</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
-    <span class="k">auto</span> <span class="n">outputArray</span> <span class="o">=</span> <span class="n">__pythran_time_scaling</span><span class="o">::</span><span class="n">process</span><span class="p">()(</span><span class="n">inputArray</span><span class="p">,</span><span class="mf">44100.</span><span class="p">,</span><span class="mf">1.2f</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Elapsed: %d ms</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">).</span><span class="n">count</span><span class="p">());</span>
+<span class="w">    </span><span class="c1">// Call process:</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">outputArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__pythran_time_scaling</span><span class="o">::</span><span class="n">process</span><span class="p">()(</span><span class="n">inputArray</span><span class="p">,</span><span class="mf">44100.</span><span class="p">,</span><span class="mf">1.2f</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">t2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Elapsed: %d ms</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t1</span><span class="p">).</span><span class="n">count</span><span class="p">());</span>
 
-    <span class="c1">// Now save to a binary float file:</span>
-    <span class="kt">FILE</span><span class="o">*</span> <span class="n">fdout</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">&quot;out.raw&quot;</span><span class="p">,</span><span class="s">&quot;wb&quot;</span><span class="p">);</span>
-    <span class="kt">long</span> <span class="n">numSamps</span> <span class="o">=</span> <span class="n">outputArray</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// Now save to a binary float file:</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">fdout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;out.raw&quot;</span><span class="p">,</span><span class="s">&quot;wb&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">numSamps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outputArray</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
 <span class="c1">//    printf(&quot;NumSamps = %d\n&quot;,numSamps);</span>
-    <span class="n">fwrite</span><span class="p">(</span><span class="n">outputArray</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="n">numSamps</span><span class="p">,</span><span class="n">fdout</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fwrite</span><span class="p">(</span><span class="n">outputArray</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="n">numSamps</span><span class="p">,</span><span class="n">fdout</span><span class="p">);</span>
 
-    <span class="n">fclose</span><span class="p">(</span><span class="n">fdout</span><span class="p">);</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fdout</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 <p>In this code, I'm reading a raw file into a float array, and I create a Pythran 1D array from the float buffer.
 Note the extra pair of parentheses in the call to process:</p>
-<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">outputArray</span> <span class="o">=</span> <span class="n">__pythran_time_scaling</span><span class="o">::</span><span class="n">process</span><span class="p">()(</span><span class="n">inputArray</span><span class="p">,</span><span class="mf">44100.</span><span class="p">,</span><span class="mf">1.2f</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">outputArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__pythran_time_scaling</span><span class="o">::</span><span class="n">process</span><span class="p">()(</span><span class="n">inputArray</span><span class="p">,</span><span class="mf">44100.</span><span class="p">,</span><span class="mf">1.2f</span><span class="p">);</span>
 </pre></div>
 <p>Similary, the process function returns a Numpy array, and the output signal is in the array's buffer. It's pretty straightforward to get the size of the array, and a pointer to its data. The size is obtained with:</p>
-<div class="highlight"><pre><span></span><span class="kt">long</span> <span class="n">numSamps</span> <span class="o">=</span> <span class="n">outputArray</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><span class="kt">long</span><span class="w"> </span><span class="n">numSamps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outputArray</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
 </pre></div>
 <p>and the pointer to the float data is simply:</p>
 <div class="highlight"><pre><span></span><span class="n">outputArray</span><span class="p">.</span><span class="n">buffer</span>
 </pre></div>
 <p>I find it easier to create a Makefile to run Pythran and then the compiler. In installed pythran in a virtual env in <tt class="docutils literal">$HOME/Dev/PythranTest/MAIN/venv</tt> so my makefile looks like this:</p>
-<div class="highlight"><pre><span></span><span class="nv">VENV</span> <span class="o">=</span> <span class="nv">$$</span>HOME/Dev/PythranTest/MAIN/venv
-<span class="nv">IDIR1</span> <span class="o">=</span> <span class="k">$(</span>VENV<span class="k">)</span>/lib/python2.7/site-packages/pythran
-<span class="nv">IDIR2</span> <span class="o">=</span> <span class="k">$(</span>VENV<span class="k">)</span>/lib/python2.7/site-packages/numpy/core/include
-<span class="nv">IDIR3</span> <span class="o">=</span> <span class="k">$(</span>VENV<span class="k">)</span>/include/python2.7
-<span class="nv">OFLAG</span> <span class="o">=</span> -O2
-<span class="nv">PFLAG</span> <span class="o">=</span> -DUSE_XSIMD -fopenmp
+<div class="highlight"><pre><span></span><span class="nv">VENV</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$$</span>HOME/Dev/PythranTest/MAIN/venv
+<span class="nv">IDIR1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>VENV<span class="k">)</span>/lib/python2.7/site-packages/pythran
+<span class="nv">IDIR2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>VENV<span class="k">)</span>/lib/python2.7/site-packages/numpy/core/include
+<span class="nv">IDIR3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>VENV<span class="k">)</span>/include/python2.7
+<span class="nv">OFLAG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>-O2
+<span class="nv">PFLAG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>-DUSE_XSIMD<span class="w"> </span>-fopenmp
 
-<span class="nf">main</span><span class="o">:</span> <span class="n">main</span>.<span class="n">cpp</span> <span class="n">time_scaling</span>.<span class="n">cpp</span>
-        c++ -std<span class="o">=</span>c++11 <span class="k">$(</span>OFLAG<span class="k">)</span> -w -I<span class="k">$(</span>IDIR1<span class="k">)</span> -I<span class="k">$(</span>IDIR2<span class="k">)</span> -I<span class="k">$(</span>IDIR3<span class="k">)</span> -undefined dynamic_lookup -march<span class="o">=</span>native -F. main.cpp -o main
+<span class="nf">main</span><span class="o">:</span><span class="w"> </span><span class="n">main</span>.<span class="n">cpp</span> <span class="n">time_scaling</span>.<span class="n">cpp</span>
+<span class="w">        </span>c++<span class="w"> </span>-std<span class="o">=</span>c++11<span class="w"> </span><span class="k">$(</span>OFLAG<span class="k">)</span><span class="w"> </span>-w<span class="w"> </span>-I<span class="k">$(</span>IDIR1<span class="k">)</span><span class="w"> </span>-I<span class="k">$(</span>IDIR2<span class="k">)</span><span class="w"> </span>-I<span class="k">$(</span>IDIR3<span class="k">)</span><span class="w"> </span>-undefined<span class="w"> </span>dynamic_lookup<span class="w"> </span>-march<span class="o">=</span>native<span class="w"> </span>-F.<span class="w"> </span>main.cpp<span class="w"> </span>-o<span class="w"> </span>main
 
-<span class="nf">time_scaling.cpp</span><span class="o">:</span> <span class="n">time_scaling</span>.<span class="n">py</span>
-        @echo <span class="s2">&quot;\033[0;36mRunning pythran\033[0m&quot;</span>
-        pythran -e <span class="k">$(</span>PFLAG<span class="k">)</span> time_scaling.py
+<span class="nf">time_scaling.cpp</span><span class="o">:</span><span class="w"> </span><span class="n">time_scaling</span>.<span class="n">py</span>
+<span class="w">        </span>@echo<span class="w"> </span><span class="s2">&quot;\033[0;36mRunning pythran\033[0m&quot;</span>
+<span class="w">        </span>pythran<span class="w"> </span>-e<span class="w"> </span><span class="k">$(</span>PFLAG<span class="k">)</span><span class="w"> </span>time_scaling.py
 
 <span class="nf">clean</span><span class="o">:</span>
-        rm -f time_scaling.cpp main
+<span class="w">        </span>rm<span class="w"> </span>-f<span class="w"> </span>time_scaling.cpp<span class="w"> </span>main
 </pre></div>
 <p>Note that you can use <tt class="docutils literal"><span class="pre">pythran-config</span> <span class="pre">--cflags</span> <span class="pre">--libs</span></tt> to find out what include paths are needed in your case. Also note that since I'm not making any call to functions that need blas (linear algebra functions) I do not need to link with the blas libraries so I've omitted it from my makefile.
 With this makefile, all you need to do is make main, and Pythran will first be run to create <tt class="docutils literal">time_scaling.cpp</tt> then c++ will be called to compile <tt class="docutils literal">main.cpp</tt> into <tt class="docutils literal">main</tt>. I'm using the <tt class="docutils literal"><span class="pre">-march=native</span></tt> flag for maximum efficiency of the executable.</p>
@@ -380,83 +316,26 @@ Elapsed: 1565 ms
 <p>Pythran has some limitations: you cannot use classes, and polymorphism is limited to some degree. In practice, I find these limitations acceptable (the lack of class support is the one that I find the most cumbersome), given the efficiency of the C++ code that's generated.</p>
 </div>
 
-                </div><!-- /.entry-content -->
-        </article>
-</section>
-        </div><!--/span-->
-
-                <div class="span3 well sidebar-nav" id="sidebar">
-<ul class="nav nav-list">
-<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
-    <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
-    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
-<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
-<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
-    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
-
-<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
-<li>
-<a href="./category/benchmark.html">
-    <i class="icon-folder-open icon-large"></i>benchmark
-</a>
-</li>
-<li>
-<a href="./category/compilation.html">
-    <i class="icon-folder-open icon-large"></i>compilation
-</a>
-</li>
-<li>
-<a href="./category/cython.html">
-    <i class="icon-folder-open icon-large"></i>cython
-</a>
-</li>
-<li>
-<a href="./category/engineering.html">
-    <i class="icon-folder-open icon-large"></i>engineering
-</a>
-</li>
-<li>
-<a href="./category/examples.html">
-    <i class="icon-folder-open icon-large"></i>examples
-</a>
-</li>
-<li>
-<a href="./category/optimisation.html">
-    <i class="icon-folder-open icon-large"></i>optimisation
-</a>
-</li>
-<li>
-<a href="./category/release.html">
-    <i class="icon-folder-open icon-large"></i>release
-</a>
-</li>
-
-<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-
-
-</ul>        </div><!--/.well -->
-
-      </div><!--/row-->
-
-      <hr>
-
-      <footer>
-        <address id="about">
-                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
-                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
-        </address><!-- /#about -->
-
-        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
-                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
-      </footer>
-
-    </div><!--/.fluid-container-->
-
-
-
-    <!-- Le javascript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./theme/js/jquery-1.7.2.min.js"></script>
-    <script src="./theme/js/bootstrap.min.js"></script>
-  </body>
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
 </html>

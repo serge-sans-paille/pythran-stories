@@ -1,145 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Pythran 0.9.4 - Hollsent</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="serge-sans-paille and other pythraners">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Pythran 0.9.4 - Hollsent</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
 
-    <!-- Le styles -->
-    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-      .sidebar-nav {
-        padding: 9px 0;
-      }
-      .tag-1 {
-        font-size: 13pt;
-      }
-      .tag-2 {
-        font-size: 10pt;
-      }
-      .tag-2 {
-        font-size: 8pt;
-      }
-      .tag-4 {
-        font-size: 6pt;
-     }
-    </style>
-    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
-        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
 
-    <link href="./theme/css/pygments.css" rel="stylesheet">
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="./theme/images/favicon.ico">
-    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
-
-    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
-
-  </head>
-
-  <body>
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="./index.html">Pythran stories </a>
-          <div class="nav-collapse">
-            <ul class="nav">
-                          <li class="divider-vertical"></li>
-                  <li >
-                    <a href="./category/benchmark.html">
-						<i class="icon-folder-open icon-large"></i>benchmark
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/compilation.html">
-						<i class="icon-folder-open icon-large"></i>compilation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/cython.html">
-						<i class="icon-folder-open icon-large"></i>cython
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/engineering.html">
-						<i class="icon-folder-open icon-large"></i>engineering
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/examples.html">
-						<i class="icon-folder-open icon-large"></i>examples
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/optimisation.html">
-						<i class="icon-folder-open icon-large"></i>optimisation
-					</a>
-                  </li>
-                  <li class="active">
-                    <a href="./category/release.html">
-						<i class="icon-folder-open icon-large"></i>release
-					</a>
-                  </li>
-
-                          <ul class="nav pull-right">
-                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
-                          </ul>
-
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
             </ul>
-            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to Pythran 0.9.4 - Hollsent">
-                                        Pythran 0.9.4 - Hollsent
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2019-11-06T00:00:00+01:00">
-        <i class="icon-calendar"></i>Wed 06 November 2019
-</abbr>
-<span class="label">By</span>
-<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
-<span class="label">Category</span>
-<a href="./category/release.html"><i class="icon-folder-open"></i>release</a>.
-
-
-</footer><!-- /.post-info -->                </div>
-                <p>Pythran 0.9.4 just got <a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/0.9.4post0">released</a>, and it has an
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a                         class="active" href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Pythran 0.9.4 - Hollsent</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2019-11-06 00:00:00+01:00">Nov 06, 2019</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/release.html"><em>release</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p>Pythran 0.9.4 just got <a class="reference external" href="https://github.com/serge-sans-paille/pythran/tree/0.9.4post0">released</a>, and it has an
 unusual number of unexpected features. Unexpected? Yes, that's the kind of
 features I never thought Pythran would have, but they ended up being possible,
 and even better, consistent with the whole picture. So let's take a deeper look!</p>
@@ -169,17 +105,17 @@ example is just... well... an example!</p>
 <h2>Support the <tt class="docutils literal"><span class="pre">type(...)</span></tt> builtin</h2>
 <p>Typing is difficult, so I've always been reluctant to implement type-related
 operators. Here is the implementation of the <tt class="docutils literal"><span class="pre">type(...)</span></tt> in <tt class="docutils literal">pythonic</tt>:</p>
-<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">type_functor</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">type</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span> <span class="o">&amp;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">typename</span><span class="w"> </span><span class="nc">type_functor</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span><span class="w"> </span><span class="n">type</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="k">return</span> <span class="p">{};</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{};</span>
 <span class="p">}</span>
 </pre></div>
 <p>Where <tt class="docutils literal">type_functor</tt> maintains a binding between types and functors capable of
 building that type, as in:</p>
-<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">type_functor</span><span class="o">&lt;</span><span class="n">types</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
-    <span class="k">using</span> <span class="n">type</span> <span class="o">=</span> <span class="n">functor</span><span class="o">::</span><span class="n">list</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">type_functor</span><span class="o">&lt;</span><span class="n">types</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">functor</span><span class="o">::</span><span class="n">list</span><span class="p">;</span>
 <span class="p">};</span>
 </pre></div>
 <p>That's some ugly internals of <tt class="docutils literal">pythonic</tt> but the interesting part is that all
@@ -213,83 +149,26 @@ provides use-def chains for Python.</p>
 package but it's by far the most popular one I created, according to <a class="reference external" href="https://pypistats.org/packages/gast">pypistats</a>.</p>
 </div>
 
-                </div><!-- /.entry-content -->
-        </article>
-</section>
-        </div><!--/span-->
-
-                <div class="span3 well sidebar-nav" id="sidebar">
-<ul class="nav nav-list">
-<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
-    <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
-    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
-<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
-<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
-    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
-
-<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
-<li>
-<a href="./category/benchmark.html">
-    <i class="icon-folder-open icon-large"></i>benchmark
-</a>
-</li>
-<li>
-<a href="./category/compilation.html">
-    <i class="icon-folder-open icon-large"></i>compilation
-</a>
-</li>
-<li>
-<a href="./category/cython.html">
-    <i class="icon-folder-open icon-large"></i>cython
-</a>
-</li>
-<li>
-<a href="./category/engineering.html">
-    <i class="icon-folder-open icon-large"></i>engineering
-</a>
-</li>
-<li>
-<a href="./category/examples.html">
-    <i class="icon-folder-open icon-large"></i>examples
-</a>
-</li>
-<li>
-<a href="./category/optimisation.html">
-    <i class="icon-folder-open icon-large"></i>optimisation
-</a>
-</li>
-<li>
-<a href="./category/release.html">
-    <i class="icon-folder-open icon-large"></i>release
-</a>
-</li>
-
-<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-
-
-</ul>        </div><!--/.well -->
-
-      </div><!--/row-->
-
-      <hr>
-
-      <footer>
-        <address id="about">
-                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
-                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
-        </address><!-- /#about -->
-
-        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
-                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
-      </footer>
-
-    </div><!--/.fluid-container-->
-
-
-
-    <!-- Le javascript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./theme/js/jquery-1.7.2.min.js"></script>
-    <script src="./theme/js/bootstrap.min.js"></script>
-  </body>
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
 </html>

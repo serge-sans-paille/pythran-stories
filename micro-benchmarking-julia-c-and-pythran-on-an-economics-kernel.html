@@ -1,171 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="serge-sans-paille and other pythraners">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
 
-    <!-- Le styles -->
-    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-      .sidebar-nav {
-        padding: 9px 0;
-      }
-      .tag-1 {
-        font-size: 13pt;
-      }
-      .tag-2 {
-        font-size: 10pt;
-      }
-      .tag-2 {
-        font-size: 8pt;
-      }
-      .tag-4 {
-        font-size: 6pt;
-     }
-    </style>
-    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
-        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
 
-    <link href="./theme/css/pygments.css" rel="stylesheet">
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="./theme/images/favicon.ico">
-    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
-
-    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
-
-  </head>
-
-  <body>
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="./index.html">Pythran stories </a>
-          <div class="nav-collapse">
-            <ul class="nav">
-                          <li class="divider-vertical"></li>
-                  <li class="active">
-                    <a href="./category/benchmark.html">
-						<i class="icon-folder-open icon-large"></i>benchmark
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/compilation.html">
-						<i class="icon-folder-open icon-large"></i>compilation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/cython.html">
-						<i class="icon-folder-open icon-large"></i>cython
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/engineering.html">
-						<i class="icon-folder-open icon-large"></i>engineering
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/examples.html">
-						<i class="icon-folder-open icon-large"></i>examples
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/optimisation.html">
-						<i class="icon-folder-open icon-large"></i>optimisation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/release.html">
-						<i class="icon-folder-open icon-large"></i>release
-					</a>
-                  </li>
-
-                          <ul class="nav pull-right">
-                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
-                          </ul>
-
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
             </ul>
-            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel">
-                                        Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2016-04-05T00:00:00+02:00">
-        <i class="icon-calendar"></i>Tue 05 April 2016
-</abbr>
-<span class="label">By</span>
-<a href="./author/lightjohn.html"><i class="icon-user"></i>Lightjohn</a>
-<span class="label">Category</span>
-<a href="./category/benchmark.html"><i class="icon-folder-open"></i>benchmark</a>.
-
-
-</footer><!-- /.post-info -->                </div>
-                <div class="section" id="the-benchmark">
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a                         class="active" href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2016-04-05 00:00:00+02:00">Apr 05, 2016</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/benchmark.html"><em>benchmark</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <div class="section" id="the-benchmark">
 <h2>The benchmark</h2>
-<p>First there was a paper <a class="footnote-reference" href="#id4" id="id1">[0]</a>,
-in the paper there was a github <a class="footnote-reference" href="#id5" id="id2">[1]</a> and
-in the github <a class="footnote-reference" href="#id5" id="id3">[1]</a> some benchmarks.
+<p>First there was a paper <a class="footnote-reference" href="#footnote-1" id="footnote-reference-1">[0]</a>,
+in the paper there was a github <a class="footnote-reference" href="#footnote-2" id="footnote-reference-2">[1]</a> and
+in the github <a class="footnote-reference" href="#footnote-2" id="footnote-reference-3">[1]</a> some benchmarks.
 In my case I wanted to re-run the Julia code because the language is changing quickly and so may run better now.
 But the day before I discovered Pythran so why not test both?</p>
 <p>And so let's re-run two benchmarks: <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_CPP.cpp">C++</a> , <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Julia.jl">Julia</a> and add a new one, Pythran.</p>
 <div class="section" id="c-results">
 <h3>C++ results</h3>
 <p>Compiling and running the C++ code was easy:</p>
-<div class="highlight"><pre><span></span>% g++ -O3 RBC_CPP.cpp -o testcpp
+<div class="highlight"><pre><span></span>%<span class="w"> </span>g++<span class="w"> </span>-O3<span class="w"> </span>RBC_CPP.cpp<span class="w"> </span>-o<span class="w"> </span>testcpp
 </pre></div>
 <p>then</p>
-<div class="highlight"><pre><span></span><span class="o">%</span> <span class="o">./</span><span class="n">testcpp</span>
-<span class="n">Output</span> <span class="o">=</span> <span class="mf">0.562731</span><span class="p">,</span> <span class="n">Capital</span> <span class="o">=</span> <span class="mf">0.178198</span><span class="p">,</span> <span class="n">Consumption</span> <span class="o">=</span> <span class="mf">0.384533</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0527416</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0313469</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.0187035</span>
+<div class="highlight"><pre><span></span><span class="o">%</span><span class="w"> </span><span class="o">./</span><span class="n">testcpp</span>
+<span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.562731</span><span class="p">,</span><span class="w"> </span><span class="n">Capital</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.178198</span><span class="p">,</span><span class="w"> </span><span class="n">Consumption</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.384533</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0527416</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0313469</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0187035</span>
 <span class="p">[</span><span class="o">...</span><span class="p">]</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">230</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">3.87636e-07</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">2.32197e-07</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">250</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">1.39087e-07</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">257</span><span class="p">,</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">9.71604e-08</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">230</span><span class="p">,</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.87636e-07</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">240</span><span class="p">,</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.32197e-07</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">250</span><span class="p">,</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.39087e-07</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">257</span><span class="p">,</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">9.71604e-08</span>
 
-<span class="n">My</span> <span class="n">check</span> <span class="o">=</span> <span class="mf">0.146549</span>
-<span class="n">Elapsed</span> <span class="n">time</span> <span class="n">is</span>   <span class="o">=</span> <span class="mf">2.40271</span>
+<span class="n">My</span><span class="w"> </span><span class="n">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.146549</span>
+<span class="n">Elapsed</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="n">is</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">2.40271</span>
 </pre></div>
 </div>
 <div class="section" id="julia-results">
@@ -173,19 +109,19 @@ But the day before I discovered Pythran so why not test both?</p>
 <p>The Julia code:</p>
 <p>we run <cite>julia</cite>:</p>
 <div class="highlight"><pre><span></span><span class="n">include</span><span class="p">(</span><span class="s">&quot;RBC_Julia.jl&quot;</span><span class="p">)</span>
-<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">main</span><span class="p">()</span>
-<span class="n">Output</span> <span class="o">=</span> <span class="mf">0.5627314338711378</span> <span class="n">Capital</span> <span class="o">=</span> <span class="mf">0.178198287392527</span> <span class="n">Consumption</span> <span class="o">=</span> <span class="mf">0.3845331464786108</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.05274159340733661</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">10</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.031346949265852075</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">20</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">0.01870345989335709</span>
+<span class="n">julia</span><span class="o">&gt;</span><span class="w"> </span><span class="nd">@time</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5627314338711378</span><span class="w"> </span><span class="n">Capital</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.178198287392527</span><span class="w"> </span><span class="n">Consumption</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3845331464786108</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05274159340733661</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.031346949265852075</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01870345989335709</span>
 <span class="p">[</span><span class="o">...</span><span class="p">]</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">230</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">3.876361940324813e-7</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">240</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">2.3219657929729465e-7</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">250</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">1.3908720952748865e-7</span>
-<span class="n">Iteration</span> <span class="o">=</span> <span class="mi">257</span> <span class="n">Sup</span> <span class="n">Diff</span> <span class="o">=</span> <span class="mf">9.716035642703957e-8</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">230</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.876361940324813e-7</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">240</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.3219657929729465e-7</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">250</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.3908720952748865e-7</span>
+<span class="n">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">257</span><span class="w"> </span><span class="n">Sup</span><span class="w"> </span><span class="n">Diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">9.716035642703957e-8</span>
 
-<span class="n">My</span> <span class="n">check</span> <span class="o">=</span> <span class="mf">0.1465491436962635</span>
-<span class="mf">3.001183</span> <span class="n">seconds</span> <span class="p">(</span><span class="mf">3.84</span> <span class="n">k</span> <span class="n">allocations</span><span class="o">:</span> <span class="mf">703.276</span> <span class="n">MB</span><span class="p">,</span> <span class="mf">0.68</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="p">)</span>
+<span class="n">My</span><span class="w"> </span><span class="n">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1465491436962635</span>
+<span class="mf">3.001183</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="p">(</span><span class="mf">3.84</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="n">allocations</span><span class="o">:</span><span class="w"> </span><span class="mf">703.276</span><span class="w"> </span><span class="n">MB</span><span class="p">,</span><span class="w"> </span><span class="mf">0.68</span><span class="o">%</span><span class="w"> </span><span class="n">gc</span><span class="w"> </span><span class="n">time</span><span class="p">)</span>
 </pre></div>
 <p>Not bad!</p>
 </div>
@@ -208,32 +144,32 @@ no idea why! With some (many) help, the solution was found: the idea was to extr
 new file and run Pythran on it then calling it from the main code.</p>
 <p>The function is in <tt class="docutils literal">je.py</tt> and the main code is <tt class="docutils literal">run_je.py</tt></p>
 <p>Let's run the code:</p>
-<div class="highlight"><pre><span></span>% <span class="nb">time</span> python2 run_je.py
-<span class="nv">Output</span> <span class="o">=</span>  <span class="m">0</span>.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  <span class="m">0</span>.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  <span class="m">0</span>.384533146479
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0527415934073
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0313469492659
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0187034598934
+<div class="highlight"><pre><span></span>%<span class="w"> </span><span class="nb">time</span><span class="w"> </span>python2<span class="w"> </span>run_je.py
+<span class="nv">Output</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.562731433871<span class="w">  </span><span class="nv">Capital</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.178198287393<span class="w">  </span><span class="nv">Consumption</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.384533146479
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">1</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.0527415934073
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">10</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.0313469492659
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">20</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.0187034598934
 <span class="o">[</span>...<span class="o">]</span>
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">3</span>.87636194032e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">2</span>.32196579297e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">1</span>.39087209527e-07
-python2 run_je.py  <span class="m">2</span>,45s user <span class="m">0</span>,08s system <span class="m">94</span>% cpu <span class="m">2</span>,666 total
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">230</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">3</span>.87636194032e-07
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">240</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">2</span>.32196579297e-07
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">250</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">1</span>.39087209527e-07
+python2<span class="w"> </span>run_je.py<span class="w">  </span><span class="m">2</span>,45s<span class="w"> </span>user<span class="w"> </span><span class="m">0</span>,08s<span class="w"> </span>system<span class="w"> </span><span class="m">94</span>%<span class="w"> </span>cpu<span class="w"> </span><span class="m">2</span>,666<span class="w"> </span>total
 </pre></div>
 <p>And it is very nice!</p>
 <p>And just for fun, the <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics/blob/master/RBC_Python_Numba.py">Numba version</a>:</p>
-<div class="highlight"><pre><span></span>% <span class="nb">time</span> python2 RBC_Python_Numba.py
-<span class="nv">Output</span> <span class="o">=</span>  <span class="m">0</span>.562731433871  <span class="nv">Capital</span> <span class="o">=</span>  <span class="m">0</span>.178198287393  <span class="nv">Consumption</span> <span class="o">=</span>  <span class="m">0</span>.384533146479
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">1</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0527415934073
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">10</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0313469492659
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">20</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">0</span>.0187034598934
+<div class="highlight"><pre><span></span>%<span class="w"> </span><span class="nb">time</span><span class="w"> </span>python2<span class="w"> </span>RBC_Python_Numba.py
+<span class="nv">Output</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.562731433871<span class="w">  </span><span class="nv">Capital</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.178198287393<span class="w">  </span><span class="nv">Consumption</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.384533146479
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">1</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.0527415934073
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">10</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.0313469492659
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">20</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.0187034598934
 <span class="o">[</span>...<span class="o">]</span>
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">230</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">3</span>.87636194032e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">240</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">2</span>.32196579297e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">250</span> , Sup <span class="nv">Diff</span> <span class="o">=</span>  <span class="m">1</span>.39087209527e-07
-<span class="nv">Iteration</span> <span class="o">=</span>  <span class="m">257</span> , Sup <span class="nv">Duff</span> <span class="o">=</span>  <span class="m">9</span>.71603566491e-08
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">230</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">3</span>.87636194032e-07
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">240</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">2</span>.32196579297e-07
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">250</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Diff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">1</span>.39087209527e-07
+<span class="nv">Iteration</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">257</span><span class="w"> </span>,<span class="w"> </span>Sup<span class="w"> </span><span class="nv">Duff</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">9</span>.71603566491e-08
 
-My <span class="nv">Check</span> <span class="o">=</span>  <span class="m">0</span>.146549143696
-Elapse <span class="nb">time</span> <span class="o">=</span> is  <span class="m">3</span>.00302290916
+My<span class="w"> </span><span class="nv">Check</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="m">0</span>.146549143696
+Elapse<span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>is<span class="w">  </span><span class="m">3</span>.00302290916
 </pre></div>
 <p>So in the end we have:</p>
 <table border="1" class="docutils">
@@ -269,98 +205,41 @@ Elapse <span class="nb">time</span> <span class="o">=</span> is  <span class="m"
 <p>To conclude, Pythran is for me still young, like Julia, but for a little cost and no particular knowlegde you can
 get the same performances as C code in Python. It worth the time to take a look to Pythran.</p>
 <p>So good luck Pythran!</p>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
+<table class="docutils footnote" frame="void" id="footnote-1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[0]</a></td><td><a class="reference external" href="http://economics.sas.upenn.edu/~jesusfv/comparison_languages.pdf">http://economics.sas.upenn.edu/~jesusfv/comparison_languages.pdf</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-1">[0]</a></td><td><a class="reference external" href="http://economics.sas.upenn.edu/~jesusfv/comparison_languages.pdf">http://economics.sas.upenn.edu/~jesusfv/comparison_languages.pdf</a></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
+<table class="docutils footnote" frame="void" id="footnote-2" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics">https://github.com/jesusfv/Comparison-Programming-Languages-Economics</a></td></tr>
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#footnote-reference-2">1</a>, <a class="fn-backref" href="#footnote-reference-3">2</a>)</em> <a class="reference external" href="https://github.com/jesusfv/Comparison-Programming-Languages-Economics">https://github.com/jesusfv/Comparison-Programming-Languages-Economics</a></td></tr>
 </tbody>
 </table>
 </div>
 </div>
 
-                </div><!-- /.entry-content -->
-        </article>
-</section>
-        </div><!--/span-->
-
-                <div class="span3 well sidebar-nav" id="sidebar">
-<ul class="nav nav-list">
-<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
-    <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
-    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
-<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
-<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
-    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
-
-<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
-<li>
-<a href="./category/benchmark.html">
-    <i class="icon-folder-open icon-large"></i>benchmark
-</a>
-</li>
-<li>
-<a href="./category/compilation.html">
-    <i class="icon-folder-open icon-large"></i>compilation
-</a>
-</li>
-<li>
-<a href="./category/cython.html">
-    <i class="icon-folder-open icon-large"></i>cython
-</a>
-</li>
-<li>
-<a href="./category/engineering.html">
-    <i class="icon-folder-open icon-large"></i>engineering
-</a>
-</li>
-<li>
-<a href="./category/examples.html">
-    <i class="icon-folder-open icon-large"></i>examples
-</a>
-</li>
-<li>
-<a href="./category/optimisation.html">
-    <i class="icon-folder-open icon-large"></i>optimisation
-</a>
-</li>
-<li>
-<a href="./category/release.html">
-    <i class="icon-folder-open icon-large"></i>release
-</a>
-</li>
-
-<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-
-
-</ul>        </div><!--/.well -->
-
-      </div><!--/row-->
-
-      <hr>
-
-      <footer>
-        <address id="about">
-                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
-                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
-        </address><!-- /#about -->
-
-        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
-                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
-      </footer>
-
-    </div><!--/.fluid-container-->
-
-
-
-    <!-- Le javascript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./theme/js/jquery-1.7.2.min.js"></script>
-    <script src="./theme/js/bootstrap.min.js"></script>
-  </body>
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
 </html>

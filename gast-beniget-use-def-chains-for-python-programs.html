@@ -1,145 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Gast, Beniget! Use-Def chains for Python Programs</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="serge-sans-paille and other pythraners">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Gast, Beniget! Use-Def chains for Python Programs</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
 
-    <!-- Le styles -->
-    <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css" />
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-      .sidebar-nav {
-        padding: 9px 0;
-      }
-      .tag-1 {
-        font-size: 13pt;
-      }
-      .tag-2 {
-        font-size: 10pt;
-      }
-      .tag-2 {
-        font-size: 8pt;
-      }
-      .tag-4 {
-        font-size: 6pt;
-     }
-    </style>
-    <link href="./theme/css/bootstrap-responsive.min.css" rel="stylesheet">
-        <link href="./theme/css/font-awesome.css" rel="stylesheet">
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
 
-    <link href="./theme/css/pygments.css" rel="stylesheet">
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="./theme/images/favicon.ico">
-    <link rel="apple-touch-icon" href="./theme/images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./theme/images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./theme/images/apple-touch-icon-114x114.png">
-
-    <link href="./" type="application/atom+xml" rel="alternate" title="Pythran stories ATOM Feed" />
-
-  </head>
-
-  <body>
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="./index.html">Pythran stories </a>
-          <div class="nav-collapse">
-            <ul class="nav">
-                          <li class="divider-vertical"></li>
-                  <li >
-                    <a href="./category/benchmark.html">
-						<i class="icon-folder-open icon-large"></i>benchmark
-					</a>
-                  </li>
-                  <li class="active">
-                    <a href="./category/compilation.html">
-						<i class="icon-folder-open icon-large"></i>compilation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/cython.html">
-						<i class="icon-folder-open icon-large"></i>cython
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/engineering.html">
-						<i class="icon-folder-open icon-large"></i>engineering
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/examples.html">
-						<i class="icon-folder-open icon-large"></i>examples
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/optimisation.html">
-						<i class="icon-folder-open icon-large"></i>optimisation
-					</a>
-                  </li>
-                  <li >
-                    <a href="./category/release.html">
-						<i class="icon-folder-open icon-large"></i>release
-					</a>
-                  </li>
-
-                          <ul class="nav pull-right">
-                                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
-                          </ul>
-
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
             </ul>
-            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to Gast, Beniget! Use-Def chains for Python Programs">
-                                        Gast, Beniget! Use-Def chains for Python Programs
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2019-03-18T00:00:00+01:00">
-        <i class="icon-calendar"></i>Mon 18 March 2019
-</abbr>
-<span class="label">By</span>
-<a href="./author/serge-sans-paille.html"><i class="icon-user"></i>serge-sans-paille</a>
-<span class="label">Category</span>
-<a href="./category/compilation.html"><i class="icon-folder-open"></i>compilation</a>.
-
-
-</footer><!-- /.post-info -->                </div>
-                <p>In spite of its dynamic nature, the Python language has been granted a rich
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a                         class="active" href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Gast, Beniget! Use-Def chains for Python Programs</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2019-03-18 00:00:00+01:00">Mar 18, 2019</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/compilation.html"><em>compilation</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p>In spite of its dynamic nature, the Python language has been granted a rich
 ecosystem of Abstract Syntax Tree(AST) analysis and transformations. Off the top of my head, I can already cite:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://github.com/PyCQA/pyflakes">Pyflake</a>, a Python linter;</li>
@@ -171,12 +107,12 @@ elimination</a>.</p>
 <p>The following statements are annotated with <tt class="docutils literal">DEF</tt> (resp. <tt class="docutils literal">USE</tt>) to mark that the annotated statement defines (resp. uses) the associated identifier.</p>
 <div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>           <span class="c1"># DEF(a)</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">2</span>       <span class="c1"># DEF(b) USE(a)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>     <span class="c1"># USE(a, b)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>     <span class="c1"># USE(a, b)</span>
 <span class="k">if</span> <span class="n">c</span><span class="p">:</span>           <span class="c1"># USE(c)</span>
     <span class="n">a</span> <span class="o">=</span> <span class="s2">&quot;12&quot;</span>    <span class="c1"># DEF(a&#39;)</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>      <span class="c1"># DEF(a&#39;&#39;)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>        <span class="c1"># USE(a&#39;, a&#39;&#39;)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>        <span class="c1"># USE(a&#39;, a&#39;&#39;)</span>
 </pre></div>
 <p>From these annotations, using a data-flow analysis, one can build the def-use chains as:</p>
 <pre class="code literal-block">
@@ -197,7 +133,7 @@ DEF(a'') -&gt; USE(a'') # print(a)
 <div class="section" id="detect-unused-imports">
 <h3>Detect Unused Imports</h3>
 <p>This is a very basic usage: look for <tt class="docutils literal">DEF</tt> without any <tt class="docutils literal">USE</tt>, and warn about them, focusing on imported values.</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">beniget</span><span class="o">,</span> <span class="nn">gast</span> <span class="kn">as</span> <span class="nn">ast</span>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">beniget</span><span class="o">,</span> <span class="nn">gast</span> <span class="k">as</span> <span class="nn">ast</span>
 
 <span class="c1"># parse some simple statements</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;from math import cos, sin; print(cos(3))&quot;</span>
@@ -214,7 +150,7 @@ DEF(a'') -&gt; USE(a'') # print(a)
 <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">imported</span><span class="p">:</span>
 <span class="o">...</span>   <span class="n">ud</span> <span class="o">=</span> <span class="n">duc</span><span class="o">.</span><span class="n">chains</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 <span class="o">...</span>   <span class="k">if</span> <span class="ow">not</span> <span class="n">ud</span><span class="o">.</span><span class="n">users</span><span class="p">():</span>
-<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Unused import: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ud</span><span class="o">.</span><span class="n">name</span><span class="p">()))</span>
+<span class="o">...</span>     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unused import: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ud</span><span class="o">.</span><span class="n">name</span><span class="p">()))</span>
 <span class="n">Unused</span> <span class="n">import</span><span class="p">:</span> <span class="n">sin</span>
 </pre></div>
 <p>At that point, the astute reader has already noted that due to the dynamic
@@ -271,14 +207,14 @@ function.</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
 <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </pre></div>
 <p>There's a chance that <tt class="docutils literal">a</tt> is unbound while executing <tt class="docutils literal">print(a)</tt>. It would be possible to combine <tt class="docutils literal">beniget</tt> with a dummy code transformation to detect this issue by generating dummy top-level definitions and checking if they have any <tt class="docutils literal">USE</tt>:</p>
-<div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">random</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># if any of those have a USE, then we have a potential issue</span>
+<div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># if any of those have a USE, then we have a potential issue</span>
 <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
 <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="limitations">
@@ -307,83 +243,26 @@ it!</p>
 </div>
 </div>
 
-                </div><!-- /.entry-content -->
-        </article>
-</section>
-        </div><!--/span-->
-
-                <div class="span3 well sidebar-nav" id="sidebar">
-<ul class="nav nav-list">
-<li class="nav-header"><h4><i class="icon-external-link"></i>blogroll</h4></li>
-    <li><a href="https://pythran.readthedocs.io"><i class="icon-external-link"></i>Pythran Doc</a></li>
-    <li><a href="https://pypi.python.org/pypi/pythran"><i class="icon-external-link"></i>Pythran on PyPI</a></li>
-<li class="nav-header"><h4><i class="icon-home icon-large"></i> social</h4></li>
-<li><a href="./feeds/all.atom.xml" rel="alternate"><i class="icon-bookmark icon-large"></i>atom feed</a></li>
-    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="icon-github-sign icon-large"></i>github</a></li>
-
-<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
-<li>
-<a href="./category/benchmark.html">
-    <i class="icon-folder-open icon-large"></i>benchmark
-</a>
-</li>
-<li>
-<a href="./category/compilation.html">
-    <i class="icon-folder-open icon-large"></i>compilation
-</a>
-</li>
-<li>
-<a href="./category/cython.html">
-    <i class="icon-folder-open icon-large"></i>cython
-</a>
-</li>
-<li>
-<a href="./category/engineering.html">
-    <i class="icon-folder-open icon-large"></i>engineering
-</a>
-</li>
-<li>
-<a href="./category/examples.html">
-    <i class="icon-folder-open icon-large"></i>examples
-</a>
-</li>
-<li>
-<a href="./category/optimisation.html">
-    <i class="icon-folder-open icon-large"></i>optimisation
-</a>
-</li>
-<li>
-<a href="./category/release.html">
-    <i class="icon-folder-open icon-large"></i>release
-</a>
-</li>
-
-<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-
-
-</ul>        </div><!--/.well -->
-
-      </div><!--/row-->
-
-      <hr>
-
-      <footer>
-        <address id="about">
-                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
-                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
-        </address><!-- /#about -->
-
-        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
-                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
-      </footer>
-
-    </div><!--/.fluid-container-->
-
-
-
-    <!-- Le javascript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./theme/js/jquery-1.7.2.min.js"></script>
-    <script src="./theme/js/bootstrap.min.js"></script>
-  </body>
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
 </html>
