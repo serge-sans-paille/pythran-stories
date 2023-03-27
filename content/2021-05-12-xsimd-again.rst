@@ -6,8 +6,8 @@ xsimd - again
 :lang: en
 :authors: serge-sans-paille
 :summary: Not stricly a post about Pythran, but about one of its component:
-xsimd, the vectorization engine we (optionally) use. And more specifically about
-a new forthcoming feature of it: dispatching call based on supported instruction set.
+          xsimd, the vectorization engine we (optionally) use. And more specifically about
+          a new forthcoming feature of it: dispatching call based on supported instruction set.
 
 *Note: I'm publishing this article the 26th of March, 2023, because… I forgot to
 do this when I wrote it some two years ago :-)*
