@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - How unity builds lurked into the Firefox Build System</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a                         class="active" href="./category/mozilla.html"> mozilla </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>How unity builds lurked into the Firefox Build System</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2023-05-03 00:00:00+02:00">May 03, 2023</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/mozilla.html"><em>mozilla</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <div class="section" id="unity-build">
+<h2>Unity Build</h2>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Unity_build">Unity builds</a>, a.k.a. unified build or jumbo builds, is a technique that consists in
+concatenating several C or C++ files in one before invoking the compiler. This generally
+leads to faster compilation time in part because it aggregates the cost of parsing the
+same headers over and over.</p>
+<p>It is one of the many approach one can use to reduce C++ software compilation
+time, alongside precompiled headers and C++20 modules.</p>
+<p>It is not an obscure technique: it's officially supported by CMake through
+<tt class="docutils literal">CMAKE_UNITY_BUILD</tt> (see
+<a class="reference external" href="https://cmake.org/cmake/help/latest/variable/CMAKE_UNITY_BUILD.html">https://cmake.org/cmake/help/latest/variable/CMAKE_UNITY_BUILD.html</a>).</p>
+<p>At some point, the Chromium project supported doing jumbo builds:
+<a class="reference external" href="https://chromium.googlesource.com/chromium/src.git/+/65.0.3283.0/docs/jumbo.md">https://chromium.googlesource.com/chromium/src.git/+/65.0.3283.0/docs/jumbo.md</a>,
+even if it got rid of it afterward
+<a class="reference external" href="https://groups.google.com/a/chromium.org/g/chromium-dev/c/DP9TQszzQLI">https://groups.google.com/a/chromium.org/g/chromium-dev/c/DP9TQszzQLI</a></p>
+<p>It is also supported by the internal build system used at Mozilla. And the
+speedup is there, a unified build (the default) runs twice as fast as an hybrid
+build (<tt class="docutils literal"><span class="pre">--disable-unified-build</span></tt>) on my setup. As a side effect, in pre-LTO
+area, this also led to better performance as it makes more information available
+to the compiler.</p>
+<p>Wait, did I write <em>hybrid build</em> and not <em>regular build</em>? As it turns out, under
+<tt class="docutils literal"><span class="pre">--disable-unified-build</span></tt> some parts of Firefox are still built in unified
+mode, because they <strong>require it</strong>, probably for historical reason.</p>
+<p>It's great to be able to do a unified build. It's not great to have a codebase
+that does not compile unless you have a unity build: static analyzers are not
+used to work on non-self contained sources (see <a class="reference external" href="https://github.com/clangd/clangd/issues/45">https://github.com/clangd/clangd/issues/45</a>), unity build implies a slight overhead during
+incremental builds. What makes it worse is that developer start to rely on
+unified build and get lazy in the way they develop.</p>
+</div>
+<div class="section" id="jumbo-build-creeps">
+<h2>Jumbo Build Creeps</h2>
+<p>In the following we assume <tt class="docutils literal">a.cpp</tt> and <tt class="docutils literal">b.cpp</tt> are jumbo built as</p>
+<div class="highlight"><pre><span></span><span class="c1">// jumbo.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;a.cpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;b.cpp&quot;</span>
+</pre></div>
+<p>Let's have fun while collecting some of the cases found in the Firefox codebase
+while removing the unify build requirement.</p>
+<div class="section" id="skipping-includes">
+<h3>Skipping includes</h3>
+<div class="highlight"><pre><span></span><span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>Indeed, why including a header when another compilation unit that comes <em>before</em> you in
+the unified build is including it?</p>
+</div>
+<div class="section" id="accessing-static-functions">
+<h3>Accessing static functions</h3>
+<div class="highlight"><pre><span></span><span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">foo</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+<p>Isn't that a good property to be able to access a function that's meant to be
+private?</p>
+</div>
+<div class="section" id="trying-to-be-smart-with-macro">
+<h3>Trying to be smart with macro</h3>
+<div class="highlight"><pre><span></span><span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#define FOO 1</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#ifdef FOO</span>
+<span class="w">  </span><span class="cp">#define BAR</span>
+<span class="cp">#endif</span>
+</pre></div>
+<p>Defining a macro in one compilation unit and have it affect another compilation
+unit has been a real nightmare.</p>
+</div>
+<div class="section" id="static-templates">
+<h3>Static templates</h3>
+<div class="highlight"><pre><span></span><span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">foo</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>Isn't it great when you don't need to put your template definition in the
+header? Static visibility for templates <tt class="docutils literal"><span class="pre">:-)</span></tt>.</p>
+</div>
+<div class="section" id="template-specialization">
+<h3>Template specialization</h3>
+<div class="highlight"><pre><span></span><span class="c1">// foobar.h</span>
+<span class="cp">#ifndef FOOBAR_H</span>
+<span class="cp">#define FOOBAR_H</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">foobar</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
+
+<span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">foobar</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;int: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">foobar</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>This one is terrible, because it doesn't give any compile time error, but a
+runtime error <tt class="docutils literal"><span class="pre">:-/</span></tt>.</p>
+</div>
+<div class="section" id="leaking-using-namespace">
+<h3>Leaking using namespace</h3>
+<div class="highlight"><pre><span></span><span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>You can use symbols from namespace used from other compilation unit. That's
+exactly the same problem as leaking macro or static definitions: it breaks the
+compilation unit scope.</p>
+</div>
+<div class="section" id="putting-function-implementation-in-header">
+<h3>Putting function implementation in header</h3>
+<div class="highlight"><pre><span></span><span class="c1">// foobar.h</span>
+<span class="cp">#ifndef FOOBAR_H</span>
+<span class="cp">#define FOOBAR_H</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">foobar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
+
+<span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">foobar</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">foobar</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+<p>As each header is only included once, you can put your function definition in
+your header. Easy!</p>
+</div>
+<div class="section" id="putting-constant-initializer-in-implementation">
+<h3>Putting constant initializer in implementation</h3>
+<div class="highlight"><pre><span></span><span class="c1">// foobar.h</span>
+<span class="cp">#ifndef FOOBAR_H</span>
+<span class="cp">#define FOOBAR_H</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">foo</span><span class="w"> </span><span class="p">{</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">VALUE</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="cp">#endif</span>
+
+<span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">foo</span><span class="o">::</span><span class="n">VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="k">static_assert</span><span class="p">(</span><span class="n">foo</span><span class="o">::</span><span class="n">VALUE</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ok&quot;</span><span class="p">);</span>
+</pre></div>
+<p>The constant expression lacks its initializer.</p>
+</div>
+<div class="section" id="error-about-functions-without-a-valid-declarations-get-silented">
+<h3>Error about functions without a valid declarations get silented</h3>
+<div class="highlight"><pre><span></span><span class="c1">// foobar.h</span>
+<span class="cp">#ifndef FOOBAR_H</span>
+<span class="cp">#define FOOBAR_H</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">);</span>
+<span class="cp">#endif</span>
+
+<span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>Invalid forward declaration but who cares, when the definition can be found and
+the compiler doesn't warn about unused forward declaration?</p>
+</div>
+<div class="section" id="unexpected-aspect-less-warnings">
+<h3>Unexpected aspect: less warnings</h3>
+<div class="highlight"><pre><span></span><span class="c1">// a.cpp</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="c1">// b.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;a.cpp&quot;</span>
+</pre></div>
+<p>Compiling <tt class="docutils literal">a.cpp</tt> yields an unused warning, but not compiling <tt class="docutils literal">b.cpp</tt>. So
+hybrid builds relying on <tt class="docutils literal">#including</tt> multiple sources actually decrease the
+warning level.</p>
+</div>
+<div class="section" id="headers-without-include-guard">
+<h3>Headers without include guard</h3>
+<div class="highlight"><pre><span></span><span class="c1">// foobar.h</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{};</span>
+
+<span class="c1">// a.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;foobar.h&quot;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">a</span><span class="p">(</span><span class="n">Foo</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="c1">// b.cpp</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">b</span><span class="p">(</span><span class="n">Foo</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+</pre></div>
+<p>Fixing the missing include for <tt class="docutils literal">b.cpp</tt> leads to type redefinition because the header
+is not guarded.</p>
+</div>
+</div>
+<div class="section" id="about-the-firefox-codebase">
+<h2>About the Firefox codebase</h2>
+<p>The removal of <tt class="docutils literal">REQUIRES_UNIFIED_BUILD</tt> across the Firefox codebase was
+tracked under <a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1626530">https://bugzilla.mozilla.org/show_bug.cgi?id=1626530</a>. Since I
+focused on this, I've landed more than 150 commits, modifying more than 800
+sources files. And it's now done, no more hard requirement of unified build,
+back to a normal situation.</p>
+<p>Was it worth the effort? Yes: it prevents bad coding practices, and static
+analysis is now more useful compared to what it could do with unified builds.</p>
+<p>And we're sure we won't regress as our CI now builds in both unified and non-unified mode!</p>
+<div class="section" id="acknowledgments">
+<h3>Acknowledgments</h3>
+<p>Thanks to Paul Adenot for proof-reading this blog post and to Andi-Bogdan
+Postelnicu for reviewing most of the commits mentioned above.</p>
+</div>
+</div>
+
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>
