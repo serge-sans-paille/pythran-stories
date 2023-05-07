@@ -5,6 +5,7 @@ How unity builds crept into the Firefox Build System
 :category: mozilla
 :lang: en
 :authors: Serge Guelton
+:original_url: how-unity-builds-lurked-into-the-firefox-build-system.html
 :summary: Jumbo builds make C++ code compilation faster, but what happens when
           you require them?
 
