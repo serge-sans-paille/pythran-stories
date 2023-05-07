@@ -1,5 +1,5 @@
-How unity builds lurked into the Firefox Build System
-#####################################################
+How unity builds crept into the Firefox Build System
+####################################################
 
 :date: 2023-05-03
 :category: mozilla
