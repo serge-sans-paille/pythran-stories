@@ -6,17 +6,17 @@ Shrinking a Shared Library
 :lang: en
 :authors: Serge Guelton
 :summary: What is the effect of different compiler flags on the size of a shared
-          libary? Let's explore!
+          library? Let's explore!
 
 Recently, I've submitted a `patch
 <https://phabricator.services.mozilla.com/D179806>`_ that shaves ~2.5MB on one
-of the core Firefox library, ``libxul.so``. The patch is stupidly simple, but
+of the core Firefox library, ``libxul.so``. The patch is remarkably simple, but
 it's a good opportunity to dive into some techniques to shrink binary size.
 
 Generic Approach
 ================
 
-We'll use the ` ``libz`` <https://github.com/madler/zlib>`_ library
+We'll use the `libz <https://github.com/madler/zlib>`_ library
 from the official `zlib <https://zlib.net/>`_ as an example program to build. In
 this series, we use revision **1.2.13**, sha1 **04f42ceca40f73e2978b50e93806c2a18c1281fc**.
 
@@ -33,37 +33,37 @@ perfectly suited to our needs. We will dive into its detailed output later.
 
 .. code-block:: sh
 
-    $ LDFLAGS=-fuse-ld=lld CFLAGS=-O0 CC=clang ../configure && make && size -A libz.so
-    [...]
-    Total                   141907
+    for opt in -O0 -O1 -O2 -O3 -Oz
+    do
+            rm -rf _build
+            mkdir _build
+            (cd ./_build ; LDFLAGS=-fuse-ld=lld CFLAGS=$opt CC=clang ../configure && make) 1>/dev/null
+            size -A _build/libz.so | awk -v cflag=$opt '/Total/ { printf "%8s: %8d\n", cflag, $2 }'
+    done
 
-.. code-block:: sh
+.. list-table:: Impact of optimization level on binary size for libz.so
+    :header-rows: 1
 
-    $ LDFLAGS=-fuse-ld=lld CFLAGS=-O1 CC=clang ../configure && make && size -A libz.so
-    [...]
-    Total                    88463
+    * - CFLAGS
+      - size
+    * - -O0
+      - 141608
+    * - -O1
+      - 88164
+    * - -O2
+      - 99532
+    * - -O3
+      - 101644
+    * - -Oz
+      - 81006
 
-.. code-block:: sh
-
-    $ LDFLAGS=-fuse-ld=lld CFLAGS=-O2 CC=clang ../configure && make && size -A libz.so
-    [...]
-    Total                    99831
-
-.. code-block:: sh
-
-    $ LDFLAGS=-fuse-ld=lld CFLAGS=-Oz CC=clang ../configure && make && size -A libz.so
-    [...]
-    Total                    81305
-
-.. code-block:: sh
-
-    $ LDFLAGS=-fuse-ld=lld CFLAGS=-O3 CC=clang ../configure && make && size -A libz.so
-    [...]
-    Total                   101943
-
-Unsurprisingly ``-Oz`` yields the smaller binaries. ``-O3`` trades size for
-performance, and ``-O0`` performs a direct translation which uses a lot of
-space.
+Unsurprisingly ``-Oz`` yields the smaller binaries. , and ``-O0`` performs a
+direct translation which uses a lot of space. Performing basic optimizations as
+``-O1`` does generally lead to code shrinking because the optimized assembly is
+more dense, and it looks like some of the optimization added by ``-O2`` generate
+more instructions (Could be the result of *inlining* or *loop unrolling*).
+``-O3`` trades even more binary size for performance (could be the result of
+*function specialization* or more aggressive *inlining*).
 
 Link Time Optimization
 ----------------------
@@ -98,7 +98,7 @@ Again, nothing surprising: having access to more information (through
 ``-flto=full``) gives more optimization space than ``-flto=thin`` which
 (slightly) trades performance of the generated binary for memory usage of the
 actual compilation process. A trade-off we do not need to make for zlib but it's
-an other story for big project like Firefox.
+another story for big project like Firefox.
 
 A Note on Stripping
 -------------------
@@ -237,7 +237,8 @@ We can get rid of some bytes by removing support for stack unwinding:
 
 We reduced the ``.eh_frame`` and ``.eh_frame_hdr`` sections at the expense of
 removing support for stack unwinding. Again, it's a trade-off but one we may want
-to make.
+to make. Keep in mind the frame pointer and the exception frame are very helpful
+to debug a core file!
 
 Specializing for a given usage
 ------------------------------
@@ -271,8 +272,8 @@ Now let's compile the example code ``minigzip.c`` (it's part of zlib source code
                      U unlink@GLIBC_2.2.5
 
 In addition to symbols from the libc, it uses a few symbols from zlib.
-This doesn't covert the whole zlib ABI though. Let's shrink the library just for our
-usage using a version script that only references the symbol we want to use:
+This doesn't cover the whole zlib ABI though. Let's shrink the library just for our
+usage using a version script that only references the symbols we want to use:
 
 .. code-block:: sh
 
@@ -325,14 +326,14 @@ And pass this to the linker:
     .comment                  110       0
     Total                   51496
 
-The linker use the visibility information to iteratively remove code
+The linker uses the visibility information to iteratively remove code
 that's never referenced.
 
 
 Concluding Notes
 ----------------
 
-Some of the remaining sections are purely informal. For instance:
+Some of the remaining sections are purely informational. For instance:
 
 .. code-block:: sh
 
@@ -356,3 +357,9 @@ That's just some compiler version information, we can safely drop them:
     Total                   51386
 
 We could probably shave a few extra bytes, but we already came a long way ☺.
+
+Acknowledgments
+---------------
+
+Thanks to **Sylvestre Ledru** and **Lancelot Six** for proof-reading this post.
+You rock!
