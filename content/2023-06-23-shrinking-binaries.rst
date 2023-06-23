@@ -1,7 +1,7 @@
 Shrinking a Shared Library
 ##########################
 
-:date: 2023-06-02
+:date: 2023-06-23
 :category: mozilla
 :lang: en
 :authors: Serge Guelton
