@@ -1,5 +1,316 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2023-05-03T00:00:00+02:00</updated><entry><title>How unity builds crept into the Firefox Build System</title><link href="http://serge-sans-paille.github.io/pythran-stories/how-unity-builds-crept-into-the-firefox-build-system.html" rel="alternate"></link><published>2023-05-03T00:00:00+02:00</published><updated>2023-05-03T00:00:00+02:00</updated><author><name>Serge Guelton</name></author><id>tag:serge-sans-paille.github.io,2023-05-03:/pythran-stories/how-unity-builds-crept-into-the-firefox-build-system.html</id><summary type="html">&lt;p class="first last"&gt;Jumbo builds make C++ code compilation faster, but what happens when
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2023-06-23T00:00:00+02:00</updated><entry><title>Shrinking a Shared Library</title><link href="http://serge-sans-paille.github.io/pythran-stories/shrinking-a-shared-library.html" rel="alternate"></link><published>2023-06-23T00:00:00+02:00</published><updated>2023-06-23T00:00:00+02:00</updated><author><name>Serge Guelton</name></author><id>tag:serge-sans-paille.github.io,2023-06-23:/pythran-stories/shrinking-a-shared-library.html</id><summary type="html">&lt;p class="first last"&gt;What is the effect of different compiler flags on the size of a shared
+library? Let's explore!&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Recently, I've submitted a &lt;a class="reference external" href="https://phabricator.services.mozilla.com/D179806"&gt;patch&lt;/a&gt; that shaves ~2.5MB on one
+of the core Firefox library, &lt;tt class="docutils literal"&gt;libxul.so&lt;/tt&gt;. The patch is remarkably simple, but
+it's a good opportunity to dive into some techniques to shrink binary size.&lt;/p&gt;
+&lt;div class="section" id="generic-approach"&gt;
+&lt;h2&gt;Generic Approach&lt;/h2&gt;
+&lt;p&gt;We'll use the &lt;a class="reference external" href="https://github.com/madler/zlib"&gt;libz&lt;/a&gt; library
+from the official &lt;a class="reference external" href="https://zlib.net/"&gt;zlib&lt;/a&gt; as an example program to build. In
+this series, we use revision &lt;strong&gt;1.2.13&lt;/strong&gt;, sha1 &lt;strong&gt;04f42ceca40f73e2978b50e93806c2a18c1281fc&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The compiler used is clang &lt;strong&gt;14.0.5&lt;/strong&gt;, the linker used is lld.&lt;/p&gt;
+&lt;div class="section" id="compilation-levels"&gt;
+&lt;h3&gt;Compilation Levels&lt;/h3&gt;
+&lt;p&gt;Let's start with the obvious approach and explore the effect of the various
+optimization levels &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O0&lt;/span&gt;&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O1&lt;/span&gt;&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Oz&lt;/span&gt;&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O2&lt;/span&gt;&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O3&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;The &lt;tt class="docutils literal"&gt;size&lt;/tt&gt; program &lt;em&gt;list section sizes and total size of binary files&lt;/em&gt;, that's
+perfectly suited to our needs. We will dive into its detailed output later.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;opt&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;-O0&lt;span class="w"&gt; &lt;/span&gt;-O1&lt;span class="w"&gt; &lt;/span&gt;-O2&lt;span class="w"&gt; &lt;/span&gt;-O3&lt;span class="w"&gt; &lt;/span&gt;-Oz
+&lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;rm&lt;span class="w"&gt; &lt;/span&gt;-rf&lt;span class="w"&gt; &lt;/span&gt;_build
+&lt;span class="w"&gt;        &lt;/span&gt;mkdir&lt;span class="w"&gt; &lt;/span&gt;_build
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;./_build&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$opt&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&amp;gt;/dev/null
+&lt;span class="w"&gt;        &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;_build/libz.so&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;awk&lt;span class="w"&gt; &lt;/span&gt;-v&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;cflag&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$opt&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/Total/ { printf &amp;quot;%8s: %8d\n&amp;quot;, cflag, $2 }&amp;#39;&lt;/span&gt;
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;table border="1" class="docutils"&gt;
+&lt;caption&gt;Impact of optimization level on binary size for libz.so&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="50%" /&gt;
+&lt;col width="50%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead valign="bottom"&gt;
+&lt;tr&gt;&lt;th class="head"&gt;CFLAGS&lt;/th&gt;
+&lt;th class="head"&gt;size&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td&gt;-O0&lt;/td&gt;
+&lt;td&gt;141608&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;-O1&lt;/td&gt;
+&lt;td&gt;88164&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;-O2&lt;/td&gt;
+&lt;td&gt;99532&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;-O3&lt;/td&gt;
+&lt;td&gt;101644&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;-Oz&lt;/td&gt;
+&lt;td&gt;81006&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Unsurprisingly &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Oz&lt;/span&gt;&lt;/tt&gt; yields the smaller binaries. , and &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O0&lt;/span&gt;&lt;/tt&gt; performs a
+direct translation which uses a lot of space. Performing basic optimizations as
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O1&lt;/span&gt;&lt;/tt&gt; does generally lead to code shrinking because the optimized assembly is
+more dense, and it looks like some of the optimization added by &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O2&lt;/span&gt;&lt;/tt&gt; generate
+more instructions (Could be the result of &lt;em&gt;inlining&lt;/em&gt; or &lt;em&gt;loop unrolling&lt;/em&gt;).
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-O3&lt;/span&gt;&lt;/tt&gt; trades even more binary size for performance (could be the result of
+&lt;em&gt;function specialization&lt;/em&gt; or more aggressive &lt;em&gt;inlining&lt;/em&gt;).&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="link-time-optimization"&gt;
+&lt;h3&gt;Link Time Optimization&lt;/h3&gt;
+&lt;p&gt;Interestingly, using the various flavor of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-flto&lt;/span&gt;&lt;/tt&gt; also have an effect on the binary size:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-Oz&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+Total&lt;span class="w"&gt;                    &lt;/span&gt;&lt;span class="m"&gt;80971&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-O2&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;102868&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;thin&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-Oz&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;thin&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+Total&lt;span class="w"&gt;                    &lt;/span&gt;&lt;span class="m"&gt;82096&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;thin&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-O2&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;thin&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;102464&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Again, nothing surprising: having access to more information (through
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-flto=full&lt;/span&gt;&lt;/tt&gt;) gives more optimization space than &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-flto=thin&lt;/span&gt;&lt;/tt&gt; which
+(slightly) trades performance of the generated binary for memory usage of the
+actual compilation process. A trade-off we do not need to make for zlib but it's
+another story for big project like Firefox.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="a-note-on-stripping"&gt;
+&lt;h3&gt;A Note on Stripping&lt;/h3&gt;
+&lt;p&gt;It's very common to compile a code with debug information:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-Oz&lt;span class="se"&gt;\ &lt;/span&gt;-g&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+.debug_loc&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;89689&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_abbrev&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;1716&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_info&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;33472&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_ranges&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;3744&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_str&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="m"&gt;5422&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_line&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;29136&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;244152&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The impact of debug information on code size is significant. We can compress
+them using &lt;tt class="docutils literal"&gt;dwz&lt;/tt&gt; for a minor gain:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;dwz&lt;span class="w"&gt; &lt;/span&gt;libz.so&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+.debug_loc&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;89689&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_abbrev&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;1728&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_info&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;27563&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_ranges&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;3744&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_str&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="m"&gt;5422&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.debug_line&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;29136&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;238255&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;We usually do not ship debug info as part of a binary, yet we may want to keep minimal ones:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-Oz&lt;span class="se"&gt;\ &lt;/span&gt;-gline-tables-only&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;113441&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The usual approach though is to separate debug information from the actual
+binary (e.g. through &lt;tt class="docutils literal"&gt;objcopy &lt;span class="pre"&gt;--only-keep-debug&lt;/span&gt;&lt;/tt&gt;) then stripping it:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;strip&lt;span class="w"&gt; &lt;/span&gt;libz.so&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;80755&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;It even removes some extra bytes (by shrinking the section
+&lt;tt class="docutils literal"&gt;.gnu.build.attributes&lt;/tt&gt;)!&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="specializing-the-binary"&gt;
+&lt;h2&gt;Specializing the Binary&lt;/h2&gt;
+&lt;p&gt;For a given scenario, we may be ok with removing some of the capability of the
+binary in exchange for smaller binaries.&lt;/p&gt;
+&lt;div class="section" id="removing-eh-frame"&gt;
+&lt;h3&gt;Removing &lt;tt class="docutils literal"&gt;.eh_frame&lt;/tt&gt;&lt;/h3&gt;
+&lt;p&gt;The complete result of the best setup we have (let's forget about stripping), &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;CFLAGS=-Oz\&lt;/span&gt; &lt;span class="pre"&gt;-flto=full&lt;/span&gt;&lt;/tt&gt;, is:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+libz.so&lt;span class="w"&gt;  &lt;/span&gt;:
+section&lt;span class="w"&gt;                  &lt;/span&gt;size&lt;span class="w"&gt;    &lt;/span&gt;addr
+.note.gnu.build-id&lt;span class="w"&gt;         &lt;/span&gt;&lt;span class="m"&gt;24&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;624&lt;/span&gt;
+.dynsym&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;2616&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;648&lt;/span&gt;
+.gnu.version&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;218&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3264&lt;/span&gt;
+.gnu.version_d&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="m"&gt;420&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3484&lt;/span&gt;
+.gnu.version_r&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;48&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3904&lt;/span&gt;
+.gnu.hash&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;712&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3952&lt;/span&gt;
+.dynstr&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;1478&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;4664&lt;/span&gt;
+.rela.dyn&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;768&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;6144&lt;/span&gt;
+.rela.plt&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="m"&gt;1056&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;6912&lt;/span&gt;
+.rodata&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;17832&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;7968&lt;/span&gt;
+.eh_frame_hdr&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="m"&gt;1076&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;25800&lt;/span&gt;
+.eh_frame&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="m"&gt;7764&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;26880&lt;/span&gt;
+.text&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;44592&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;38752&lt;/span&gt;
+.init&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;27&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;83344&lt;/span&gt;
+.fini&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;13&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;83372&lt;/span&gt;
+.plt&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;720&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;83392&lt;/span&gt;
+.data.rel.ro&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;352&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;88208&lt;/span&gt;
+.fini_array&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;88560&lt;/span&gt;
+.init_array&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;88568&lt;/span&gt;
+.dynamic&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;432&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;88576&lt;/span&gt;
+.got&lt;span class="w"&gt;                       &lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;89008&lt;/span&gt;
+.data&lt;span class="w"&gt;                       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;93136&lt;/span&gt;
+.tm_clone_table&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;93136&lt;/span&gt;
+.got.plt&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;376&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;93136&lt;/span&gt;
+.bss&lt;span class="w"&gt;                        &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;93512&lt;/span&gt;
+.gnu.build.attributes&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;288&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.comment&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;110&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;80971&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;We can get rid of some bytes by removing support for stack unwinding:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="se"&gt;\ &lt;/span&gt;-Wl,--lto-O2&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-Oz&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="se"&gt;\ &lt;/span&gt;-fno-unwind-tables&lt;span class="se"&gt;\ &lt;/span&gt;-fno-exceptions&lt;span class="se"&gt;\ &lt;/span&gt;-fno-asynchronous-unwind-tables&lt;span class="se"&gt;\ &lt;/span&gt;-fomit-frame-pointer&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+libz.so&lt;span class="w"&gt;  &lt;/span&gt;:
+section&lt;span class="w"&gt;                  &lt;/span&gt;size&lt;span class="w"&gt;    &lt;/span&gt;addr
+.note.gnu.build-id&lt;span class="w"&gt;         &lt;/span&gt;&lt;span class="m"&gt;24&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;624&lt;/span&gt;
+.dynsym&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;2616&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;648&lt;/span&gt;
+.gnu.version&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;218&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3264&lt;/span&gt;
+.gnu.version_d&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="m"&gt;420&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3484&lt;/span&gt;
+.gnu.version_r&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;48&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3904&lt;/span&gt;
+.gnu.hash&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;712&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3952&lt;/span&gt;
+.dynstr&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;1478&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;4664&lt;/span&gt;
+.rela.dyn&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;768&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;6144&lt;/span&gt;
+.rela.plt&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="m"&gt;1056&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;6912&lt;/span&gt;
+.rodata&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;17832&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;7968&lt;/span&gt;
+.eh_frame_hdr&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;12&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;25800&lt;/span&gt;
+.eh_frame&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;25812&lt;/span&gt;
+.text&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;44592&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;29920&lt;/span&gt;
+.init&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;27&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;74512&lt;/span&gt;
+.fini&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;13&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;74540&lt;/span&gt;
+.plt&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;720&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;74560&lt;/span&gt;
+.data.rel.ro&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;352&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;79376&lt;/span&gt;
+.fini_array&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;79728&lt;/span&gt;
+.init_array&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;79736&lt;/span&gt;
+.dynamic&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;432&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;79744&lt;/span&gt;
+.got&lt;span class="w"&gt;                       &lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;80176&lt;/span&gt;
+.data&lt;span class="w"&gt;                       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;84304&lt;/span&gt;
+.tm_clone_table&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;84304&lt;/span&gt;
+.got.plt&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;376&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;84304&lt;/span&gt;
+.bss&lt;span class="w"&gt;                        &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;84680&lt;/span&gt;
+.gnu.build.attributes&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;288&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.comment&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;110&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;72147&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;We reduced the &lt;tt class="docutils literal"&gt;.eh_frame&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;.eh_frame_hdr&lt;/tt&gt; sections at the expense of
+removing support for stack unwinding. Again, it's a trade-off but one we may want
+to make. Keep in mind the frame pointer and the exception frame are very helpful
+to debug a core file!&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="specializing-for-a-given-usage"&gt;
+&lt;h3&gt;Specializing for a given usage&lt;/h3&gt;
+&lt;p&gt;Now let's compile the example code &lt;tt class="docutils literal"&gt;minigzip.c&lt;/tt&gt; (it's part of zlib source code) while linking with our shared library, and examine the used symbols:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../test/minigzip.c&lt;span class="w"&gt; &lt;/span&gt;-o&lt;span class="w"&gt; &lt;/span&gt;minizip&lt;span class="w"&gt; &lt;/span&gt;-L.&lt;span class="w"&gt; &lt;/span&gt;-lz
+$&lt;span class="w"&gt; &lt;/span&gt;nm&lt;span class="w"&gt; &lt;/span&gt;minizip&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39; U &amp;#39;&lt;/span&gt;
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;exit@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;fclose@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;ferror@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;fileno@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;fopen@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;fprintf@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;fread@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;fwrite@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;gzclose
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;gzdopen
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;gzerror
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;gzopen
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;gzread
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;gzwrite
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;__libc_start_main@GLIBC_2.34
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;perror@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;snprintf@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;strcmp@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;strlen@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;strrchr@GLIBC_2.2.5
+&lt;span class="w"&gt;                 &lt;/span&gt;U&lt;span class="w"&gt; &lt;/span&gt;unlink@GLIBC_2.2.5
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In addition to symbols from the libc, it uses a few symbols from zlib.
+This doesn't cover the whole zlib ABI though. Let's shrink the library just for our
+usage using a version script that only references the symbols we want to use:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;cat&lt;span class="w"&gt; &lt;/span&gt;../zlib.map
+MYZLIB_1&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;global:
+&lt;span class="w"&gt;                 &lt;/span&gt;gzclose&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;                 &lt;/span&gt;gzdopen&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;                 &lt;/span&gt;gzerror&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;                 &lt;/span&gt;gzopen&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;                 &lt;/span&gt;gzread&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;                 &lt;/span&gt;gzwrite&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;local:
+&lt;span class="w"&gt;      &lt;/span&gt;*&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And pass this to the linker:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LDFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-fuse-ld&lt;span class="o"&gt;=&lt;/span&gt;lld&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="se"&gt;\ &lt;/span&gt;-Wl,--gc-sections&lt;span class="se"&gt;\ &lt;/span&gt;-Wl,--version-script,../zlib.map&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;-Oz&lt;span class="se"&gt;\ &lt;/span&gt;-flto&lt;span class="o"&gt;=&lt;/span&gt;full&lt;span class="s2"&gt;&amp;quot; -fno-unwind-tables -fno-exceptions -fno-asynchronous-unwind-tables -fomit-frame-pointer -ffunction-sections -fdata-sections&amp;quot;&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="nv"&gt;CC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;../configure&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;placebo&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+libz.so&lt;span class="w"&gt;  &lt;/span&gt;:
+section&lt;span class="w"&gt;                  &lt;/span&gt;size&lt;span class="w"&gt;    &lt;/span&gt;addr
+.note.gnu.build-id&lt;span class="w"&gt;         &lt;/span&gt;&lt;span class="m"&gt;24&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;624&lt;/span&gt;
+.dynsym&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;576&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;648&lt;/span&gt;
+.gnu.version&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;48&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;1224&lt;/span&gt;
+.gnu.version_d&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;84&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;1272&lt;/span&gt;
+.gnu.version_r&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;48&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;1356&lt;/span&gt;
+.gnu.hash&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;60&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;1408&lt;/span&gt;
+.dynstr&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;281&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;1468&lt;/span&gt;
+.rela.dyn&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;528&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;1752&lt;/span&gt;
+.rela.plt&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;336&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;2280&lt;/span&gt;
+.rodata&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;15320&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;2624&lt;/span&gt;
+.eh_frame_hdr&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;12&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;17944&lt;/span&gt;
+.eh_frame&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;17956&lt;/span&gt;
+.init&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;27&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;22056&lt;/span&gt;
+.fini&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;13&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;22084&lt;/span&gt;
+.text&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;32608&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;22112&lt;/span&gt;
+.plt&lt;span class="w"&gt;                      &lt;/span&gt;&lt;span class="m"&gt;240&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;54720&lt;/span&gt;
+.data.rel.ro&lt;span class="w"&gt;              &lt;/span&gt;&lt;span class="m"&gt;272&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;59056&lt;/span&gt;
+.fini_array&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;59328&lt;/span&gt;
+.init_array&lt;span class="w"&gt;                 &lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;59336&lt;/span&gt;
+.dynamic&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;432&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;59344&lt;/span&gt;
+.got&lt;span class="w"&gt;                       &lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;59776&lt;/span&gt;
+.tm_clone_table&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;63904&lt;/span&gt;
+.got.plt&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;136&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;63904&lt;/span&gt;
+.bss&lt;span class="w"&gt;                        &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;64040&lt;/span&gt;
+.gnu.build.attributes&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;288&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+.comment&lt;span class="w"&gt;                  &lt;/span&gt;&lt;span class="m"&gt;110&lt;/span&gt;&lt;span class="w"&gt;       &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;51496&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The linker uses the visibility information to iteratively remove code
+that's never referenced.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="concluding-notes"&gt;
+&lt;h3&gt;Concluding Notes&lt;/h3&gt;
+&lt;p&gt;Some of the remaining sections are purely informational. For instance:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;objdump&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;-j&lt;span class="w"&gt; &lt;/span&gt;.comment&lt;span class="w"&gt; &lt;/span&gt;libz.so
+
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;4743433a&lt;span class="w"&gt; &lt;/span&gt;2028474e&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;55292031&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;322e322e&lt;span class="w"&gt;  &lt;/span&gt;GCC:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;GNU&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;12&lt;/span&gt;.2.
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0010&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;31203230&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;32323131&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;32312028&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;52656420&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;20221121&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;Red
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0020&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;48617420&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;31322e32&lt;span class="w"&gt; &lt;/span&gt;2e312d34&lt;span class="w"&gt; &lt;/span&gt;2900004c&lt;span class="w"&gt;  &lt;/span&gt;Hat&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;12&lt;/span&gt;.2.1-4&lt;span class="o"&gt;)&lt;/span&gt;..L
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0030&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;696e6b65&lt;span class="w"&gt; &lt;/span&gt;723a204c&lt;span class="w"&gt; &lt;/span&gt;4c442031&lt;span class="w"&gt; &lt;/span&gt;342e302e&lt;span class="w"&gt;  &lt;/span&gt;inker:&lt;span class="w"&gt; &lt;/span&gt;LLD&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;14&lt;/span&gt;.0.
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0040&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;3500636c&lt;span class="w"&gt; &lt;/span&gt;616e6720&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;76657273&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;696f6e20&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="m"&gt;5&lt;/span&gt;.clang&lt;span class="w"&gt; &lt;/span&gt;version
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0050&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;31342e30&lt;span class="w"&gt; &lt;/span&gt;2e352028&lt;span class="w"&gt; &lt;/span&gt;4665646f&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;72612031&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="m"&gt;14&lt;/span&gt;.0.5&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;Fedora&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0060&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;342e302e&lt;span class="w"&gt; &lt;/span&gt;352d322e&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;66633336&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;2900&lt;/span&gt;&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;.0.5-2.fc36&lt;span class="o"&gt;)&lt;/span&gt;.
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;That's just some compiler version information, we can safely drop them:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;objcopy&lt;span class="w"&gt; &lt;/span&gt;-R&lt;span class="w"&gt; &lt;/span&gt;.comment&lt;span class="w"&gt; &lt;/span&gt;libz.s
+$&lt;span class="w"&gt; &lt;/span&gt;size&lt;span class="w"&gt; &lt;/span&gt;-A&lt;span class="w"&gt; &lt;/span&gt;libz.so
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+Total&lt;span class="w"&gt;                   &lt;/span&gt;&lt;span class="m"&gt;51386&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;We could probably shave a few extra bytes, but we already came a long way ☺.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="acknowledgments"&gt;
+&lt;h3&gt;Acknowledgments&lt;/h3&gt;
+&lt;p&gt;Thanks to &lt;strong&gt;Sylvestre Ledru&lt;/strong&gt; and &lt;strong&gt;Lancelot Six&lt;/strong&gt; for proof-reading this post.
+You rock!&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</content><category term="mozilla"></category></entry><entry><title>How unity builds crept into the Firefox Build System</title><link href="http://serge-sans-paille.github.io/pythran-stories/how-unity-builds-crept-into-the-firefox-build-system.html" rel="alternate"></link><published>2023-05-03T00:00:00+02:00</published><updated>2023-05-03T00:00:00+02:00</updated><author><name>Serge Guelton</name></author><id>tag:serge-sans-paille.github.io,2023-05-03:/pythran-stories/how-unity-builds-crept-into-the-firefox-build-system.html</id><summary type="html">&lt;p class="first last"&gt;Jumbo builds make C++ code compilation faster, but what happens when
 you require them?&lt;/p&gt;
 </summary><content type="html">&lt;div class="section" id="unity-build"&gt;
 &lt;h2&gt;Unity Build&lt;/h2&gt;

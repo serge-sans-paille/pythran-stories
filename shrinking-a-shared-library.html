@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Shrinking a Shared Library</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a                         class="active" href="./category/mozilla.html"> mozilla </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Shrinking a Shared Library</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2023-06-23 00:00:00+02:00">Jun 23, 2023</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/mozilla.html"><em>mozilla</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p>Recently, I've submitted a <a class="reference external" href="https://phabricator.services.mozilla.com/D179806">patch</a> that shaves ~2.5MB on one
+of the core Firefox library, <tt class="docutils literal">libxul.so</tt>. The patch is remarkably simple, but
+it's a good opportunity to dive into some techniques to shrink binary size.</p>
+<div class="section" id="generic-approach">
+<h2>Generic Approach</h2>
+<p>We'll use the <a class="reference external" href="https://github.com/madler/zlib">libz</a> library
+from the official <a class="reference external" href="https://zlib.net/">zlib</a> as an example program to build. In
+this series, we use revision <strong>1.2.13</strong>, sha1 <strong>04f42ceca40f73e2978b50e93806c2a18c1281fc</strong>.</p>
+<p>The compiler used is clang <strong>14.0.5</strong>, the linker used is lld.</p>
+<div class="section" id="compilation-levels">
+<h3>Compilation Levels</h3>
+<p>Let's start with the obvious approach and explore the effect of the various
+optimization levels <tt class="docutils literal"><span class="pre">-O0</span></tt>, <tt class="docutils literal"><span class="pre">-O1</span></tt>, <tt class="docutils literal"><span class="pre">-Oz</span></tt>, <tt class="docutils literal"><span class="pre">-O2</span></tt> and <tt class="docutils literal"><span class="pre">-O3</span></tt>.</p>
+<p>The <tt class="docutils literal">size</tt> program <em>list section sizes and total size of binary files</em>, that's
+perfectly suited to our needs. We will dive into its detailed output later.</p>
+<div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span>opt<span class="w"> </span><span class="k">in</span><span class="w"> </span>-O0<span class="w"> </span>-O1<span class="w"> </span>-O2<span class="w"> </span>-O3<span class="w"> </span>-Oz
+<span class="k">do</span>
+<span class="w">        </span>rm<span class="w"> </span>-rf<span class="w"> </span>_build
+<span class="w">        </span>mkdir<span class="w"> </span>_build
+<span class="w">        </span><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>./_build<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span><span class="nv">$opt</span><span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="o">)</span><span class="w"> </span><span class="m">1</span>&gt;/dev/null
+<span class="w">        </span>size<span class="w"> </span>-A<span class="w"> </span>_build/libz.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-v<span class="w"> </span><span class="nv">cflag</span><span class="o">=</span><span class="nv">$opt</span><span class="w"> </span><span class="s1">&#39;/Total/ { printf &quot;%8s: %8d\n&quot;, cflag, $2 }&#39;</span>
+<span class="k">done</span>
+</pre></div>
+<table border="1" class="docutils">
+<caption>Impact of optimization level on binary size for libz.so</caption>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">CFLAGS</th>
+<th class="head">size</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>-O0</td>
+<td>141608</td>
+</tr>
+<tr><td>-O1</td>
+<td>88164</td>
+</tr>
+<tr><td>-O2</td>
+<td>99532</td>
+</tr>
+<tr><td>-O3</td>
+<td>101644</td>
+</tr>
+<tr><td>-Oz</td>
+<td>81006</td>
+</tr>
+</tbody>
+</table>
+<p>Unsurprisingly <tt class="docutils literal"><span class="pre">-Oz</span></tt> yields the smaller binaries. , and <tt class="docutils literal"><span class="pre">-O0</span></tt> performs a
+direct translation which uses a lot of space. Performing basic optimizations as
+<tt class="docutils literal"><span class="pre">-O1</span></tt> does generally lead to code shrinking because the optimized assembly is
+more dense, and it looks like some of the optimization added by <tt class="docutils literal"><span class="pre">-O2</span></tt> generate
+more instructions (Could be the result of <em>inlining</em> or <em>loop unrolling</em>).
+<tt class="docutils literal"><span class="pre">-O3</span></tt> trades even more binary size for performance (could be the result of
+<em>function specialization</em> or more aggressive <em>inlining</em>).</p>
+</div>
+<div class="section" id="link-time-optimization">
+<h3>Link Time Optimization</h3>
+<p>Interestingly, using the various flavor of <tt class="docutils literal"><span class="pre">-flto</span></tt> also have an effect on the binary size:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-Oz<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+Total<span class="w">                    </span><span class="m">80971</span>
+</pre></div>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-O2<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+Total<span class="w">                   </span><span class="m">102868</span>
+</pre></div>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>thin<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-Oz<span class="se">\ </span>-flto<span class="o">=</span>thin<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+Total<span class="w">                    </span><span class="m">82096</span>
+</pre></div>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>thin<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-O2<span class="se">\ </span>-flto<span class="o">=</span>thin<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+Total<span class="w">                   </span><span class="m">102464</span>
+</pre></div>
+<p>Again, nothing surprising: having access to more information (through
+<tt class="docutils literal"><span class="pre">-flto=full</span></tt>) gives more optimization space than <tt class="docutils literal"><span class="pre">-flto=thin</span></tt> which
+(slightly) trades performance of the generated binary for memory usage of the
+actual compilation process. A trade-off we do not need to make for zlib but it's
+another story for big project like Firefox.</p>
+</div>
+<div class="section" id="a-note-on-stripping">
+<h3>A Note on Stripping</h3>
+<p>It's very common to compile a code with debug information:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-Oz<span class="se">\ </span>-g<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+.debug_loc<span class="w">               </span><span class="m">89689</span><span class="w">       </span><span class="m">0</span>
+.debug_abbrev<span class="w">             </span><span class="m">1716</span><span class="w">       </span><span class="m">0</span>
+.debug_info<span class="w">              </span><span class="m">33472</span><span class="w">       </span><span class="m">0</span>
+.debug_ranges<span class="w">             </span><span class="m">3744</span><span class="w">       </span><span class="m">0</span>
+.debug_str<span class="w">                </span><span class="m">5422</span><span class="w">       </span><span class="m">0</span>
+.debug_line<span class="w">              </span><span class="m">29136</span><span class="w">       </span><span class="m">0</span>
+Total<span class="w">                   </span><span class="m">244152</span>
+</pre></div>
+<p>The impact of debug information on code size is significant. We can compress
+them using <tt class="docutils literal">dwz</tt> for a minor gain:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>dwz<span class="w"> </span>libz.so<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+.debug_loc<span class="w">               </span><span class="m">89689</span><span class="w">       </span><span class="m">0</span>
+.debug_abbrev<span class="w">             </span><span class="m">1728</span><span class="w">       </span><span class="m">0</span>
+.debug_info<span class="w">              </span><span class="m">27563</span><span class="w">       </span><span class="m">0</span>
+.debug_ranges<span class="w">             </span><span class="m">3744</span><span class="w">       </span><span class="m">0</span>
+.debug_str<span class="w">                </span><span class="m">5422</span><span class="w">       </span><span class="m">0</span>
+.debug_line<span class="w">              </span><span class="m">29136</span><span class="w">       </span><span class="m">0</span>
+Total<span class="w">                   </span><span class="m">238255</span>
+</pre></div>
+<p>We usually do not ship debug info as part of a binary, yet we may want to keep minimal ones:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-Oz<span class="se">\ </span>-gline-tables-only<span class="se">\ </span>-flto<span class="o">=</span>full<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+Total<span class="w">                   </span><span class="m">113441</span>
+</pre></div>
+<p>The usual approach though is to separate debug information from the actual
+binary (e.g. through <tt class="docutils literal">objcopy <span class="pre">--only-keep-debug</span></tt>) then stripping it:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>strip<span class="w"> </span>libz.so<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+Total<span class="w">                   </span><span class="m">80755</span>
+</pre></div>
+<p>It even removes some extra bytes (by shrinking the section
+<tt class="docutils literal">.gnu.build.attributes</tt>)!</p>
+</div>
+</div>
+<div class="section" id="specializing-the-binary">
+<h2>Specializing the Binary</h2>
+<p>For a given scenario, we may be ok with removing some of the capability of the
+binary in exchange for smaller binaries.</p>
+<div class="section" id="removing-eh-frame">
+<h3>Removing <tt class="docutils literal">.eh_frame</tt></h3>
+<p>The complete result of the best setup we have (let's forget about stripping), <tt class="docutils literal"><span class="pre">CFLAGS=-Oz\</span> <span class="pre">-flto=full</span></tt>, is:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+libz.so<span class="w">  </span>:
+section<span class="w">                  </span>size<span class="w">    </span>addr
+.note.gnu.build-id<span class="w">         </span><span class="m">24</span><span class="w">     </span><span class="m">624</span>
+.dynsym<span class="w">                  </span><span class="m">2616</span><span class="w">     </span><span class="m">648</span>
+.gnu.version<span class="w">              </span><span class="m">218</span><span class="w">    </span><span class="m">3264</span>
+.gnu.version_d<span class="w">            </span><span class="m">420</span><span class="w">    </span><span class="m">3484</span>
+.gnu.version_r<span class="w">             </span><span class="m">48</span><span class="w">    </span><span class="m">3904</span>
+.gnu.hash<span class="w">                 </span><span class="m">712</span><span class="w">    </span><span class="m">3952</span>
+.dynstr<span class="w">                  </span><span class="m">1478</span><span class="w">    </span><span class="m">4664</span>
+.rela.dyn<span class="w">                 </span><span class="m">768</span><span class="w">    </span><span class="m">6144</span>
+.rela.plt<span class="w">                </span><span class="m">1056</span><span class="w">    </span><span class="m">6912</span>
+.rodata<span class="w">                 </span><span class="m">17832</span><span class="w">    </span><span class="m">7968</span>
+.eh_frame_hdr<span class="w">            </span><span class="m">1076</span><span class="w">   </span><span class="m">25800</span>
+.eh_frame<span class="w">                </span><span class="m">7764</span><span class="w">   </span><span class="m">26880</span>
+.text<span class="w">                   </span><span class="m">44592</span><span class="w">   </span><span class="m">38752</span>
+.init<span class="w">                      </span><span class="m">27</span><span class="w">   </span><span class="m">83344</span>
+.fini<span class="w">                      </span><span class="m">13</span><span class="w">   </span><span class="m">83372</span>
+.plt<span class="w">                      </span><span class="m">720</span><span class="w">   </span><span class="m">83392</span>
+.data.rel.ro<span class="w">              </span><span class="m">352</span><span class="w">   </span><span class="m">88208</span>
+.fini_array<span class="w">                 </span><span class="m">8</span><span class="w">   </span><span class="m">88560</span>
+.init_array<span class="w">                 </span><span class="m">8</span><span class="w">   </span><span class="m">88568</span>
+.dynamic<span class="w">                  </span><span class="m">432</span><span class="w">   </span><span class="m">88576</span>
+.got<span class="w">                       </span><span class="m">32</span><span class="w">   </span><span class="m">89008</span>
+.data<span class="w">                       </span><span class="m">0</span><span class="w">   </span><span class="m">93136</span>
+.tm_clone_table<span class="w">             </span><span class="m">0</span><span class="w">   </span><span class="m">93136</span>
+.got.plt<span class="w">                  </span><span class="m">376</span><span class="w">   </span><span class="m">93136</span>
+.bss<span class="w">                        </span><span class="m">1</span><span class="w">   </span><span class="m">93512</span>
+.gnu.build.attributes<span class="w">     </span><span class="m">288</span><span class="w">       </span><span class="m">0</span>
+.comment<span class="w">                  </span><span class="m">110</span><span class="w">       </span><span class="m">0</span>
+Total<span class="w">                   </span><span class="m">80971</span>
+</pre></div>
+<p>We can get rid of some bytes by removing support for stack unwinding:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>full<span class="se">\ </span>-Wl,--lto-O2<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-Oz<span class="se">\ </span>-flto<span class="o">=</span>full<span class="se">\ </span>-fno-unwind-tables<span class="se">\ </span>-fno-exceptions<span class="se">\ </span>-fno-asynchronous-unwind-tables<span class="se">\ </span>-fomit-frame-pointer<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+libz.so<span class="w">  </span>:
+section<span class="w">                  </span>size<span class="w">    </span>addr
+.note.gnu.build-id<span class="w">         </span><span class="m">24</span><span class="w">     </span><span class="m">624</span>
+.dynsym<span class="w">                  </span><span class="m">2616</span><span class="w">     </span><span class="m">648</span>
+.gnu.version<span class="w">              </span><span class="m">218</span><span class="w">    </span><span class="m">3264</span>
+.gnu.version_d<span class="w">            </span><span class="m">420</span><span class="w">    </span><span class="m">3484</span>
+.gnu.version_r<span class="w">             </span><span class="m">48</span><span class="w">    </span><span class="m">3904</span>
+.gnu.hash<span class="w">                 </span><span class="m">712</span><span class="w">    </span><span class="m">3952</span>
+.dynstr<span class="w">                  </span><span class="m">1478</span><span class="w">    </span><span class="m">4664</span>
+.rela.dyn<span class="w">                 </span><span class="m">768</span><span class="w">    </span><span class="m">6144</span>
+.rela.plt<span class="w">                </span><span class="m">1056</span><span class="w">    </span><span class="m">6912</span>
+.rodata<span class="w">                 </span><span class="m">17832</span><span class="w">    </span><span class="m">7968</span>
+.eh_frame_hdr<span class="w">              </span><span class="m">12</span><span class="w">   </span><span class="m">25800</span>
+.eh_frame<span class="w">                   </span><span class="m">4</span><span class="w">   </span><span class="m">25812</span>
+.text<span class="w">                   </span><span class="m">44592</span><span class="w">   </span><span class="m">29920</span>
+.init<span class="w">                      </span><span class="m">27</span><span class="w">   </span><span class="m">74512</span>
+.fini<span class="w">                      </span><span class="m">13</span><span class="w">   </span><span class="m">74540</span>
+.plt<span class="w">                      </span><span class="m">720</span><span class="w">   </span><span class="m">74560</span>
+.data.rel.ro<span class="w">              </span><span class="m">352</span><span class="w">   </span><span class="m">79376</span>
+.fini_array<span class="w">                 </span><span class="m">8</span><span class="w">   </span><span class="m">79728</span>
+.init_array<span class="w">                 </span><span class="m">8</span><span class="w">   </span><span class="m">79736</span>
+.dynamic<span class="w">                  </span><span class="m">432</span><span class="w">   </span><span class="m">79744</span>
+.got<span class="w">                       </span><span class="m">32</span><span class="w">   </span><span class="m">80176</span>
+.data<span class="w">                       </span><span class="m">0</span><span class="w">   </span><span class="m">84304</span>
+.tm_clone_table<span class="w">             </span><span class="m">0</span><span class="w">   </span><span class="m">84304</span>
+.got.plt<span class="w">                  </span><span class="m">376</span><span class="w">   </span><span class="m">84304</span>
+.bss<span class="w">                        </span><span class="m">1</span><span class="w">   </span><span class="m">84680</span>
+.gnu.build.attributes<span class="w">     </span><span class="m">288</span><span class="w">       </span><span class="m">0</span>
+.comment<span class="w">                  </span><span class="m">110</span><span class="w">       </span><span class="m">0</span>
+Total<span class="w">                   </span><span class="m">72147</span>
+</pre></div>
+<p>We reduced the <tt class="docutils literal">.eh_frame</tt> and <tt class="docutils literal">.eh_frame_hdr</tt> sections at the expense of
+removing support for stack unwinding. Again, it's a trade-off but one we may want
+to make. Keep in mind the frame pointer and the exception frame are very helpful
+to debug a core file!</p>
+</div>
+<div class="section" id="specializing-for-a-given-usage">
+<h3>Specializing for a given usage</h3>
+<p>Now let's compile the example code <tt class="docutils literal">minigzip.c</tt> (it's part of zlib source code) while linking with our shared library, and examine the used symbols:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang<span class="w"> </span>../test/minigzip.c<span class="w"> </span>-o<span class="w"> </span>minizip<span class="w"> </span>-L.<span class="w"> </span>-lz
+$<span class="w"> </span>nm<span class="w"> </span>minizip<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39; U &#39;</span>
+<span class="w">                 </span>U<span class="w"> </span>exit@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>fclose@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>ferror@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>fileno@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>fopen@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>fprintf@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>fread@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>fwrite@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>gzclose
+<span class="w">                 </span>U<span class="w"> </span>gzdopen
+<span class="w">                 </span>U<span class="w"> </span>gzerror
+<span class="w">                 </span>U<span class="w"> </span>gzopen
+<span class="w">                 </span>U<span class="w"> </span>gzread
+<span class="w">                 </span>U<span class="w"> </span>gzwrite
+<span class="w">                 </span>U<span class="w"> </span>__libc_start_main@GLIBC_2.34
+<span class="w">                 </span>U<span class="w"> </span>perror@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>snprintf@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>strcmp@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>strlen@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>strrchr@GLIBC_2.2.5
+<span class="w">                 </span>U<span class="w"> </span>unlink@GLIBC_2.2.5
+</pre></div>
+<p>In addition to symbols from the libc, it uses a few symbols from zlib.
+This doesn't cover the whole zlib ABI though. Let's shrink the library just for our
+usage using a version script that only references the symbols we want to use:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span>../zlib.map
+MYZLIB_1<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>global:
+<span class="w">                 </span>gzclose<span class="p">;</span>
+<span class="w">                 </span>gzdopen<span class="p">;</span>
+<span class="w">                 </span>gzerror<span class="p">;</span>
+<span class="w">                 </span>gzopen<span class="p">;</span>
+<span class="w">                 </span>gzread<span class="p">;</span>
+<span class="w">                 </span>gzwrite<span class="p">;</span>
+<span class="w">    </span>local:
+<span class="w">      </span>*<span class="p">;</span>
+<span class="o">}</span><span class="p">;</span>
+</pre></div>
+<p>And pass this to the linker:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span>-fuse-ld<span class="o">=</span>lld<span class="se">\ </span>-flto<span class="o">=</span>full<span class="se">\ </span>-Wl,--gc-sections<span class="se">\ </span>-Wl,--version-script,../zlib.map<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span>-Oz<span class="se">\ </span>-flto<span class="o">=</span>full<span class="s2">&quot; -fno-unwind-tables -fno-exceptions -fno-asynchronous-unwind-tables -fomit-frame-pointer -ffunction-sections -fdata-sections&quot;</span><span class="w">  </span><span class="nv">CC</span><span class="o">=</span>clang<span class="w"> </span>../configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>placebo<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+libz.so<span class="w">  </span>:
+section<span class="w">                  </span>size<span class="w">    </span>addr
+.note.gnu.build-id<span class="w">         </span><span class="m">24</span><span class="w">     </span><span class="m">624</span>
+.dynsym<span class="w">                   </span><span class="m">576</span><span class="w">     </span><span class="m">648</span>
+.gnu.version<span class="w">               </span><span class="m">48</span><span class="w">    </span><span class="m">1224</span>
+.gnu.version_d<span class="w">             </span><span class="m">84</span><span class="w">    </span><span class="m">1272</span>
+.gnu.version_r<span class="w">             </span><span class="m">48</span><span class="w">    </span><span class="m">1356</span>
+.gnu.hash<span class="w">                  </span><span class="m">60</span><span class="w">    </span><span class="m">1408</span>
+.dynstr<span class="w">                   </span><span class="m">281</span><span class="w">    </span><span class="m">1468</span>
+.rela.dyn<span class="w">                 </span><span class="m">528</span><span class="w">    </span><span class="m">1752</span>
+.rela.plt<span class="w">                 </span><span class="m">336</span><span class="w">    </span><span class="m">2280</span>
+.rodata<span class="w">                 </span><span class="m">15320</span><span class="w">    </span><span class="m">2624</span>
+.eh_frame_hdr<span class="w">              </span><span class="m">12</span><span class="w">   </span><span class="m">17944</span>
+.eh_frame<span class="w">                   </span><span class="m">4</span><span class="w">   </span><span class="m">17956</span>
+.init<span class="w">                      </span><span class="m">27</span><span class="w">   </span><span class="m">22056</span>
+.fini<span class="w">                      </span><span class="m">13</span><span class="w">   </span><span class="m">22084</span>
+.text<span class="w">                   </span><span class="m">32608</span><span class="w">   </span><span class="m">22112</span>
+.plt<span class="w">                      </span><span class="m">240</span><span class="w">   </span><span class="m">54720</span>
+.data.rel.ro<span class="w">              </span><span class="m">272</span><span class="w">   </span><span class="m">59056</span>
+.fini_array<span class="w">                 </span><span class="m">8</span><span class="w">   </span><span class="m">59328</span>
+.init_array<span class="w">                 </span><span class="m">8</span><span class="w">   </span><span class="m">59336</span>
+.dynamic<span class="w">                  </span><span class="m">432</span><span class="w">   </span><span class="m">59344</span>
+.got<span class="w">                       </span><span class="m">32</span><span class="w">   </span><span class="m">59776</span>
+.tm_clone_table<span class="w">             </span><span class="m">0</span><span class="w">   </span><span class="m">63904</span>
+.got.plt<span class="w">                  </span><span class="m">136</span><span class="w">   </span><span class="m">63904</span>
+.bss<span class="w">                        </span><span class="m">1</span><span class="w">   </span><span class="m">64040</span>
+.gnu.build.attributes<span class="w">     </span><span class="m">288</span><span class="w">       </span><span class="m">0</span>
+.comment<span class="w">                  </span><span class="m">110</span><span class="w">       </span><span class="m">0</span>
+Total<span class="w">                   </span><span class="m">51496</span>
+</pre></div>
+<p>The linker uses the visibility information to iteratively remove code
+that's never referenced.</p>
+</div>
+<div class="section" id="concluding-notes">
+<h3>Concluding Notes</h3>
+<p>Some of the remaining sections are purely informational. For instance:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>objdump<span class="w"> </span>-s<span class="w"> </span>-j<span class="w"> </span>.comment<span class="w"> </span>libz.so
+
+<span class="w"> </span><span class="m">0000</span><span class="w"> </span>4743433a<span class="w"> </span>2028474e<span class="w"> </span><span class="m">55292031</span><span class="w"> </span>322e322e<span class="w">  </span>GCC:<span class="w"> </span><span class="o">(</span>GNU<span class="o">)</span><span class="w"> </span><span class="m">12</span>.2.
+<span class="w"> </span><span class="m">0010</span><span class="w"> </span><span class="m">31203230</span><span class="w"> </span><span class="m">32323131</span><span class="w"> </span><span class="m">32312028</span><span class="w"> </span><span class="m">52656420</span><span class="w">  </span><span class="m">1</span><span class="w"> </span><span class="m">20221121</span><span class="w"> </span><span class="o">(</span>Red
+<span class="w"> </span><span class="m">0020</span><span class="w"> </span><span class="m">48617420</span><span class="w"> </span>31322e32<span class="w"> </span>2e312d34<span class="w"> </span>2900004c<span class="w">  </span>Hat<span class="w"> </span><span class="m">12</span>.2.1-4<span class="o">)</span>..L
+<span class="w"> </span><span class="m">0030</span><span class="w"> </span>696e6b65<span class="w"> </span>723a204c<span class="w"> </span>4c442031<span class="w"> </span>342e302e<span class="w">  </span>inker:<span class="w"> </span>LLD<span class="w"> </span><span class="m">14</span>.0.
+<span class="w"> </span><span class="m">0040</span><span class="w"> </span>3500636c<span class="w"> </span>616e6720<span class="w"> </span><span class="m">76657273</span><span class="w"> </span>696f6e20<span class="w">  </span><span class="m">5</span>.clang<span class="w"> </span>version
+<span class="w"> </span><span class="m">0050</span><span class="w"> </span>31342e30<span class="w"> </span>2e352028<span class="w"> </span>4665646f<span class="w"> </span><span class="m">72612031</span><span class="w">  </span><span class="m">14</span>.0.5<span class="w"> </span><span class="o">(</span>Fedora<span class="w"> </span><span class="m">1</span>
+<span class="w"> </span><span class="m">0060</span><span class="w"> </span>342e302e<span class="w"> </span>352d322e<span class="w"> </span><span class="m">66633336</span><span class="w"> </span><span class="m">2900</span><span class="w">      </span><span class="m">4</span>.0.5-2.fc36<span class="o">)</span>.
+</pre></div>
+<p>That's just some compiler version information, we can safely drop them:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>objcopy<span class="w"> </span>-R<span class="w"> </span>.comment<span class="w"> </span>libz.s
+$<span class="w"> </span>size<span class="w"> </span>-A<span class="w"> </span>libz.so
+<span class="o">[</span>...<span class="o">]</span>
+Total<span class="w">                   </span><span class="m">51386</span>
+</pre></div>
+<p>We could probably shave a few extra bytes, but we already came a long way ☺.</p>
+</div>
+<div class="section" id="acknowledgments">
+<h3>Acknowledgments</h3>
+<p>Thanks to <strong>Sylvestre Ledru</strong> and <strong>Lancelot Six</strong> for proof-reading this post.
+You rock!</p>
+</div>
+</div>
+
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>
