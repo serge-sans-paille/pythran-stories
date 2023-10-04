@@ -110,7 +110,7 @@ container size, and we're done:
 
 .. code-block:: shell
 
-   $ clang++ frozen_colors.cpp -Wall -O2 -o frozen_colors && ./frozen_colors green && echo ok
+   $ clang++ frozen_colors.cpp -Wall -Wglobal-constructors -O2 -o frozen_colors && ./frozen_colors green && echo ok
    ok
 
 Great! No warning, job done! Job done? Let's double check the binary and run:
@@ -170,8 +170,8 @@ Then depending on the situation, we can decide what to do with the headers:
 1. Keep it. Required if ``std::cout`` or ``std::cerr`` (or ``std::clog``!) are
    used
 
-2. Replace it by ``<sstream>``, ``<istream>`` or ``<ostream>``, when only that part of the API
-   is needed, typically when only ``std::stringstream``, ``std::ostream`` or
+2. Replace it by ``<istream>`` or ``<ostream>``, when only that part of the API
+   is needed, typically when only ``std::ostream`` or
    ``std::istream`` are used.
 
 3. Remove it. This header is often included for debugging purpose and one
