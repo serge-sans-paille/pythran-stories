@@ -156,7 +156,7 @@ successfully removed so far.
 
 
 Bye bye, ``<iostream>``
-----------------------
+-----------------------
 
 Using the example above, we can adopt a very simple strategy to detect all compilation units that include ``<iostream>``:
 
@@ -185,7 +185,7 @@ in 33 compilation units! The patch also got `accepted in the upstream protobuf
 repo <https://github.com/protocolbuffers/protobuf/pull/14174>`_.
 
 Let it go, ``<frozen/*.h>``
-----------------------
+---------------------------
 
 It is very common to have small hash tables to store data mapping, and the
 Firefox codebase typically have those:
@@ -245,8 +245,8 @@ Theoretically, these change should impact:
 2. Startup time, as less code is executed at startup;
 
 3. Lookup time (in the case of frozen structures) because
-  ``frozen::unordered_(set|map)`` use perfect hashing, and ``frozen::(set|map)``
-  use branch-less partitioning.
+   ``frozen::unordered_(set|map)`` use perfect hashing, and ``frozen::(set|map)``
+   use branch-less partitioning.
 
 Point 1. may be balanced by the increase in data size (after all, the
 ``constexpr``-initialized data structure must live somewhere). It turns out that
