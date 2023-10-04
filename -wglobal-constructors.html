@@ -150,7 +150,7 @@ this:</p>
 </pre></div>
 <p>Changing a few namespaces, swapping a few headers and add some string literals and a
 container size, and we're done:</p>
-<div class="highlight"><pre><span></span>$<span class="w"> </span>clang++<span class="w"> </span>frozen_colors.cpp<span class="w"> </span>-Wall<span class="w"> </span>-O2<span class="w"> </span>-o<span class="w"> </span>frozen_colors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./frozen_colors<span class="w"> </span>green<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ok
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang++<span class="w"> </span>frozen_colors.cpp<span class="w"> </span>-Wall<span class="w"> </span>-Wglobal-constructors<span class="w"> </span>-O2<span class="w"> </span>-o<span class="w"> </span>frozen_colors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./frozen_colors<span class="w"> </span>green<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ok
 ok
 </pre></div>
 <p>Great! No warning, job done! Job done? Let's double check the binary and run:</p>
