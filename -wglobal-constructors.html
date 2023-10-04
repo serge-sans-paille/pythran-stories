@@ -196,8 +196,8 @@ nm<span class="w"> </span>-C<span class="w"> </span>dist/bin/libxul.so<span clas
 <ol class="arabic simple">
 <li>Keep it. Required if <tt class="docutils literal"><span class="pre">std::cout</span></tt> or <tt class="docutils literal"><span class="pre">std::cerr</span></tt> (or <tt class="docutils literal"><span class="pre">std::clog</span></tt>!) are
 used</li>
-<li>Replace it by <tt class="docutils literal">&lt;sstream&gt;</tt>, <tt class="docutils literal">&lt;istream&gt;</tt> or <tt class="docutils literal">&lt;ostream&gt;</tt>, when only that part of the API
-is needed, typically when only <tt class="docutils literal"><span class="pre">std::stringstream</span></tt>, <tt class="docutils literal"><span class="pre">std::ostream</span></tt> or
+<li>Replace it by <tt class="docutils literal">&lt;istream&gt;</tt> or <tt class="docutils literal">&lt;ostream&gt;</tt>, when only that part of the API
+is needed, typically when only <tt class="docutils literal"><span class="pre">std::ostream</span></tt> or
 <tt class="docutils literal"><span class="pre">std::istream</span></tt> are used.</li>
 <li>Remove it. This header is often included for debugging purpose and one
 forgets to remove it. Including myself ;-)</li>

@@ -121,8 +121,8 @@ nm&lt;span class="w"&gt; &lt;/span&gt;-C&lt;span class="w"&gt; &lt;/span&gt;dist
 &lt;ol class="arabic simple"&gt;
 &lt;li&gt;Keep it. Required if &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::cout&lt;/span&gt;&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::cerr&lt;/span&gt;&lt;/tt&gt; (or &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::clog&lt;/span&gt;&lt;/tt&gt;!) are
 used&lt;/li&gt;
-&lt;li&gt;Replace it by &lt;tt class="docutils literal"&gt;&amp;lt;sstream&amp;gt;&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;&amp;lt;istream&amp;gt;&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;&amp;lt;ostream&amp;gt;&lt;/tt&gt;, when only that part of the API
-is needed, typically when only &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::stringstream&lt;/span&gt;&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::ostream&lt;/span&gt;&lt;/tt&gt; or
+&lt;li&gt;Replace it by &lt;tt class="docutils literal"&gt;&amp;lt;istream&amp;gt;&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;&amp;lt;ostream&amp;gt;&lt;/tt&gt;, when only that part of the API
+is needed, typically when only &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::ostream&lt;/span&gt;&lt;/tt&gt; or
 &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;std::istream&lt;/span&gt;&lt;/tt&gt; are used.&lt;/li&gt;
 &lt;li&gt;Remove it. This header is often included for debugging purpose and one
 forgets to remove it. Including myself ;-)&lt;/li&gt;
