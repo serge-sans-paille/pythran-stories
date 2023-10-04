@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - -Wglobal-constructors</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a                         class="active" href="./category/mozilla.html"> mozilla </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>-Wglobal-constructors</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2023-10-02 23:00:00+02:00">Oct 02, 2023</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/mozilla.html"><em>mozilla</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unordered_set&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">primary_colors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;red&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;green&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;blue&quot;</span><span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argc</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;pink&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">primary_colors</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>Let's compile and run the snippet above:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang++<span class="w"> </span>--version
+clang<span class="w"> </span>version<span class="w"> </span><span class="m">14</span>.0.5<span class="w"> </span><span class="o">(</span>Fedora<span class="w"> </span><span class="m">14</span>.0.5-2.fc36<span class="o">)</span>
+Target:<span class="w"> </span>x86_64-redhat-linux-gnu
+Thread<span class="w"> </span>model:<span class="w"> </span>posix
+InstalledDir:<span class="w"> </span>/usr/bin
+
+$<span class="w"> </span>clang++<span class="w"> </span>colors.cpp<span class="w"> </span>-O2<span class="w"> </span>-o<span class="w"> </span>colors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./colors<span class="w"> </span>green<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ok
+ok
+</pre></div>
+<p>Let's be a bit more pedantic and turn all warnings on:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang++<span class="w"> </span>colors.cpp<span class="w"> </span>-Wall<span class="w"> </span>-O2<span class="w"> </span>-o<span class="w"> </span>colors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./colors<span class="w"> </span>green<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ok
+ok
+</pre></div>
+<p>No, I meant really pedantic (so that you don't waste your time trying:
+<tt class="docutils literal"><span class="pre">-pedantic</span></tt> doesn't find anything else)</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang++<span class="w"> </span>colors.cpp<span class="w"> </span>-Weverything<span class="w"> </span>-O2<span class="w"> </span>-o<span class="w"> </span>colors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./colors<span class="w"> </span>green<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ok
+<span class="w"> </span>colors.cpp:5:56:<span class="w"> </span>warning:<span class="w"> </span>initialization<span class="w"> </span>of<span class="w"> </span>initializer_list<span class="w"> </span>object<span class="w"> </span>is<span class="w"> </span>incompatible<span class="w"> </span>with<span class="w"> </span>C++98<span class="w"> </span><span class="o">[</span>-Wc++98-compat<span class="o">]</span>
+<span class="w"> </span>const<span class="w"> </span>std::unordered_set&lt;std::string&gt;<span class="w"> </span><span class="nv">primary_colors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span><span class="s2">&quot;red&quot;</span>,<span class="w"> </span><span class="s2">&quot;green&quot;</span>,<span class="w"> </span><span class="s2">&quot;blue&quot;</span><span class="o">}</span><span class="p">;</span>
+<span class="w">                                                        </span>^~~~~~~~~~~~~~~~~~~~~~~~
+<span class="w"> </span>colors.cpp:5:39:<span class="w"> </span>warning:<span class="w"> </span>declaration<span class="w"> </span>requires<span class="w"> </span>an<span class="w"> </span>exit-time<span class="w"> </span>destructor<span class="w"> </span><span class="o">[</span>-Wexit-time-destructors<span class="o">]</span>
+<span class="w"> </span>const<span class="w"> </span>std::unordered_set&lt;std::string&gt;<span class="w"> </span><span class="nv">primary_colors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span><span class="s2">&quot;red&quot;</span>,<span class="w"> </span><span class="s2">&quot;green&quot;</span>,<span class="w"> </span><span class="s2">&quot;blue&quot;</span><span class="o">}</span><span class="p">;</span>
+<span class="w">                                       </span>^
+<span class="w"> </span>colors.cpp:5:39:<span class="w"> </span>warning:<span class="w"> </span>declaration<span class="w"> </span>requires<span class="w"> </span>a<span class="w"> </span>global<span class="w"> </span>destructor<span class="w"> </span><span class="o">[</span>-Wglobal-constructors<span class="o">]</span>
+<span class="w"> </span><span class="m">3</span><span class="w"> </span>warnings<span class="w"> </span>generated.
+<span class="w"> </span>ok
+</pre></div>
+<p>Now that's what I needed for my intro: <tt class="docutils literal"><span class="pre">-Wglobal-constructors</span></tt> (let's forget
+about C++98, right?). <tt class="docutils literal"><span class="pre">-Wexit-time-destructors</span></tt> is a subset of
+<tt class="docutils literal"><span class="pre">-Wglobal-constructors</span></tt>, so let's focus on global constructors.</p>
+<p>Indeed we are creating a <tt class="docutils literal">const</tt> unordered set named <tt class="docutils literal">colors</tt>, but the
+initialization code has to happen at some point. None of <a class="reference external" href="https://en.cppreference.com/w/cpp/container/unordered_set/unordered_set">its constructors</a> is
+flagged as <tt class="docutils literal">constexpr</tt> so the initialization happens at startup, before the
+call to the <tt class="docutils literal">main</tt> function.</p>
+<p>Why is it worth a warning? The <a class="reference external" href="https://clang.llvm.org/docs/DiagnosticsReference.html#wglobal-constructors">clang manual</a>
+is not very talkative on the subject, and the <a class="reference external" href="https://github.com/llvm/llvm-project/commit/47e40931c9af037ceae73ecab7db739a34160a0e">commit introducing the feature</a>
+is not super helpful either, but it's <a class="reference external" href="https://github.com/llvm/llvm-project/pull/68084">getting better</a>.
+We can guess the reasons: it can cause bugs (think <a class="reference external" href="StaticInitializationOrderFiasco">Static Initialization
+Order Fiasco</a>) and performance problems
+(increased startup time).</p>
+<div class="section" id="warming-up">
+<h2>Warming up</h2>
+<p>The variable <tt class="docutils literal">colors</tt> is a set that doesn't change in size after
+initialization.
+<em>Back in the days</em> I designed a small header-only C++ library called <a class="reference external" href="https://github.com/serge-sans-paille/frozen/issues">frozen</a> that provides <em>à la</em>
+Python frozen containers that match the standard library interface, let's use
+this:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstring&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;frozen/unordered_set.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;frozen/string.h&quot;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">frozen</span><span class="o">::</span><span class="nn">string_literals</span><span class="p">;</span>
+
+<span class="k">constexpr</span><span class="w"> </span><span class="n">frozen</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">frozen</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">primary_colors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;red&quot;</span><span class="n">_s</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;green&quot;</span><span class="n">_s</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;blue&quot;</span><span class="n">_s</span><span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">frozen</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argc</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">frozen</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;pink&quot;</span><span class="n">_s</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">primary_colors</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>Changing a few namespaces, swapping a few headers and add some string literals and a
+container size, and we're done:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang++<span class="w"> </span>frozen_colors.cpp<span class="w"> </span>-Wall<span class="w"> </span>-O2<span class="w"> </span>-o<span class="w"> </span>frozen_colors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./frozen_colors<span class="w"> </span>green<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ok
+ok
+</pre></div>
+<p>Great! No warning, job done! Job done? Let's double check the binary and run:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>nm<span class="w"> </span>-C<span class="w"> </span>frozen_colors<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>_GLOBAL__
+<span class="m">0000000000401070</span><span class="w"> </span>t<span class="w"> </span>_GLOBAL__sub_I_frozen_colors.cpp
+</pre></div>
+<p>That's a bit suspicious, let's have a look at this symbol:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>objdump<span class="w"> </span>-C<span class="w"> </span>-S<span class="w"> </span>--disassemble<span class="o">=</span>_GLOBAL__sub_I_frozen_colors.cpp<span class="w"> </span>frozen_colors
+<span class="o">[</span>...<span class="o">]</span>
+<span class="m">0000000000401070</span><span class="w"> </span>&lt;_GLOBAL__sub_I_frozen_colors.cpp&gt;:
+<span class="w">  </span><span class="m">401070</span>:<span class="w">   </span><span class="m">50</span><span class="w">                      </span>push<span class="w">   </span>%rax
+<span class="w">  </span><span class="m">401071</span>:<span class="w">   </span>bf<span class="w"> </span>3d<span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="m">00</span><span class="w">          </span>mov<span class="w">    </span><span class="nv">$0</span>x40403d,%edi
+<span class="w">  </span><span class="m">401076</span>:<span class="w">   </span>e8<span class="w"> </span>d5<span class="w"> </span>ff<span class="w"> </span>ff<span class="w"> </span>ff<span class="w">          </span>call<span class="w">   </span><span class="m">401050</span><span class="w"> </span>&lt;std::ios_base::Init::Init<span class="o">()</span>@plt&gt;
+<span class="w">  </span>40107b:<span class="w">   </span>bf<span class="w"> </span><span class="m">60</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="m">00</span><span class="w">          </span>mov<span class="w">    </span><span class="nv">$0</span>x401060,%edi
+<span class="w">  </span><span class="m">401080</span>:<span class="w">   </span>be<span class="w"> </span>3d<span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="m">00</span><span class="w">          </span>mov<span class="w">    </span><span class="nv">$0</span>x40403d,%esi
+<span class="w">  </span><span class="m">401085</span>:<span class="w">   </span>ba<span class="w"> </span><span class="m">08</span><span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="m">00</span><span class="w">          </span>mov<span class="w">    </span><span class="nv">$0</span>x402008,%edx
+<span class="w">  </span>40108a:<span class="w">   </span><span class="m">58</span><span class="w">                      </span>pop<span class="w">    </span>%rax
+<span class="w">  </span>40108b:<span class="w">   </span>e9<span class="w"> </span>b0<span class="w"> </span>ff<span class="w"> </span>ff<span class="w"> </span>ff<span class="w">          </span>jmp<span class="w">    </span><span class="m">401040</span><span class="w"> </span>&lt;__cxa_atexit@plt&gt;
+<span class="w">  </span><span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<p>Ah ah, <tt class="docutils literal">&lt;iostream&gt;</tt>. The header was included out of habit in the example
+(totally by accident, not hand-crafted at all), and it didn't get reported
+by clang because it comes from a system header. Removing the useless header is
+indeed enough to get rid of the last global constructor of our toy program (note
+that we no longer have any destructor at exit either). And now that we have set
+the basics, let's start…</p>
+</div>
+<div class="section" id="digging-into-firefox-s-global-constructor">
+<h2>Digging Into Firefox's global constructor</h2>
+<p>There's still a lot of C++ code in Firefox's codebase. Statistically, there
+should be at least a dozen global constructors in it. A dozen? Hundreds!
+<a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1845263">This Bug</a> tracks the
+various attempt to remove some of them, the rest of this article is just a
+collection of the various situation in which global constructors have been
+successfully removed so far.</p>
+<div class="section" id="bye-bye-iostream">
+<h3>Bye bye, <tt class="docutils literal">&lt;iostream&gt;</tt></h3>
+<p>Using the example above, we can adopt a very simple strategy to detect all compilation units that include <tt class="docutils literal">&lt;iostream&gt;</tt>:</p>
+<div class="highlight"><pre><span></span>objdump<span class="w"> </span>-C<span class="w"> </span>-d<span class="w"> </span>dist/bin/libxul.so<span class="w"> </span>&gt;<span class="w"> </span>libxul.S<span class="w">  </span><span class="c1"># cache this call as it takes a lot of time</span>
+nm<span class="w"> </span>-C<span class="w"> </span>dist/bin/libxul.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/_GLOBAL__/ { print $3 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>sym<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>grep<span class="w"> </span><span class="nv">$sym</span><span class="w"> </span>libxul.S<span class="w"> </span>-A8<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span>std::ios_base::Init<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$sym</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</pre></div>
+<p>Then depending on the situation, we can decide what to do with the headers:</p>
+<ol class="arabic simple">
+<li>Keep it. Required if <tt class="docutils literal"><span class="pre">std::cout</span></tt> or <tt class="docutils literal"><span class="pre">std::cerr</span></tt> (or <tt class="docutils literal"><span class="pre">std::clog</span></tt>!) are
+used</li>
+<li>Replace it by <tt class="docutils literal">&lt;sstream&gt;</tt>, <tt class="docutils literal">&lt;istream&gt;</tt> or <tt class="docutils literal">&lt;ostream&gt;</tt>, when only that part of the API
+is needed, typically when only <tt class="docutils literal"><span class="pre">std::stringstream</span></tt>, <tt class="docutils literal"><span class="pre">std::ostream</span></tt> or
+<tt class="docutils literal"><span class="pre">std::istream</span></tt> are used.</li>
+<li>Remove it. This header is often included for debugging purpose and one
+forgets to remove it. Including myself ;-)</li>
+</ol>
+<p>I've done so in <a class="reference external" href="https://phabricator.services.mozilla.com/D189648">Bug 1855955</a>, but also in <a class="reference external" href="https://phabricator.services.mozilla.com/D188949">Bug 1854575</a> which was very satisfying
+because it removed the include from a google protobuf file, which was included
+in 33 compilation units! The patch also got <a class="reference external" href="https://github.com/protocolbuffers/protobuf/pull/14174">accepted in the upstream protobuf
+repo</a>.</p>
+</div>
+<div class="section" id="let-it-go-frozen-h">
+<h3>Let it go, <tt class="docutils literal"><span class="pre">&lt;frozen/*.h&gt;</span></tt></h3>
+<p>It is very common to have small hash tables to store data mapping, and the
+Firefox codebase typically have those:</p>
+<ul class="simple">
+<li>storing <a class="reference external" href="https://phabricator.services.mozilla.com/D189199">mapping between string and enums</a>, a <a class="reference external" href="https://phabricator.services.mozilla.com/D189201">very common pattern</a>;</li>
+<li>storing an <a class="reference external" href="https://phabricator.services.mozilla.com/D189200">allow list</a>
+(well, of a single element…)</li>
+<li>storing an <a class="reference external" href="https://phabricator.services.mozilla.com/D189202">array with a lot of holes as a map</a> which is more memory
+efficient.</li>
+</ul>
+<p>All these commits have not landed yet, but I'm very happy to revive this classic
+I developed <a class="reference external" href="https://blog.quarkslab.com/frozen-zero-cost-initialization-for-immutable-containers-and-various-algorithms.html">5 years ago</a>.</p>
+</div>
+<div class="section" id="hello-constexpr">
+<h3>Hello, <tt class="docutils literal">constexpr</tt></h3>
+<p>The firefox code base <a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1768116">uses C++17</a>, so <a class="reference external" href="https://en.cppreference.com/w/cpp/language/constinit">constinit</a> is not a thing, but
+<cite>constexpr</cite> variables <a class="reference external" href="https://en.cppreference.com/w/cpp/language/constexpr">must be immediately initialized</a> which implies no global
+constructor.</p>
+<p>Sometimes, just setting the constructor and/or the declaration as <tt class="docutils literal">constexpr</tt> is enough. Easy!</p>
+<p>Many time the variable is a <tt class="docutils literal">static</tt> <tt class="docutils literal">const</tt> global <tt class="docutils literal"><span class="pre">std::string</span></tt> in the Firefox code
+base. They can be replaced by the internal <tt class="docutils literal">nsLiteralCString</tt> class or by an
+<tt class="docutils literal"><span class="pre">std::string_view</span></tt> depending on the code they need to interact with. In both
+cases we save the runtime initialization of the string while keeping the nice
+encapsulation. We've done so in <a class="reference external" href="https://phabricator.services.mozilla.com/D189140">Bug 1854969</a> and <a class="reference external" href="https://phabricator.services.mozilla.com/D188888">Bug 1854490</a>.</p>
+<p>Special mention to <a class="reference external" href="https://phabricator.services.mozilla.com/D184550">Bug 563351</a> where making a constructor
+<tt class="docutils literal">constexpr</tt> and declaring a single variable as a <em>constexpr variable</em> got rid of a global constructor for a static variable declared in a header, thus in all files including that header.</p>
+<p><a class="reference external" href="https://phabricator.services.mozilla.com/D188842">Bug 1854410</a> was somehow
+similar: static variables in a header. This time the object could not be made
+<tt class="docutils literal">constexpr</tt>, but moving the initialization to the implementation file and
+having external variables decreased the overall number of duplication.</p>
+</div>
+</div>
+<div class="section" id="measuring-the-impact">
+<h2>Measuring the Impact</h2>
+<p>Theoretically, these change should impact:</p>
+<ol class="arabic simple">
+<li>Code size, as the initialization code is no longer needed;</li>
+<li>Startup time, as less code is executed at startup;</li>
+<li>Lookup time (in the case of frozen structures) because
+<tt class="docutils literal"><span class="pre">frozen::unordered_(set|map)</span></tt> use perfect hashing, and <tt class="docutils literal"><span class="pre">frozen::(set|map)</span></tt>
+use branch-less partitioning.</li>
+</ol>
+<p>Point 1. may be balanced by the increase in data size (after all, the
+<tt class="docutils literal">constexpr</tt>-initialized data structure must live somewhere). It turns out that
+in the case of firefox, the resulting <tt class="docutils literal">libxul.so</tt> is smaller by a dozen of kB
+after all the above changes.</p>
+<p>Unfortunately, Point 2. and 3. are within the measurement noise on my setup.</p>
+<p>Factually, those are not tremendous result, but let's not forget Point 4.:
+Things have been learnt in the process, and shared through this write up ;-)</p>
+<div class="section" id="acknowledgment">
+<h3>Acknowledgment</h3>
+<p>Thanks to Sylvestre Ledru and Paul Adenot for proof-reading this post, and to all the reviewers
+of the above patches!</p>
+</div>
+</div>
+
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>

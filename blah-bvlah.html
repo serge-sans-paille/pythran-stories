@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Blah bvlah</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a                         class="active" href="./category/mozilla.html"> mozilla </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Blah bvlah</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2023-06-23 00:00:00+02:00">Jun 23, 2023</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/mozilla.html"><em>mozilla</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="n">__attribute__</span><span class="p">((</span><span class="n">noinline</span><span class="p">))</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%1023s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">puts</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">__attribute__</span><span class="p">((</span><span class="n">noinline</span><span class="p">))</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%127s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">puts</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">foo</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">bar</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+<p>Compiled with</p>
+<div class="highlight"><pre><span></span><span class="n">clang</span><span class="w"> </span><span class="o">-</span><span class="n">ftrivial</span><span class="o">-</span><span class="k">auto</span><span class="o">-</span><span class="n">var</span><span class="o">-</span><span class="n">init</span><span class="o">=</span><span class="n">pattern</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">c</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span><span class="w"> </span><span class="o">-</span><span class="n">O1</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="o">-</span><span class="n">Rpass</span><span class="o">-</span><span class="n">missed</span><span class="o">=</span><span class="n">annotation</span><span class="o">-</span><span class="n">remark</span>
+</pre></div>
+<p>Gives too much information, we cannot handle everything automatically, let's use
+hotness information:</p>
+<div class="highlight"><pre><span></span><span class="n">clang</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">c</span><span class="w"> </span><span class="o">-</span><span class="n">ftrivial</span><span class="o">-</span><span class="k">auto</span><span class="o">-</span><span class="n">var</span><span class="o">-</span><span class="n">init</span><span class="o">=</span><span class="n">pattern</span><span class="w"> </span><span class="o">-</span><span class="n">fprofile</span><span class="o">-</span><span class="n">generate</span><span class="w"> </span><span class="o">-</span><span class="n">O1</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">t</span>
+</pre></div>
+<p>Do a few run, favouring calls to <tt class="docutils literal">bar</tt></p>
+<div class="highlight"><pre><span></span><span class="n">seq</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">xargs</span><span class="w"> </span><span class="o">-</span><span class="n">I</span><span class="o">~</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">t</span>
+</pre></div>
+<p>Merge profile information:</p>
+<div class="highlight"><pre><span></span><span class="n">llvm</span><span class="o">-</span><span class="n">profdata</span><span class="w"> </span><span class="n">merge</span><span class="w"> </span><span class="n">default_</span><span class="o">*</span><span class="p">.</span><span class="n">profraw</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="k">default</span><span class="p">.</span><span class="n">profdata</span>
+</pre></div>
+<p>And feed that to clang again, using profile threashold information</p>
+<div class="highlight"><pre><span></span><span class="n">clang</span><span class="w"> </span><span class="o">-</span><span class="n">ftrivial</span><span class="o">-</span><span class="k">auto</span><span class="o">-</span><span class="n">var</span><span class="o">-</span><span class="n">init</span><span class="o">=</span><span class="n">pattern</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">c</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span><span class="w"> </span><span class="o">-</span><span class="n">O1</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="o">-</span><span class="n">Rpass</span><span class="o">-</span><span class="n">missed</span><span class="o">=</span><span class="n">annotation</span><span class="o">-</span><span class="n">remark</span><span class="w"> </span><span class="o">-</span><span class="n">fdiagnostics</span><span class="o">-</span><span class="n">hotness</span><span class="o">-</span><span class="n">threshold</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span><span class="o">-</span><span class="n">fprofile</span><span class="o">-</span><span class="n">use</span><span class="o">=</span><span class="k">default</span><span class="p">.</span><span class="n">profdata</span><span class="w"> </span><span class="o">-</span><span class="n">fdiagnostics</span><span class="o">-</span><span class="n">show</span><span class="o">-</span><span class="n">hotness</span>
+</pre></div>
+<p>Examples of auto-var init improvement:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1840549">https://bugzilla.mozilla.org/show_bug.cgi?id=1840549</a></li>
+</ul>
+<p>LTO gives more room for improvement, so it's better to just dump remarks after
+lto!</p>
+
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>
