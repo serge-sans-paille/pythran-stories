@@ -18,8 +18,8 @@ setting stack slots to zero is faster, but setting them to a pattern is more
 likely to exhibit failing behavior.
 
 
-Comparing the Approach with Adress Sanitizer
-============================================
+Comparing the Approach with Address Sanitizer
+=============================================
 
 Let's consider a very simple program that reads data from ``stdin`` and dumps it to
 ``stdout``, using a small buffer.
@@ -130,10 +130,10 @@ function prologue
     br label %4
 
 The ``store`` is being optimized out by the compiler (thanks to a following
-``write`` to save the result of ``fread``. That's great news! It means that the
+``write``) to save the result of ``fread``. That's great news! It means that the
 front-end compiler (here Clang) can generate initialization for every stack
-variable, and leave the optimizer (here LLVM) get rid of the initialization it
-can prove to be redundant.
+variable, and let the optimizer (here LLVM) get rid of the redundant initialization.
+
 
 
 Lowering
@@ -141,7 +141,7 @@ Lowering
 
 When generating assembly code from the LLVM IR, the compiler faces a lot
 choices, one of which being *should I turn a call to ``llvm.memset`` into a
-block of instructions, or into a call to libc's ``memset``?*. for large buffer
+block of instructions, or into a call to libc's ``memset``?*. For large buffer
 it chooses the latter, but were the buffer smaller, a bunch of ``mov`` (or
 ``movaps``, you get the idea) would be generated instead.
 
@@ -182,7 +182,7 @@ section, we get:
     Written Variables: <unknown> (2048 bytes). [-Rpass-missed=annotation-remarks]
 
 That's pretty nice to spot inserted instructions that end up not being
-optimized, but as one can expect from a codebase as large as Firefox', it
+optimized, but as one can expect from a codebase as large as Firefox's, it
 generates too much information.
 
 Fortunately we can combine this with profile information, through
@@ -224,7 +224,7 @@ SmallVector and Friends
 
 It is a common optimization to provide data types that preallocates some memory,
 aiming at stack allocation, and switching to heap allocation depending on the
-usage. In the LLVM codebase those are ``SmallVector``, ``SmallString``, ``SmallPtrSet`` etc. Similar data structures can be found in the Firefox codebase in the form of ``nsAutoCString`` or ``AutoTArray``. These data types provide an interesting challenge wrt. trivial auto var init: they typically are performance oriented data structure whose buffer is *not* going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:
+usage. In the LLVM codebase those are ``SmallVector``, ``SmallString``, ``SmallPtrSet`` etc. Similar performance-oriented data structures can be found in the Firefox codebase in the form of ``nsAutoCString`` or ``AutoTArray``. These data types provide an interesting challenge wrt. trivial auto var init: they typically are performance oriented data structure whose buffer is *not* going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:
 
 .. code-block:: c++
 
@@ -238,7 +238,7 @@ full initialization... And there is no way the compiler could handle that
 statically.
 
 In some cases it is possible to avoid using these data structures (see `Bug
-1850948 <https://phabricator.services.mozilla.com/D187198>`_)
+1850948 <https://bugzilla.mozilla.org/show_bug.cgi?id=1850948>`_)
 
 
 Initialization within a Loop
@@ -263,7 +263,7 @@ reads info from ``/proc/self/maps``:
    }
 
 ``-ftrivial-auto-var-init`` has the (expected!) effect of adding a ``memset`` inside
-the loop, to initialize ``modulePath``. The allocation itself is going to be move
+the loop, to initialize ``modulePath``. The allocation itself is going to be moved
 in the function prologue, but not the initialisation. This turns a
 $\mathcal{O}(1)$ instruction into a $\mathcal{O}(n \times m)$ one, where $n$ is
 the size of the buffer and $m$ is the number of loop iteration. Not ideal.
@@ -286,14 +286,14 @@ The trivial (but manual) fix here is to rewrite the code as follow:
 This is not strictly equivalent though: if the loop is never entered, we still
 pay for one initialisation, and the $k^\text{th}$ iteration can *see* the
 content of previous iteration's buffer. We applied a similar patch for `Bug
-1850951 <https://phabricator.services.mozilla.com/D187201>`_
+1850951 <https://bugzilla.mozilla.org/show_bug.cgi?id=1850951>`_
 
 
 Empty Class
 -----------
 
 Every object that may have its address taken must have a size of at least one
-byte. Even if it doesn't have any member. That would be the case of the
+byte. Even if it doesn't have any members. That would be the case of the
 following class:
 
 .. code-block:: c++
@@ -362,7 +362,8 @@ gets compiled into the expected:
       %2 = tail call i32 @puts(ptr noundef nonnull dereferenceable(1) @.str.1)
       ret void
 
-This approach has been used in `Bug 1844520 <https://phabricator.services.mozilla.com/D184083>`_.
+This approach has been used in `Bug 1844520
+<https://bugzilla.mozilla.org/show_bug.cgi?id=1844520>`_.
 
 Manual Check
 ------------
@@ -373,7 +374,7 @@ which has the effect of preventing any extra initialization code to be inserted
 by ``-ftrivial-auto-var-init``. I was very hopeful with that approach, as I
 was expecting this attribute to significantly decrease the impact of auto-initialization on performance.
 Unfortunately the opposite happened:
-almost not speed improvement. This tells us that the performance impact is not
+almost no speed improvement. This tells us that the performance impact is not
 due to a few hotspot but spread across the whole codebase. So the whole idea of
 handling every situation one after the other is unlikely to be enough! How
 depressing.
@@ -384,7 +385,7 @@ Value Semantic
 --------------
 
 Maybe as an inheritance of C, maybe as an inheritance of C++98, we often see
-interface that use pass-by-reference as a way to return extra values. For
+interfaces that use pass-by-reference as a way to return extra values. For
 instance in the following code ``doStuff`` returns ``false`` in case of error,
 and ``true`` and sets ``result`` in case of success.
 
@@ -434,11 +435,11 @@ Concluding Words
 ----------------
 
 Firefox is probably not going to move to ``-ftrivial-auto-var-init`` anytime
-soon. How disapointing.
+soon. How disappointing.
 
 But let's be positive! In the process of trying to decrease the performance impact
 of ``-ftrivial-auto-var-init`` on Firefox codebase, I grabbed a better understanding
-of the original problem and how clang appraoches it. I also came up with a methodology
+of the original problem and how clang approaches it. I also came up with a methodology
 to track the performance impact and iteratively improve the situation. And I
 shared that knowledge with you, and there is value in it, isn't there?
 
@@ -446,5 +447,5 @@ shared that knowledge with you, and there is value in it, isn't there?
 Acknowledgments
 ***************
 
-The author would like to thank Frederik Braun for the proofreading of this post
+The author would like to thank Frederik Braun and Tom Ritter for the proofreading of this post
 and the fruitful discussion we've been having on that topic.
