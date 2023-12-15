@@ -7,13 +7,13 @@ Trivial Auto Var Init Experiments
 :authors: serge-sans-paille
 :summary: exploring the impact of ``-ftrivial-auto-var-init`` on Firefox codebase
 
-``-ftrivial-auto-var-init=[pattern|zero|uninitialized]`` is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is ``uninitialized``: no initialization is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a $\mathcal{O}(1)$ operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.
+``-ftrivial-auto-var-init=[pattern|zero|uninitialized]`` is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is ``uninitialized``: no initialization is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a :math:`\mathcal{O}(1)` operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.
 
 As a countermeasure, the modes ``pattern`` and ``zero`` have been introduced.
 The former sets stack slots to hard-coded patterns, depending on the type
 (integral, floating point, pointer…) of the associated stack-allocated
 variables, the latter justs sets the stack to zero. Both operation make stack
-allocation a  $\mathcal{O}(n)$ operation. The idea between the two modes is that
+allocation a  :math:`\mathcal{O}(n)` operation. The idea between the two modes is that
 setting stack slots to zero is faster, but setting them to a pattern is more
 likely to exhibit failing behavior.
 
@@ -140,8 +140,8 @@ Lowering
 --------
 
 When generating assembly code from the LLVM IR, the compiler faces a lot
-choices, one of which being *should I turn a call to ``llvm.memset`` into a
-block of instructions, or into a call to libc's ``memset``?*. For large buffer
+choices, one of which being «should I turn a call to ``llvm.memset`` into a
+block of instructions, or into a call to libc's ``memset``?». For large buffer
 it chooses the latter, but were the buffer smaller, a bunch of ``mov`` (or
 ``movaps``, you get the idea) would be generated instead.
 
@@ -156,14 +156,34 @@ an impact on runtime performance. In here, we will focus on the impact on
 shippable Firefox Linux when running the `Speedometer3 benchmark
 <https://github.com/WebKit/Speedometer>`_.
 
-Following table summarizes the result we get with the three setups:
+Following table summarizes the result we get with the three setups, on three
+different desktop targets (actual details are available
+`for the pattern setting <https://treeherder.mozilla.org/perfherder/compare?originalProject=try&originalRevision=72364426229394f8b7818f4e690af89c7004989e&newProject=try&newRevision=7c8edf2bf86ee0df8fa7107dd937d5de5f0f823b&page=1&framework=13>`_
+and
+`for the zero setting <https://treeherder.mozilla.org/perfherder/compare?originalProject=try&originalRevision=72364426229394f8b7818f4e690af89c7004989e&newProject=try&newRevision=73a082680aeccbe3f7d5bf7a12c62f522e794254&page=1&framework=13>`_.
 
-default | pattern | zero
-------------------------
- X      |  Y      | Z
+.. list-table:: Speedometer3 results dependeing on `-ftrivial-auto-var-init`   setting
+    :header-rows: 1
+
+    * - platform
+      - default
+      - pattern
+      - zero
+    * - linux64
+      - 8.97
+      - 8.82
+      - 8.87
+    * - osx10-64
+      - 12.05
+      - 11.95
+      - 12.01
+    * - win10-64
+      - 12.64
+      - 12.46
+      - 12.47
 
 
-A xx% regression on performance is not a trade off we are ready to make anytime
+A 1% regression on performance is not a trade off we are ready to make anytime
 soon. Can we do better?
 
 Spotting the culprit
@@ -265,8 +285,8 @@ reads info from ``/proc/self/maps``:
 ``-ftrivial-auto-var-init`` has the (expected!) effect of adding a ``memset`` inside
 the loop, to initialize ``modulePath``. The allocation itself is going to be moved
 in the function prologue, but not the initialisation. This turns a
-$\mathcal{O}(1)$ instruction into a $\mathcal{O}(n \times m)$ one, where $n$ is
-the size of the buffer and $m$ is the number of loop iteration. Not ideal.
+:math:`\mathcal{O}(1)` instruction into a :math:`\mathcal{O}(n \times m)` one, where :math:`n` is
+the size of the buffer and :math:`m` is the number of loop iteration. Not ideal.
 
 The trivial (but manual) fix here is to rewrite the code as follow:
 
@@ -284,7 +304,7 @@ The trivial (but manual) fix here is to rewrite the code as follow:
    }
 
 This is not strictly equivalent though: if the loop is never entered, we still
-pay for one initialisation, and the $k^\text{th}$ iteration can *see* the
+pay for one initialisation, and the :math:`k^\text{th}` iteration can *see* the
 content of previous iteration's buffer. We applied a similar patch for `Bug
 1850951 <https://bugzilla.mozilla.org/show_bug.cgi?id=1850951>`_
 
