@@ -219,8 +219,8 @@ Recurring Nightmare
 
 *Bonus point if you get the reference to the MTG emblematic card.*
 
-SmallXYZ container
-------------------
+SmallVector and Friends
+-----------------------
 
 It is a common optimization to provide data types that preallocates some memory,
 aiming at stack allocation, and switching to heap allocation depending on the
@@ -370,11 +370,11 @@ Manual Check
 At some point in the process, I decided to flag the top 100 variables reported
 as initialized and hot with the attribute ``__attribute__((uninitialized))``,
 which has the effect of preventing any extra initialization code to be inserted
-by ``-ftrivial-auto-var-init``. I had great hope for that approach, has I
-expected it to significantly decrease the impact of the flag on performance,
-giving me a goal, a promise of success. Unfortunately the opposite happened:
-almost not speed improvement, which basically mean the performance impact is not
-due to a few hotspot but to a whole codebase effect. So the whole idea of
+by ``-ftrivial-auto-var-init``. I was very hopeful with that approach, as I
+was expecting this attribute to significantly decrease the impact of auto-initialization on performance.
+Unfortunately the opposite happened:
+almost not speed improvement. This tells us that the performance impact is not
+due to a few hotspot but spread across the whole codebase. So the whole idea of
 handling every situation one after the other is unlikely to be enough! How
 depressing.
 
@@ -405,7 +405,7 @@ and control-flow, something compilers are not always very good at.
 I've asked myself how we could *inform* the compiler about this behavior. It
 turns out LLVM does have attribute to specify interaction of parameters wrt.
 memory, through ``memory(...)``. For instance, according to the `language
-reference <https://llvm.org/docs/LangRef.html>`_ one ca use ``memory(argmem:
+reference <https://llvm.org/docs/LangRef.html>`_ one can use ``memory(argmem:
 read, inaccessiblemem: write)`` to specify that
 
     May only read argument memory and only write inaccessible memory.
@@ -423,9 +423,28 @@ This is, however, quite close to the situation we had with data structures that
 preallocate memory: no normal usage of the data structure should lead to an
 access of the uninitialized memory, and those data structures are critical
 enough to trade security for performance. What about flagging them with a
-specific attribute that would by-pass the trivial initialization mechanism? I
+specific attribute that would bypass the trivial initialization mechanism? I
 actually `submitted a patch <https://reviews.llvm.org/D156337>`_ to implement
 that, only to realize that the right approach would be to allow setting the
 attribute on class members, which turns out to be trickier than expected. But if
 we could do this, we would impact the whole codebase by only adding a few
-attributes. Coming soon?
+attributes, which is much more rewarding than mechanically tracking hotspots.
+
+Concluding Words
+----------------
+
+Firefox is probably not going to move to ``-ftrivial-auto-var-init`` anytime
+soon. How disapointing.
+
+But let's be positive! In the process of trying to decrease the performance impact
+of ``-ftrivial-auto-var-init`` on Firefox codebase, I grabbed a better understanding
+of the original problem and how clang appraoches it. I also came up with a methodology
+to track the performance impact and iteratively improve the situation. And I
+shared that knowledge with you, and there is value in it, isn't there?
+
+
+Acknowledgments
+***************
+
+The author would like to thank Frederik Braun for the proofreading of this post
+and the fruitful discussion we've been having on that topic.
