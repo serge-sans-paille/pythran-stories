@@ -454,8 +454,9 @@ attributes, which is much more rewarding than mechanically tracking hotspots.
 Concluding Words
 ----------------
 
-Firefox is probably not going to move to ``-ftrivial-auto-var-init`` anytime
-soon. How disappointing.
+So in the end, tehre was no straight-forward fix to prevent the performance
+regression caused by ``-ftrivial-auto-var-init``, and Firefox is probably not
+going to move there anytime soon. How disappointing?
 
 But let's be positive! In the process of trying to decrease the performance impact
 of ``-ftrivial-auto-var-init`` on Firefox codebase, I grabbed a better understanding
@@ -467,5 +468,6 @@ shared that knowledge with you, and there is value in it, isn't there?
 Acknowledgments
 ***************
 
-The author would like to thank Frederik Braun and Tom Ritter for the proofreading of this post
-and the fruitful discussion we've been having on that topic.
+The author would like to thank Frederik Braun, Tom Ritter and Sylvestre Ledru
+for the proofreading of this post and the fruitful discussion we've been having
+on that topic.
