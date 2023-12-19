@@ -7,7 +7,7 @@ Trivial Auto Var Init Experiments
 :authors: serge-sans-paille
 :summary: exploring the impact of ``-ftrivial-auto-var-init`` on Firefox codebase
 
-``-ftrivial-auto-var-init=[pattern|zero|uninitialized]`` is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is ``uninitialized``: no initialization is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a :math:`\mathcal{O}(1)` operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.
+``-ftrivial-auto-var-init=[pattern|zero|uninitialized]`` is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is ``uninitialized``: no initialisation is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a :math:`\mathcal{O}(1)` operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.
 
 As a countermeasure, the modes ``pattern`` and ``zero`` have been introduced.
 The former sets stack slots to hard-coded patterns, depending on the type
@@ -84,7 +84,7 @@ An important point is that on that particular code,
 ``-ftrivial-auto-var-init=zero/default`` doesn't have any other impact on the
 code. In particular no memory read or write is being instrumented.
 
-On the opposite, using ``-fsanitize=memory`` leads to the following function
+By contrast, using ``-fsanitize=memory`` leads to the following function
 prologue, that contains both a ``memset`` of the whole buffer and the *xoring* of
 every loaded address with 87960930222080 (actually ``0x500000000000``). So it's
 strictly slower, especially as it impacts elements of the inner loop (whenever
@@ -131,15 +131,15 @@ function prologue
 
 The ``store`` is being optimized out by the compiler (thanks to a following
 ``write``) to save the result of ``fread``. That's great news! It means that the
-front-end compiler (here Clang) can generate initialization for every stack
-variable, and let the optimizer (here LLVM) get rid of the redundant initialization.
+front-end compiler (here Clang) can generate initialisation for every stack
+variable, and let the optimizer (here LLVM) get rid of the redundant initialisation.
 
 
 
 Lowering
 --------
 
-When generating assembly code from the LLVM IR, the compiler faces a lot
+When generating assembly code from the LLVM IR, the compiler faces a lot of
 choices, one of which being «should I turn a call to ``llvm.memset`` into a
 block of instructions, or into a call to libc's ``memset``?». For large buffer
 it chooses the latter, but were the buffer smaller, a bunch of ``mov`` (or
@@ -150,7 +150,7 @@ it chooses the latter, but were the buffer smaller, a bunch of ``mov`` (or
 Evaluating Using ``-ftrivial-auto-var-init=xxxx`` on Firefox
 ============================================================
 
-As a security-improving flag, ``-ftrivial-auto-var-init=xxxx`` has been
+As a security-hardening flag, ``-ftrivial-auto-var-init=xxxx`` has been
 considered as a default flag to build Firefox. But as noted above, it (may) have
 an impact on runtime performance. In here, we will focus on the impact on
 shippable Firefox Linux when running the `Speedometer3 benchmark
@@ -244,7 +244,7 @@ SmallVector and Friends
 
 It is a common optimization to provide data types that preallocates some memory,
 aiming at stack allocation, and switching to heap allocation depending on the
-usage. In the LLVM codebase those are ``SmallVector``, ``SmallString``, ``SmallPtrSet`` etc. Similar performance-oriented data structures can be found in the Firefox codebase in the form of ``nsAutoCString`` or ``AutoTArray``. These data types provide an interesting challenge wrt. trivial auto var init: they typically are performance oriented data structure whose buffer is *not* going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:
+usage. In the LLVM codebase those are ``SmallVector``, ``SmallString``, ``SmallPtrSet`` etc. Similar performance-oriented data structures can be found in the Firefox codebase in the form of ``nsAutoCString`` or ``AutoTArray``. These data types provide an interesting challenge *wrt.* trivial auto var init: they typically are performance oriented data structure whose buffer is *not* going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:
 
 .. code-block:: c++
 
@@ -390,9 +390,9 @@ Manual Check
 
 At some point in the process, I decided to flag the top 100 variables reported
 as initialized and hot with the attribute ``__attribute__((uninitialized))``,
-which has the effect of preventing any extra initialization code to be inserted
+which has the effect of preventing any extra initialisation code to be inserted
 by ``-ftrivial-auto-var-init``. I was very hopeful with that approach, as I
-was expecting this attribute to significantly decrease the impact of auto-initialization on performance.
+was expecting this attribute to significantly decrease the impact of auto-initialisation on performance.
 Unfortunately the opposite happened:
 almost no speed improvement. This tells us that the performance impact is not
 due to a few hotspot but spread across the whole codebase. So the whole idea of
@@ -424,7 +424,7 @@ initialized with ``doStuff``. And doing so would mean being able to couple value
 and control-flow, something compilers are not always very good at.
 
 I've asked myself how we could *inform* the compiler about this behavior. It
-turns out LLVM does have attribute to specify interaction of parameters wrt.
+turns out LLVM does have attribute to specify interaction of parameters *wrt.*
 memory, through ``memory(...)``. For instance, according to the `language
 reference <https://llvm.org/docs/LangRef.html>`_ one can use ``memory(argmem:
 read, inaccessiblemem: write)`` to specify that
@@ -444,7 +444,7 @@ This is, however, quite close to the situation we had with data structures that
 preallocate memory: no normal usage of the data structure should lead to an
 access of the uninitialized memory, and those data structures are critical
 enough to trade security for performance. What about flagging them with a
-specific attribute that would bypass the trivial initialization mechanism? I
+specific attribute that would bypass the trivial initialisation mechanism? I
 actually `submitted a patch <https://reviews.llvm.org/D156337>`_ to implement
 that, only to realize that the right approach would be to allow setting the
 attribute on class members, which turns out to be trickier than expected. But if
@@ -468,6 +468,6 @@ shared that knowledge with you, and there is value in it, isn't there?
 Acknowledgments
 ***************
 
-The author would like to thank `Frederik Braun <https://frederik-braun.com>`_ , Tom Ritter and Sylvestre Ledru
+The author would like to thank `Frederik Braun <https://frederik-braun.com>`_ , Tom Ritter, Sylvestre Ledru and Tyson Smith
 for the proofreading of this post and the fruitful discussion we've been having
 on that topic.
