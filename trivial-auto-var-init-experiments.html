@@ -76,7 +76,7 @@ feeds/all.atom.xml"
                 </li>
             </ul>
         </aside>
-        <p><tt class="docutils literal"><span class="pre">-ftrivial-auto-var-init=[pattern|zero|uninitialized]</span></tt> is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is <tt class="docutils literal">uninitialized</tt>: no initialization is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a <span class="formula"><span class="scriptfont">O</span>(1)</span> operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.</p>
+        <p><tt class="docutils literal"><span class="pre">-ftrivial-auto-var-init=[pattern|zero|uninitialized]</span></tt> is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is <tt class="docutils literal">uninitialized</tt>: no initialisation is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a <span class="formula"><span class="scriptfont">O</span>(1)</span> operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.</p>
 <p>As a countermeasure, the modes <tt class="docutils literal">pattern</tt> and <tt class="docutils literal">zero</tt> have been introduced.
 The former sets stack slots to hard-coded patterns, depending on the type
 (integral, floating point, pointer…) of the associated stack-allocated
@@ -130,7 +130,7 @@ of it, even if the subsequent <tt class="docutils literal">fwrite</tt> will neve
 <p>An important point is that on that particular code,
 <tt class="docutils literal"><span class="pre">-ftrivial-auto-var-init=zero/default</span></tt> doesn't have any other impact on the
 code. In particular no memory read or write is being instrumented.</p>
-<p>On the opposite, using <tt class="docutils literal"><span class="pre">-fsanitize=memory</span></tt> leads to the following function
+<p>By contrast, using <tt class="docutils literal"><span class="pre">-fsanitize=memory</span></tt> leads to the following function
 prologue, that contains both a <tt class="docutils literal">memset</tt> of the whole buffer and the <em>xoring</em> of
 every loaded address with 87960930222080 (actually <tt class="docutils literal">0x500000000000</tt>). So it's
 strictly slower, especially as it impacts elements of the inner loop (whenever
@@ -169,12 +169,12 @@ function prologue</p>
 </pre></div>
 <p>The <tt class="docutils literal">store</tt> is being optimized out by the compiler (thanks to a following
 <tt class="docutils literal">write</tt>) to save the result of <tt class="docutils literal">fread</tt>. That's great news! It means that the
-front-end compiler (here Clang) can generate initialization for every stack
-variable, and let the optimizer (here LLVM) get rid of the redundant initialization.</p>
+front-end compiler (here Clang) can generate initialisation for every stack
+variable, and let the optimizer (here LLVM) get rid of the redundant initialisation.</p>
 </div>
 <div class="section" id="lowering">
 <h3>Lowering</h3>
-<p>When generating assembly code from the LLVM IR, the compiler faces a lot
+<p>When generating assembly code from the LLVM IR, the compiler faces a lot of
 choices, one of which being «should I turn a call to <tt class="docutils literal">llvm.memset</tt> into a
 block of instructions, or into a call to libc's <tt class="docutils literal">memset</tt>?». For large buffer
 it chooses the latter, but were the buffer smaller, a bunch of <tt class="docutils literal">mov</tt> (or
@@ -183,7 +183,7 @@ it chooses the latter, but were the buffer smaller, a bunch of <tt class="docuti
 </div>
 <div class="section" id="evaluating-using-ftrivial-auto-var-init-xxxx-on-firefox">
 <h2>Evaluating Using <tt class="docutils literal"><span class="pre">-ftrivial-auto-var-init=xxxx</span></tt> on Firefox</h2>
-<p>As a security-improving flag, <tt class="docutils literal"><span class="pre">-ftrivial-auto-var-init=xxxx</span></tt> has been
+<p>As a security-hardening flag, <tt class="docutils literal"><span class="pre">-ftrivial-auto-var-init=xxxx</span></tt> has been
 considered as a default flag to build Firefox. But as noted above, it (may) have
 an impact on runtime performance. In here, we will focus on the impact on
 shippable Firefox Linux when running the <a class="reference external" href="https://github.com/WebKit/Speedometer">Speedometer3 benchmark</a>.</p>
@@ -273,7 +273,7 @@ going to cover in the following section.</p>
 <h3>SmallVector and Friends</h3>
 <p>It is a common optimization to provide data types that preallocates some memory,
 aiming at stack allocation, and switching to heap allocation depending on the
-usage. In the LLVM codebase those are <tt class="docutils literal">SmallVector</tt>, <tt class="docutils literal">SmallString</tt>, <tt class="docutils literal">SmallPtrSet</tt> etc. Similar performance-oriented data structures can be found in the Firefox codebase in the form of <tt class="docutils literal">nsAutoCString</tt> or <tt class="docutils literal">AutoTArray</tt>. These data types provide an interesting challenge wrt. trivial auto var init: they typically are performance oriented data structure whose buffer is <em>not</em> going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:</p>
+usage. In the LLVM codebase those are <tt class="docutils literal">SmallVector</tt>, <tt class="docutils literal">SmallString</tt>, <tt class="docutils literal">SmallPtrSet</tt> etc. Similar performance-oriented data structures can be found in the Firefox codebase in the form of <tt class="docutils literal">nsAutoCString</tt> or <tt class="docutils literal">AutoTArray</tt>. These data types provide an interesting challenge <em>wrt.</em> trivial auto var init: they typically are performance oriented data structure whose buffer is <em>not</em> going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:</p>
 <div class="highlight"><pre><span></span><span class="c1">// copy a C string into a nsAutoCStringN</span>
 <span class="n">nsAutoCStringN</span><span class="o">&lt;</span><span class="mi">128</span><span class="o">&gt;</span><span class="w"> </span><span class="n">line</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
 </pre></div>
@@ -390,9 +390,9 @@ the compiler from the above snippet after <tt class="docutils literal">clang++ <
 <h3>Manual Check</h3>
 <p>At some point in the process, I decided to flag the top 100 variables reported
 as initialized and hot with the attribute <tt class="docutils literal"><span class="pre">__attribute__((uninitialized))</span></tt>,
-which has the effect of preventing any extra initialization code to be inserted
+which has the effect of preventing any extra initialisation code to be inserted
 by <tt class="docutils literal"><span class="pre">-ftrivial-auto-var-init</span></tt>. I was very hopeful with that approach, as I
-was expecting this attribute to significantly decrease the impact of auto-initialization on performance.
+was expecting this attribute to significantly decrease the impact of auto-initialisation on performance.
 Unfortunately the opposite happened:
 almost no speed improvement. This tells us that the performance impact is not
 due to a few hotspot but spread across the whole codebase. So the whole idea of
@@ -418,7 +418,7 @@ and <tt class="docutils literal">true</tt> and sets <tt class="docutils literal"
 initialized with <tt class="docutils literal">doStuff</tt>. And doing so would mean being able to couple value
 and control-flow, something compilers are not always very good at.</p>
 <p>I've asked myself how we could <em>inform</em> the compiler about this behavior. It
-turns out LLVM does have attribute to specify interaction of parameters wrt.
+turns out LLVM does have attribute to specify interaction of parameters <em>wrt.</em>
 memory, through <tt class="docutils literal"><span class="pre">memory(...)</span></tt>. For instance, according to the <a class="reference external" href="https://llvm.org/docs/LangRef.html">language
 reference</a> one can use <tt class="docutils literal">memory(argmem:
 read, inaccessiblemem: write)</tt> to specify that</p>
@@ -435,7 +435,7 @@ moving the problem.</p>
 preallocate memory: no normal usage of the data structure should lead to an
 access of the uninitialized memory, and those data structures are critical
 enough to trade security for performance. What about flagging them with a
-specific attribute that would bypass the trivial initialization mechanism? I
+specific attribute that would bypass the trivial initialisation mechanism? I
 actually <a class="reference external" href="https://reviews.llvm.org/D156337">submitted a patch</a> to implement
 that, only to realize that the right approach would be to allow setting the
 attribute on class members, which turns out to be trickier than expected. But if
@@ -454,7 +454,7 @@ to track the performance impact and iteratively improve the situation. And I
 shared that knowledge with you, and there is value in it, isn't there?</p>
 <div class="section" id="acknowledgments">
 <h4>Acknowledgments</h4>
-<p>The author would like to thank <a class="reference external" href="https://frederik-braun.com">Frederik Braun</a> , Tom Ritter and Sylvestre Ledru
+<p>The author would like to thank <a class="reference external" href="https://frederik-braun.com">Frederik Braun</a> , Tom Ritter, Sylvestre Ledru and Tyson Smith
 for the proofreading of this post and the fruitful discussion we've been having
 on that topic.</p>
 </div>

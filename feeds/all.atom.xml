@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/all.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2023-12-19T00:00:00+01:00</updated><entry><title>Trivial Auto Var Init Experiments</title><link href="http://serge-sans-paille.github.io/pythran-stories/trivial-auto-var-init-experiments.html" rel="alternate"></link><published>2023-12-19T00:00:00+01:00</published><updated>2023-12-19T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2023-12-19:/pythran-stories/trivial-auto-var-init-experiments.html</id><summary type="html">&lt;p class="first last"&gt;exploring the impact of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init&lt;/span&gt;&lt;/tt&gt; on Firefox codebase&lt;/p&gt;
-</summary><content type="html">&lt;p&gt;&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init=[pattern|zero|uninitialized]&lt;/span&gt;&lt;/tt&gt; is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is &lt;tt class="docutils literal"&gt;uninitialized&lt;/tt&gt;: no initialization is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a &lt;span class="formula"&gt;&lt;span class="scriptfont"&gt;O&lt;/span&gt;(1)&lt;/span&gt; operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init=[pattern|zero|uninitialized]&lt;/span&gt;&lt;/tt&gt; is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is &lt;tt class="docutils literal"&gt;uninitialized&lt;/tt&gt;: no initialisation is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a &lt;span class="formula"&gt;&lt;span class="scriptfont"&gt;O&lt;/span&gt;(1)&lt;/span&gt; operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.&lt;/p&gt;
 &lt;p&gt;As a countermeasure, the modes &lt;tt class="docutils literal"&gt;pattern&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;zero&lt;/tt&gt; have been introduced.
 The former sets stack slots to hard-coded patterns, depending on the type
 (integral, floating point, pointer…) of the associated stack-allocated
@@ -54,7 +54,7 @@ of it, even if the subsequent &lt;tt class="docutils literal"&gt;fwrite&lt;/tt&g
 &lt;p&gt;An important point is that on that particular code,
 &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init=zero/default&lt;/span&gt;&lt;/tt&gt; doesn't have any other impact on the
 code. In particular no memory read or write is being instrumented.&lt;/p&gt;
-&lt;p&gt;On the opposite, using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fsanitize=memory&lt;/span&gt;&lt;/tt&gt; leads to the following function
+&lt;p&gt;By contrast, using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fsanitize=memory&lt;/span&gt;&lt;/tt&gt; leads to the following function
 prologue, that contains both a &lt;tt class="docutils literal"&gt;memset&lt;/tt&gt; of the whole buffer and the &lt;em&gt;xoring&lt;/em&gt; of
 every loaded address with 87960930222080 (actually &lt;tt class="docutils literal"&gt;0x500000000000&lt;/tt&gt;). So it's
 strictly slower, especially as it impacts elements of the inner loop (whenever
@@ -93,12 +93,12 @@ function prologue&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The &lt;tt class="docutils literal"&gt;store&lt;/tt&gt; is being optimized out by the compiler (thanks to a following
 &lt;tt class="docutils literal"&gt;write&lt;/tt&gt;) to save the result of &lt;tt class="docutils literal"&gt;fread&lt;/tt&gt;. That's great news! It means that the
-front-end compiler (here Clang) can generate initialization for every stack
-variable, and let the optimizer (here LLVM) get rid of the redundant initialization.&lt;/p&gt;
+front-end compiler (here Clang) can generate initialisation for every stack
+variable, and let the optimizer (here LLVM) get rid of the redundant initialisation.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="lowering"&gt;
 &lt;h3&gt;Lowering&lt;/h3&gt;
-&lt;p&gt;When generating assembly code from the LLVM IR, the compiler faces a lot
+&lt;p&gt;When generating assembly code from the LLVM IR, the compiler faces a lot of
 choices, one of which being «should I turn a call to &lt;tt class="docutils literal"&gt;llvm.memset&lt;/tt&gt; into a
 block of instructions, or into a call to libc's &lt;tt class="docutils literal"&gt;memset&lt;/tt&gt;?». For large buffer
 it chooses the latter, but were the buffer smaller, a bunch of &lt;tt class="docutils literal"&gt;mov&lt;/tt&gt; (or
@@ -107,7 +107,7 @@ it chooses the latter, but were the buffer smaller, a bunch of &lt;tt class="doc
 &lt;/div&gt;
 &lt;div class="section" id="evaluating-using-ftrivial-auto-var-init-xxxx-on-firefox"&gt;
 &lt;h2&gt;Evaluating Using &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init=xxxx&lt;/span&gt;&lt;/tt&gt; on Firefox&lt;/h2&gt;
-&lt;p&gt;As a security-improving flag, &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init=xxxx&lt;/span&gt;&lt;/tt&gt; has been
+&lt;p&gt;As a security-hardening flag, &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init=xxxx&lt;/span&gt;&lt;/tt&gt; has been
 considered as a default flag to build Firefox. But as noted above, it (may) have
 an impact on runtime performance. In here, we will focus on the impact on
 shippable Firefox Linux when running the &lt;a class="reference external" href="https://github.com/WebKit/Speedometer"&gt;Speedometer3 benchmark&lt;/a&gt;.&lt;/p&gt;
@@ -197,7 +197,7 @@ going to cover in the following section.&lt;/p&gt;
 &lt;h3&gt;SmallVector and Friends&lt;/h3&gt;
 &lt;p&gt;It is a common optimization to provide data types that preallocates some memory,
 aiming at stack allocation, and switching to heap allocation depending on the
-usage. In the LLVM codebase those are &lt;tt class="docutils literal"&gt;SmallVector&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;SmallString&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;SmallPtrSet&lt;/tt&gt; etc. Similar performance-oriented data structures can be found in the Firefox codebase in the form of &lt;tt class="docutils literal"&gt;nsAutoCString&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;AutoTArray&lt;/tt&gt;. These data types provide an interesting challenge wrt. trivial auto var init: they typically are performance oriented data structure whose buffer is &lt;em&gt;not&lt;/em&gt; going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:&lt;/p&gt;
+usage. In the LLVM codebase those are &lt;tt class="docutils literal"&gt;SmallVector&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;SmallString&lt;/tt&gt;, &lt;tt class="docutils literal"&gt;SmallPtrSet&lt;/tt&gt; etc. Similar performance-oriented data structures can be found in the Firefox codebase in the form of &lt;tt class="docutils literal"&gt;nsAutoCString&lt;/tt&gt; or &lt;tt class="docutils literal"&gt;AutoTArray&lt;/tt&gt;. These data types provide an interesting challenge &lt;em&gt;wrt.&lt;/em&gt; trivial auto var init: they typically are performance oriented data structure whose buffer is &lt;em&gt;not&lt;/em&gt; going to be used right away. It is very unlikely that the compiler can optimize out the initialization of this buffer! Consider the following:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// copy a C string into a nsAutoCStringN&lt;/span&gt;
 &lt;span class="n"&gt;nsAutoCStringN&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;128&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;buffer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;c_str&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -314,9 +314,9 @@ the compiler from the above snippet after &lt;tt class="docutils literal"&gt;cla
 &lt;h3&gt;Manual Check&lt;/h3&gt;
 &lt;p&gt;At some point in the process, I decided to flag the top 100 variables reported
 as initialized and hot with the attribute &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;__attribute__((uninitialized))&lt;/span&gt;&lt;/tt&gt;,
-which has the effect of preventing any extra initialization code to be inserted
+which has the effect of preventing any extra initialisation code to be inserted
 by &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init&lt;/span&gt;&lt;/tt&gt;. I was very hopeful with that approach, as I
-was expecting this attribute to significantly decrease the impact of auto-initialization on performance.
+was expecting this attribute to significantly decrease the impact of auto-initialisation on performance.
 Unfortunately the opposite happened:
 almost no speed improvement. This tells us that the performance impact is not
 due to a few hotspot but spread across the whole codebase. So the whole idea of
@@ -342,7 +342,7 @@ and &lt;tt class="docutils literal"&gt;true&lt;/tt&gt; and sets &lt;tt class="do
 initialized with &lt;tt class="docutils literal"&gt;doStuff&lt;/tt&gt;. And doing so would mean being able to couple value
 and control-flow, something compilers are not always very good at.&lt;/p&gt;
 &lt;p&gt;I've asked myself how we could &lt;em&gt;inform&lt;/em&gt; the compiler about this behavior. It
-turns out LLVM does have attribute to specify interaction of parameters wrt.
+turns out LLVM does have attribute to specify interaction of parameters &lt;em&gt;wrt.&lt;/em&gt;
 memory, through &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;memory(...)&lt;/span&gt;&lt;/tt&gt;. For instance, according to the &lt;a class="reference external" href="https://llvm.org/docs/LangRef.html"&gt;language
 reference&lt;/a&gt; one can use &lt;tt class="docutils literal"&gt;memory(argmem:
 read, inaccessiblemem: write)&lt;/tt&gt; to specify that&lt;/p&gt;
@@ -359,7 +359,7 @@ moving the problem.&lt;/p&gt;
 preallocate memory: no normal usage of the data structure should lead to an
 access of the uninitialized memory, and those data structures are critical
 enough to trade security for performance. What about flagging them with a
-specific attribute that would bypass the trivial initialization mechanism? I
+specific attribute that would bypass the trivial initialisation mechanism? I
 actually &lt;a class="reference external" href="https://reviews.llvm.org/D156337"&gt;submitted a patch&lt;/a&gt; to implement
 that, only to realize that the right approach would be to allow setting the
 attribute on class members, which turns out to be trickier than expected. But if
@@ -378,7 +378,7 @@ to track the performance impact and iteratively improve the situation. And I
 shared that knowledge with you, and there is value in it, isn't there?&lt;/p&gt;
 &lt;div class="section" id="acknowledgments"&gt;
 &lt;h4&gt;Acknowledgments&lt;/h4&gt;
-&lt;p&gt;The author would like to thank &lt;a class="reference external" href="https://frederik-braun.com"&gt;Frederik Braun&lt;/a&gt; , Tom Ritter and Sylvestre Ledru
+&lt;p&gt;The author would like to thank &lt;a class="reference external" href="https://frederik-braun.com"&gt;Frederik Braun&lt;/a&gt; , Tom Ritter, Sylvestre Ledru and Tyson Smith
 for the proofreading of this post and the fruitful discussion we've been having
 on that topic.&lt;/p&gt;
 &lt;/div&gt;
