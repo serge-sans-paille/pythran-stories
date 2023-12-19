@@ -454,7 +454,7 @@ attributes, which is much more rewarding than mechanically tracking hotspots.
 Concluding Words
 ----------------
 
-So in the end, tehre was no straight-forward fix to prevent the performance
+So in the end, there was no straight-forward fix to prevent the performance
 regression caused by ``-ftrivial-auto-var-init``, and Firefox is probably not
 going to move there anytime soon. How disappointing?
 
@@ -468,6 +468,6 @@ shared that knowledge with you, and there is value in it, isn't there?
 Acknowledgments
 ***************
 
-The author would like to thank Frederik Braun, Tom Ritter and Sylvestre Ledru
+The author would like to thank `Frederik Braun <https://frederik-braun.com>`_ , Tom Ritter and Sylvestre Ledru
 for the proofreading of this post and the fruitful discussion we've been having
 on that topic.
