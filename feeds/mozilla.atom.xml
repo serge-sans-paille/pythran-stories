@@ -368,7 +368,7 @@ attributes, which is much more rewarding than mechanically tracking hotspots.&lt
 &lt;/div&gt;
 &lt;div class="section" id="concluding-words"&gt;
 &lt;h3&gt;Concluding Words&lt;/h3&gt;
-&lt;p&gt;So in the end, tehre was no straight-forward fix to prevent the performance
+&lt;p&gt;So in the end, there was no straight-forward fix to prevent the performance
 regression caused by &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init&lt;/span&gt;&lt;/tt&gt;, and Firefox is probably not
 going to move there anytime soon. How disappointing?&lt;/p&gt;
 &lt;p&gt;But let's be positive! In the process of trying to decrease the performance impact
@@ -378,7 +378,7 @@ to track the performance impact and iteratively improve the situation. And I
 shared that knowledge with you, and there is value in it, isn't there?&lt;/p&gt;
 &lt;div class="section" id="acknowledgments"&gt;
 &lt;h4&gt;Acknowledgments&lt;/h4&gt;
-&lt;p&gt;The author would like to thank Frederik Braun, Tom Ritter and Sylvestre Ledru
+&lt;p&gt;The author would like to thank &lt;a class="reference external" href="https://frederik-braun.com"&gt;Frederik Braun&lt;/a&gt; , Tom Ritter and Sylvestre Ledru
 for the proofreading of this post and the fruitful discussion we've been having
 on that topic.&lt;/p&gt;
 &lt;/div&gt;
