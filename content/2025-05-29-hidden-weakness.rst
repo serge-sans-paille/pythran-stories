@@ -10,7 +10,7 @@ A Hidden Weakness
 This is the story of a bug hunt that lasted much longer than expected, but ended
 with the dearest of all treasures: *knowledge*.
 
-Let's draw some context: the Android platform defines different API level.
+Let's draw some context: the Android platform defines different API levels.
 Unsurprisingly, some symbols are only defined starting with a given API version.
 For instance, ``ASystemFontIterator_open`` is only available starting at API 29.
 
