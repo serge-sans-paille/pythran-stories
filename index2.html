@@ -52,6 +52,7 @@ feeds/all.atom.xml"
         <ul>
                     <li><a href="./category/benchmark.html"> benchmark </a></li>
                     <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/cython.html"> cython </a></li>
                     <li><a href="./category/engineering.html"> engineering </a></li>
                     <li><a href="./category/examples.html"> examples </a></li>
                     <li><a href="./category/mozilla.html"> mozilla </a></li>
@@ -62,6 +63,23 @@ feeds/all.atom.xml"
     <main>
         <section id="home">
             <ul>
+                    <li>
+                        <h1><a href="./gast-beniget-use-def-chains-for-python-programs.html" rel="bookmark"
+                               title="Permalink to Gast, Beniget! Use-Def chains for Python Programs">Gast, Beniget! Use-Def chains for Python Programs</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2019-03-18 00:00:00+01:00">Mar 18, 2019</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p class="first last">Many tools manipulate the Python AST to analyse or transform it.
+Let's propose a collection of analyse those tools can leverage on: <strong>beniget</strong>.</p>
+
+                            <a href="./gast-beniget-use-def-chains-for-python-programs.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
                     <li>
                         <h1><a href="./source-to-source-transformation-of-a-python-kernel.html" rel="bookmark"
                                title="Permalink to Source-to-source transformation of a Python kernel">Source-to-source transformation of a Python kernel</a></h1>
@@ -112,6 +130,25 @@ This post showcases some recent transformation on a high-level code.</p>
                         </p>
                     </li>
                     <li>
+                        <h1><a href="./getting-the-best-of-every-world-cython-and-pythran-working-together.html" rel="bookmark"
+                               title="Permalink to Getting the best of every world: Cython and Pythran working together">Getting the best of every world: Cython and Pythran working together</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2018-11-25 00:00:00+01:00">Nov 25, 2018</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p>Once upon a time, on IRC, Serge Guelton asked me whether I wanted to work on
+having Cython using Pythran for Numpy-related computation. I wasn't really sure
+what I was getting into, but I've always liked optimizing software, and that
+sounded like an interesting challenge to understand both projects.
+As …</p>
+                            <a href="./getting-the-best-of-every-world-cython-and-pythran-working-together.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
                         <h1><a href="./bye-bye-boostsimd-welcome-xsimd.html" rel="bookmark"
                                title="Permalink to Bye bye boost.simd, welcome xsimd">Bye bye boost.simd, welcome xsimd</a></h1>
                         <aside>
@@ -149,6 +186,36 @@ a decent way to track these regressions.</p>
                         </p>
                     </li>
                     <li>
+                        <h1><a href="./testing-pythran-on-random-kernels.html" rel="bookmark"
+                               title="Permalink to Testing Pythran on random kernels">Testing Pythran on random kernels</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2018-07-11 00:00:00+02:00">Jul 11, 2018</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p>Stack Overflow is a great place to find new challenging test case for Pythran :-)</p>
+                            <a href="./testing-pythran-on-random-kernels.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
+                        <h1><a href="./an-incursion-into-basic-ml-gradient-descent-compiled-with-pythran.html" rel="bookmark"
+                               title="Permalink to An incursion into basic ML - Gradient Descent compiled with Pythran">An incursion into basic ML - Gradient Descent compiled with Pythran</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2018-05-16 00:00:00+02:00">May 16, 2018</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p>Or how to compile a basic kernel from the machine learning field with Pythran.</p>
+                            <a href="./an-incursion-into-basic-ml-gradient-descent-compiled-with-pythran.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
                         <h1><a href="./shrinking-pythran-generated-binaries.html" rel="bookmark"
                                title="Permalink to Shrinking Pythran-Generated Binaries">Shrinking Pythran-Generated Binaries</a></h1>
                         <aside>
@@ -162,73 +229,6 @@ a decent way to track these regressions.</p>
                             <p class="first last">Following a <a class="reference external" href="https://mail.python.org/pipermail/scipy-dev/2018-January/022325.html">thread on scipy-dev</a>, I've started to work on reducing the size of Pythran-generated binaries. Here is the outcome of my work.</p>
 
                             <a href="./shrinking-pythran-generated-binaries.html"><em>Read more...</em></a>
-                        </p>
-                    </li>
-                    <li>
-                        <h1><a href="./the-capsule-corporation.html" rel="bookmark"
-                               title="Permalink to the Capsule Corporation">the Capsule Corporation</a></h1>
-                        <aside>
-                            <ul>
-                                <li>
-                                    <time datetime="2017-11-08 00:00:00+01:00">Nov 08, 2017</time>
-                                </li>
-                            </ul>
-                        </aside>
-                        <p>
-                            <p class="first last">Python provides a convenient way to encapsulate a raw pointer in an
-object, to make interaction between native modules easier. SciPy uses that
-mechanism to call native code from some functions, and now Pythran
-can produce them just as well as Dr Brief would!</p>
-
-                            <a href="./the-capsule-corporation.html"><em>Read more...</em></a>
-                        </p>
-                    </li>
-                    <li>
-                        <h1><a href="./toward-a-simpler-and-faster-pythran-compiler.html" rel="bookmark"
-                               title="Permalink to Toward a Simpler and Faster Pythran Compiler">Toward a Simpler and Faster Pythran Compiler</a></h1>
-                        <aside>
-                            <ul>
-                                <li>
-                                    <time datetime="2017-06-30 00:00:00+02:00">Jun 30, 2017</time>
-                                </li>
-                            </ul>
-                        </aside>
-                        <p>
-                            <p class="first last">6 months of tireless efforts to speedup pythran compilation time, and make the code easier to maintain.</p>
-
-                            <a href="./toward-a-simpler-and-faster-pythran-compiler.html"><em>Read more...</em></a>
-                        </p>
-                    </li>
-                    <li>
-                        <h1><a href="./from-pythran-import-typing.html" rel="bookmark"
-                               title="Permalink to from pythran import typing">from pythran import typing</a></h1>
-                        <aside>
-                            <ul>
-                                <li>
-                                    <time datetime="2016-12-10 00:00:00+01:00">Dec 10, 2016</time>
-                                </li>
-                            </ul>
-                        </aside>
-                        <p>
-                            <p class="first last">Pythran recently gained a type checking ability, called <em>tog</em>. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)</p>
-
-                            <a href="./from-pythran-import-typing.html"><em>Read more...</em></a>
-                        </p>
-                    </li>
-                    <li>
-                        <h1><a href="./pythran-075-is-out.html" rel="bookmark"
-                               title="Permalink to Pythran 0.7.5 is out!">Pythran 0.7.5 is out!</a></h1>
-                        <aside>
-                            <ul>
-                                <li>
-                                    <time datetime="2016-06-16 00:00:00+02:00">Jun 16, 2016</time>
-                                </li>
-                            </ul>
-                        </aside>
-                        <p>
-                            <p class="first last">Pythran version bump, new pypi packages and conda release!</p>
-
-                            <a href="./pythran-075-is-out.html"><em>Read more...</em></a>
                         </p>
                     </li>
             </ul>
@@ -246,8 +246,11 @@ can produce them just as well as Dr Brief would!</p>
                 <li class=""><a
                         href="./index3.html">3</a></li>
 
+                <li class=""><a
+                        href="./index4.html">4</a></li>
+
             <li><a href="./index3.html">&raquo;</a></li>
-            <li><a href="./index3.html"><span aria-hidden="true">&raquo;&raquo;</span></a>
+            <li><a href="./index4.html"><span aria-hidden="true">&raquo;&raquo;</span></a>
             </li>
     </ul>
         </section>

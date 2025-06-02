@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Pythran 0.8.3 is out!</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/cython.html"> cython </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a href="./category/mozilla.html"> mozilla </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a                         class="active" href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Pythran 0.8.3 is out!</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2017-10-22 00:00:00+02:00">Oct 22, 2017</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/release.html"><em>release</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p>This blogpost originally was a Jupyter Notebook. You can <a href="notebooks/pythran - 0.8.3.ipynb">download it</a> if you want. The conversion was done using <code>nbconvert</code> and a <a href="notebooks/nbmarkdown.tpl">custom template</a> to match the style of the other part of the blog.</p>
+<h1>Pythran minor version bump</h1>
+<p>So Pythran just got a version bump. The primary goal of this version is to match the upgrade of the <code>networkx</code> dependency. Pythran now requires <code>networkx&gt;=2.0</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pythran</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pythran</span><span class="o">.</span><span class="n">__version__</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>&#39;0.8.3&#39;
+</code></pre></div>
+
+<p>A few extra stuff are bundled in this new version, let's explore them using this notebook.</p>
+<h1>Fix Jupyter magic</h1>
+<p>Pythran comes with a Jupyter magic cell extension, very similar to Cython's, that makes it possible to compile Python code with Pythran within a cell.</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">load_ext</span> <span class="n">pythran</span><span class="o">.</span><span class="n">magic</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export fma(float[:], float[:], float[:]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">fma</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">c</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">100000</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">fma</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="mf">89.7</span><span class="w"> </span><span class="n">µs</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="mf">3.27</span><span class="w"> </span><span class="n">µs</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="n">std</span><span class="mf">.</span><span class="w"> </span><span class="n">dev</span><span class="mf">.</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mf">7</span><span class="w"> </span><span class="kr">run</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mf">10000</span><span class="w"> </span><span class="n">loops</span><span class="w"> </span><span class="n">each</span><span class="p">)</span>
+</code></pre></div>
+
+<p>There was a bug when a cell was recompiled with the same textual content, but a new set of options. This is fixed in this version, as showcased by the following cell that compiles the same code with more aggressive optimization flags, which results in faster (vectorized) code.</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">Ofast</span> <span class="o">-</span><span class="n">DUSE_BOOST_SIMD</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export fma(float[:], float[:], float[:]))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">fma</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">c</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">fma</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="mf">74</span><span class="w"> </span><span class="n">µs</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="mf">288</span><span class="w"> </span><span class="n">ns</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="n">std</span><span class="mf">.</span><span class="w"> </span><span class="n">dev</span><span class="mf">.</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mf">7</span><span class="w"> </span><span class="kr">run</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mf">10000</span><span class="w"> </span><span class="n">loops</span><span class="w"> </span><span class="n">each</span><span class="p">)</span>
+</code></pre></div>
+
+<h1>Support <code>out</code> param for <code>np.sum</code></h1>
+<p>Many <code>numpy</code> operation accept an <code>out</code> parameter, as an alternative output array to place the result of the computation. Pythran now supports this parameter for the <code>numpy.sum</code> and <code>numpy.prod</code> operations. It makes it possible to avoid an extra copy.</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export isum(float[:, :], float[:])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">isum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="o">...</span>     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">...</span>     <span class="n">y</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">y</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">isum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="mf">757</span><span class="w"> </span><span class="n">µs</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="mf">11.5</span><span class="w"> </span><span class="n">µs</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="n">std</span><span class="mf">.</span><span class="w"> </span><span class="n">dev</span><span class="mf">.</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mf">7</span><span class="w"> </span><span class="kr">run</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mf">1000</span><span class="w"> </span><span class="n">loops</span><span class="w"> </span><span class="n">each</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export isum(float[:, :], float[:])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">isum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="o">...</span>     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">...</span>     <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">y</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">isum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="mf">314</span><span class="w"> </span><span class="n">ns</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="mf">0.574</span><span class="w"> </span><span class="n">ns</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="n">std</span><span class="mf">.</span><span class="w"> </span><span class="n">dev</span><span class="mf">.</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mf">7</span><span class="w"> </span><span class="kr">run</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mf">1000000</span><span class="w"> </span><span class="n">loops</span><span class="w"> </span><span class="n">each</span><span class="p">)</span>
+</code></pre></div>
+
+<h1>Partial Constant Folding</h1>
+<p>Pythran supports (interprocedural) constant folding since its very start, and it now also supports a degraded version that folds some operation on <code>list</code> and <code>tuples</code> when only part of the arguments is constant.</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">gast</span> <span class="k">as</span> <span class="nn">ast</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pythran</span> <span class="kn">import</span> <span class="n">passmanager</span><span class="p">,</span> <span class="n">backend</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pythran.optimizations</span> <span class="kn">import</span> <span class="n">PartialConstantFolding</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">&gt;&gt;&gt; def replicate(n):</span>
+<span class="s1">...     return [n] * 8</span>
+<span class="s1">&gt;&gt;&gt; &#39;&#39;&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">node</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pm</span> <span class="o">=</span> <span class="n">passmanager</span><span class="o">.</span><span class="n">PassManager</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">status</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">PartialConstantFolding</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">Python</span><span class="p">,</span> <span class="n">node</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="nv">def</span><span class="w"> </span><span class="nv">replicate</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>:
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>[<span class="nv">n</span>,<span class="w"> </span><span class="nv">n</span>,<span class="w"> </span><span class="nv">n</span>,<span class="w"> </span><span class="nv">n</span>,<span class="w"> </span><span class="nv">n</span>,<span class="w"> </span><span class="nv">n</span>,<span class="w"> </span><span class="nv">n</span>,<span class="w"> </span><span class="nv">n</span>]
+</code></pre></div>
+
+<h1>Better Cython integration</h1>
+<p>Since version 0.8.1, and thanks to the work of <a href="https://twitter.com/adriengnt">Adrien Guinet</a> funded by <a href="http://opendreamkit.org/">OpenDreamKit</a>, Cython has a Pythran mode to delegate Numpy expression computation to the Pythran engine. It's much more stable now, even if it does <em>not</em> mean stable :-).</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">load_ext</span> <span class="n">Cython</span>
+</code></pre></div>
+
+<p>Note that the following cell calls Pythran through Cython though Jupyter magic. What a wonderful world!</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">cython</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># cython: language=c++</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># cython: np_pythran=True</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">cnp</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">tax</span><span class="p">(</span><span class="n">cnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">double</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">]</span> <span class="n">d</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">tax_seg1</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">256303</span><span class="p">)]</span> <span class="o">*</span> <span class="mf">0.45</span> <span class="o">-</span> <span class="mf">16164.53</span>
+<span class="o">...</span>     <span class="n">tax_seg2</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">54057</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">256303</span><span class="p">)]</span> <span class="o">*</span> <span class="mf">0.42</span> <span class="o">-</span> <span class="mf">8475.44</span>
+<span class="o">...</span>     <span class="n">seg3</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">13769</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">54057</span><span class="p">)]</span> <span class="o">-</span> <span class="mi">13769</span>
+<span class="o">...</span>     <span class="n">seg4</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">8820</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">13769</span><span class="p">)]</span> <span class="o">-</span> <span class="mi">8820</span>
+<span class="o">...</span>     <span class="n">prog_seg3</span> <span class="o">=</span> <span class="n">seg3</span> <span class="o">*</span> <span class="mf">0.0000022376</span> <span class="o">+</span> <span class="mf">0.2397</span>
+<span class="o">...</span>     <span class="n">prog_seg4</span> <span class="o">=</span> <span class="n">seg4</span> <span class="o">*</span> <span class="mf">0.0000100727</span> <span class="o">+</span> <span class="mf">0.14</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="p">(</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tax_seg1</span><span class="p">)</span> <span class="o">+</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tax_seg2</span><span class="p">)</span> <span class="o">+</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">seg3</span> <span class="o">*</span> <span class="n">prog_seg3</span> <span class="o">+</span> <span class="mf">939.57</span><span class="p">)</span> <span class="o">+</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">seg4</span> <span class="o">*</span> <span class="n">prog_seg4</span><span class="p">)</span>
+<span class="o">...</span>     <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">tax</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="mf">22.9</span><span class="w"> </span><span class="n">µs</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="mf">39.4</span><span class="w"> </span><span class="n">ns</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="n">std</span><span class="mf">.</span><span class="w"> </span><span class="n">dev</span><span class="mf">.</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mf">7</span><span class="w"> </span><span class="kr">run</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mf">10000</span><span class="w"> </span><span class="n">loops</span><span class="w"> </span><span class="n">each</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">tax_numpy</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">tax_seg1</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">256303</span><span class="p">)]</span> <span class="o">*</span> <span class="mf">0.45</span> <span class="o">-</span> <span class="mf">16164.53</span>
+<span class="o">...</span>     <span class="n">tax_seg2</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">54057</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">256303</span><span class="p">)]</span> <span class="o">*</span> <span class="mf">0.42</span> <span class="o">-</span> <span class="mf">8475.44</span>
+<span class="o">...</span>     <span class="n">seg3</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">13769</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">54057</span><span class="p">)]</span> <span class="o">-</span> <span class="mi">13769</span>
+<span class="o">...</span>     <span class="n">seg4</span> <span class="o">=</span> <span class="n">d</span><span class="p">[(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">8820</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">13769</span><span class="p">)]</span> <span class="o">-</span> <span class="mi">8820</span>
+<span class="o">...</span>     <span class="n">prog_seg3</span> <span class="o">=</span> <span class="n">seg3</span> <span class="o">*</span> <span class="mf">0.0000022376</span> <span class="o">+</span> <span class="mf">0.2397</span>
+<span class="o">...</span>     <span class="n">prog_seg4</span> <span class="o">=</span> <span class="n">seg4</span> <span class="o">*</span> <span class="mf">0.0000100727</span> <span class="o">+</span> <span class="mf">0.14</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="p">(</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tax_seg1</span><span class="p">)</span> <span class="o">+</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tax_seg2</span><span class="p">)</span> <span class="o">+</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">seg3</span> <span class="o">*</span> <span class="n">prog_seg3</span> <span class="o">+</span> <span class="mf">939.57</span><span class="p">)</span> <span class="o">+</span>
+<span class="o">...</span>         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">seg4</span> <span class="o">*</span> <span class="n">prog_seg4</span><span class="p">)</span>
+<span class="o">...</span>     <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">timeit</span> <span class="n">tax_numpy</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="mf">28.9</span><span class="w"> </span><span class="n">µs</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="mf">90</span><span class="w"> </span><span class="n">ns</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="err">±</span><span class="w"> </span><span class="n">std</span><span class="mf">.</span><span class="w"> </span><span class="n">dev</span><span class="mf">.</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mf">7</span><span class="w"> </span><span class="kr">run</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mf">10000</span><span class="w"> </span><span class="n">loops</span><span class="w"> </span><span class="n">each</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tax</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="n">tax_numpy</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="mf">0.0</span>
+</code></pre></div>
+
+<h1>That's all folks</h1>
+<p>The release is available on <a href="https://github.com/serge-sans-paille/pythran/tree/0.8.3">Github</a>, on <a href="https://pypi.python.org/pypi/pythran">PyPI</a> and <a href="https://anaconda.org/serge-sans-paille/pythran">Conda</a>.</p>
+<p>Thanks to <a href="https://github.com/Finistere">Finistere</a> for his help, to <a href="https://github.com/paugier">paugier</a> and <a href="https://github.com/ashwinvis">ashwinvis</a> for their bug reports.</p>
+<p>And if you too feel like contributing, the <a href="https://github.com/serge-sans-paille/pythran/issues">bug tracker</a> is a lively place ;-)</p>
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>

@@ -52,6 +52,7 @@ feeds/all.atom.xml"
         <ul>
                     <li><a href="./category/benchmark.html"> benchmark </a></li>
                     <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/cython.html"> cython </a></li>
                     <li><a href="./category/engineering.html"> engineering </a></li>
                     <li><a href="./category/examples.html"> examples </a></li>
                     <li><a href="./category/mozilla.html"> mozilla </a></li>
@@ -63,89 +64,163 @@ feeds/all.atom.xml"
         <section id="home">
             <ul>
                     <li>
-                        <h1><a href="./identifier-binding-computation.html" rel="bookmark"
-                               title="Permalink to Identifier Binding Computation">Identifier Binding Computation</a></h1>
+                        <h1><a href="./being-more-than-a-translator.html" rel="bookmark"
+                               title="Permalink to Being more than a translator">Being more than a translator</a></h1>
                         <aside>
                             <ul>
                                 <li>
-                                    <time datetime="2016-04-18 00:00:00+02:00">Apr 18, 2016</time>
+                                    <time datetime="2018-01-12 00:00:00+01:00">Jan 12, 2018</time>
                                 </li>
                             </ul>
                         </aside>
                         <p>
-                            <p class="first last">Alias analysis is a poor term to describe the processing done by
-Pythran that is going to be described here. It could rather be named
-<em>static computation of identifier binding</em>, in the sense that it
-tries to give an over-approximation of which values an identifier can
-be bound to, at a given point of the program execution. Still,
-whatever its name, the process plays a key role in Pythran, so let's
-have a look to its internals.</p>
-
-                            <a href="./identifier-binding-computation.html"><em>Read more...</em></a>
+                            <p>Starting from a Cython blog post by <a href="http://jakevdp.github.io/pages/about.html">Jake VanderPlas</a>, a trip in compiler optimisation, with a special glance at modulo operation!</p>
+                            <a href="./being-more-than-a-translator.html"><em>Read more...</em></a>
                         </p>
                     </li>
                     <li>
-                        <h1><a href="./micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html" rel="bookmark"
-                               title="Permalink to Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel">Micro-Benchmarking Julia, C++ and Pythran on an Economics kernel</a></h1>
+                        <h1><a href="./the-capsule-corporation.html" rel="bookmark"
+                               title="Permalink to the Capsule Corporation">the Capsule Corporation</a></h1>
                         <aside>
                             <ul>
                                 <li>
-                                    <time datetime="2016-04-05 00:00:00+02:00">Apr 05, 2016</time>
+                                    <time datetime="2017-11-08 00:00:00+01:00">Nov 08, 2017</time>
                                 </li>
                             </ul>
                         </aside>
                         <p>
-                            <p class="first last">Let's re-run an existing benchmark with Pythran</p>
+                            <p class="first last">Python provides a convenient way to encapsulate a raw pointer in an
+object, to make interaction between native modules easier. SciPy uses that
+mechanism to call native code from some functions, and now Pythran
+can produce them just as well as Dr Brief would!</p>
 
-                            <a href="./micro-benchmarking-julia-c-and-pythran-on-an-economics-kernel.html"><em>Read more...</em></a>
+                            <a href="./the-capsule-corporation.html"><em>Read more...</em></a>
                         </p>
                     </li>
                     <li>
-                        <h1><a href="./compiler-flags.html" rel="bookmark"
-                               title="Permalink to Compiler Flags">Compiler Flags</a></h1>
+                        <h1><a href="./pythran-083-is-out.html" rel="bookmark"
+                               title="Permalink to Pythran 0.8.3 is out!">Pythran 0.8.3 is out!</a></h1>
                         <aside>
                             <ul>
                                 <li>
-                                    <time datetime="2016-03-29 00:00:00+02:00">Mar 29, 2016</time>
+                                    <time datetime="2017-10-22 00:00:00+02:00">Oct 22, 2017</time>
                                 </li>
                             </ul>
                         </aside>
                         <p>
-                            <p class="first last">Playing with compiler forwarded by Pythran to GCC (or Clang) can yield surprising results, let's explore this!</p>
-
-                            <a href="./compiler-flags.html"><em>Read more...</em></a>
+                            <p>Pythran version bump, new PyPI packages + Conda release, and a Changelog commented in a Jupyter notebook.</p>
+                            <a href="./pythran-083-is-out.html"><em>Read more...</em></a>
                         </p>
                     </li>
                     <li>
-                        <h1><a href="./pythran-case-resampling.html" rel="bookmark"
-                               title="Permalink to Pythran Case: Resampling">Pythran Case: Resampling</a></h1>
+                        <h1><a href="./toward-a-simpler-and-faster-pythran-compiler.html" rel="bookmark"
+                               title="Permalink to Toward a Simpler and Faster Pythran Compiler">Toward a Simpler and Faster Pythran Compiler</a></h1>
                         <aside>
                             <ul>
                                 <li>
-                                    <time datetime="2016-03-09 00:00:00+01:00">Mar 09, 2016</time>
+                                    <time datetime="2017-06-30 00:00:00+02:00">Jun 30, 2017</time>
                                 </li>
                             </ul>
                         </aside>
                         <p>
-                            <p class="first last">Optimizing an algorithm found on Stack Overflow with Pythran, getting a x2 speedup with a single line, a x4 speedup with two lines and much more while switching our brain on!</p>
+                            <p class="first last">6 months of tireless efforts to speedup pythran compilation time, and make the code easier to maintain.</p>
 
-                            <a href="./pythran-case-resampling.html"><em>Read more...</em></a>
+                            <a href="./toward-a-simpler-and-faster-pythran-compiler.html"><em>Read more...</em></a>
                         </p>
                     </li>
                     <li>
-                        <h1><a href="./pythran-074-is-out.html" rel="bookmark"
-                               title="Permalink to Pythran 0.7.4 is out!">Pythran 0.7.4 is out!</a></h1>
+                        <h1><a href="./from-pythran-import-typing.html" rel="bookmark"
+                               title="Permalink to from pythran import typing">from pythran import typing</a></h1>
                         <aside>
                             <ul>
                                 <li>
-                                    <time datetime="2016-01-07 00:00:00+01:00">Jan 07, 2016</time>
+                                    <time datetime="2016-12-10 00:00:00+01:00">Dec 10, 2016</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p class="first last">Pythran recently gained a type checking ability, called <em>tog</em>. And given the size of the diff, that's not some minor improvement! Let's see what happened in terms of better robustness and error reporting :-)</p>
+
+                            <a href="./from-pythran-import-typing.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
+                        <h1><a href="./pythran-tutorial.html" rel="bookmark"
+                               title="Permalink to Pythran Tutorial">Pythran Tutorial</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2016-07-18 00:00:00+02:00">Jul 18, 2016</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p>Learn how to use Pythran, in a notebook or in a shell. Including some unusual Pythran tricks ;-)</p>
+                            <a href="./pythran-tutorial.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
+                        <h1><a href="./learn-pythran-by-practice.html" rel="bookmark"
+                               title="Permalink to Learn Pythran by practice">Learn Pythran by practice</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2016-07-04 00:00:00+02:00">Jul 04, 2016</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p>Show Pythran usage on multiple kernels with its strengths and its weaknesses</p>
+                            <a href="./learn-pythran-by-practice.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
+                        <h1><a href="./pythran-075-is-out.html" rel="bookmark"
+                               title="Permalink to Pythran 0.7.5 is out!">Pythran 0.7.5 is out!</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2016-06-16 00:00:00+02:00">Jun 16, 2016</time>
                                 </li>
                             </ul>
                         </aside>
                         <p>
                             <p class="first last">Pythran version bump, new pypi packages and conda release!</p>
 
-                            <a href="./pythran-074-is-out.html"><em>Read more...</em></a>
+                            <a href="./pythran-075-is-out.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
+                        <h1><a href="./benchmarking-before-the-release.html" rel="bookmark"
+                               title="Permalink to Benchmarking Before the Release">Benchmarking Before the Release</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2016-06-08 00:00:00+02:00">Jun 08, 2016</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p>Gathering several Cython vs. Numpy benchmarks on the WWW and piping them to Pythran to check that we don't have any performance regression before the release for <a href="http://pydata.org/paris2016/">PyData Paris</a>.</p>
+                            <a href="./benchmarking-before-the-release.html"><em>Read more...</em></a>
+                        </p>
+                    </li>
+                    <li>
+                        <h1><a href="./costless-abstraction-with-pythran-broadcasting.html" rel="bookmark"
+                               title="Permalink to Costless Abstraction with Pythran: Broadcasting">Costless Abstraction with Pythran: Broadcasting</a></h1>
+                        <aside>
+                            <ul>
+                                <li>
+                                    <time datetime="2016-05-25 00:00:00+02:00">May 25, 2016</time>
+                                </li>
+                            </ul>
+                        </aside>
+                        <p>
+                            <p>Broadcasting is a neat feature of Numpy array, but it was not trivial
+to implement at the C++ level, while keeping a high-level interface. after
+weeks of effort, here is a showcase of how good it runs, compared to the Numpy
+version and lower-level Cython and Numba version!</p>
+                            <a href="./costless-abstraction-with-pythran-broadcasting.html"><em>Read more...</em></a>
                         </p>
                     </li>
             </ul>
@@ -163,6 +238,12 @@ have a look to its internals.</p>
                 <li class="active"><a
                         href="./index3.html">3</a></li>
 
+                <li class=""><a
+                        href="./index4.html">4</a></li>
+
+            <li><a href="./index4.html">&raquo;</a></li>
+            <li><a href="./index4.html"><span aria-hidden="true">&raquo;&raquo;</span></a>
+            </li>
     </ul>
         </section>
     </main>

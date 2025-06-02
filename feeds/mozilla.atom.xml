@@ -1,5 +1,237 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - mozilla</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/mozilla.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2023-12-19T00:00:00+01:00</updated><entry><title>Trivial Auto Var Init Experiments</title><link href="http://serge-sans-paille.github.io/pythran-stories/trivial-auto-var-init-experiments.html" rel="alternate"></link><published>2023-12-19T00:00:00+01:00</published><updated>2023-12-19T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2023-12-19:/pythran-stories/trivial-auto-var-init-experiments.html</id><summary type="html">&lt;p class="first last"&gt;exploring the impact of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init&lt;/span&gt;&lt;/tt&gt; on Firefox codebase&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Pythran stories - mozilla</title><link href="http://serge-sans-paille.github.io/pythran-stories/" rel="alternate"></link><link href="http://serge-sans-paille.github.io/pythran-stories/feeds/mozilla.atom.xml" rel="self"></link><id>http://serge-sans-paille.github.io/pythran-stories/</id><updated>2025-05-29T00:00:00+02:00</updated><entry><title>A Hidden Weakness</title><link href="http://serge-sans-paille.github.io/pythran-stories/a-hidden-weakness.html" rel="alternate"></link><published>2025-05-29T00:00:00+02:00</published><updated>2025-05-29T00:00:00+02:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2025-05-29:/pythran-stories/a-hidden-weakness.html</id><summary type="html">&lt;p class="first last"&gt;A surprising combination of symbol qualifiers that lead to a long bug hunt.&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;This is the story of a bug hunt that lasted much longer than expected, but ended
+with the dearest of all treasures: &lt;em&gt;knowledge&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Let's draw some context: the Android platform defines different API levels.
+Unsurprisingly, some symbols are only defined starting with a given API version.
+For instance, &lt;tt class="docutils literal"&gt;ASystemFontIterator_open&lt;/tt&gt; is only available starting at API 29.&lt;/p&gt;
+&lt;p&gt;Unconditionally trying to use &lt;tt class="docutils literal"&gt;ASystemFontIterator_open&lt;/tt&gt; while targeting an
+API older than 29 leads to a linker error (an undefined reference), which makes
+sense because the symbol, well, does not exist at that API level.&lt;/p&gt;
+&lt;p&gt;So a native application that wants to use this symbol can either refuse to run on
+older API, or use a combination of &lt;tt class="docutils literal"&gt;dlopen&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;dlsym&lt;/tt&gt; to dynamically
+lookup for the symbol and provide a fallback if it does not exist. The latter
+approach is used on Fenix, the Android version of Firefox.&lt;/p&gt;
+&lt;div class="section" id="introducing-android-unavailable-symbols-are-weak"&gt;
+&lt;h2&gt;Introducing &lt;tt class="docutils literal"&gt;__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__&lt;/tt&gt;&lt;/h2&gt;
+&lt;p&gt;As an alternative to the features from &lt;tt class="docutils literal"&gt;&amp;lt;dlfcn.h&amp;gt;&lt;/tt&gt;, Android build system makes
+it possible to define &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__&lt;/span&gt;&lt;/tt&gt;, combine it
+with a compiler check through &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Werror=unguarded-availability&lt;/span&gt;&lt;/tt&gt; and a runtime
+check through &lt;tt class="docutils literal"&gt;__builtin_available&lt;/tt&gt;. Here is an example:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// The header that defines ASystemFontIterator_open.&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;android/system_fonts.h&amp;gt;&lt;/span&gt;
+
+&lt;span class="p"&gt;...&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Runtime check for API level&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__builtin_available&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;29&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="cm"&gt;/* Reference to the actual symbol. Does not fail at link time because an&lt;/span&gt;
+&lt;span class="cm"&gt;       alternative weak definition is always provided by &amp;lt;android/system_fonts.h&amp;gt;*/&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;iterator&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;ASystemFontIterator_open&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;There's a lot happening there, so let's dive in the wilderness of compiler
+extensions.&lt;/p&gt;
+&lt;div class="section" id="android-system-fonts-h"&gt;
+&lt;h3&gt;&lt;tt class="docutils literal"&gt;&amp;lt;android/system_fonts.h&amp;gt;&lt;/tt&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;tt class="docutils literal"&gt;ASystemFontIterator_open&lt;/tt&gt; is defined in &lt;tt class="docutils literal"&gt;&amp;lt;android/system_fonts.h&amp;gt;&lt;/tt&gt; as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ASystemFontIterator&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;_Nullable&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;ASystemFontIterator_open&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;__INTRODUCED_IN&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;29&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The &lt;tt class="docutils literal"&gt;_Nullable&lt;/tt&gt; attribute is an interesting topic, but it's a side quest we're
+not going to explore today. The macro function &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;__INTRODUCED_IN(...)&lt;/span&gt;&lt;/tt&gt; is
+defined in &lt;tt class="docutils literal"&gt;&amp;lt;android/versioning.h&amp;gt;&lt;/tt&gt; as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#define __INTRODUCED_IN(api_level) __BIONIC_AVAILABILITY(introduced=api_level)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And &lt;tt class="docutils literal"&gt;__BIONIC_AVAILABILITY&lt;/tt&gt; is conditionally defined in the same header as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#if defined(__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="cp"&gt;#define __BIONIC_AVAILABILITY(__what, ...) __attribute__((__availability__(android,__what __VA_OPT__(,) __VA_ARGS__)))&lt;/span&gt;
+&lt;span class="cp"&gt;#else&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="cp"&gt;#define __BIONIC_AVAILABILITY(__what, ...) __attribute__((__availability__(android,strict,__what __VA_OPT__(,) __VA_ARGS__)))&lt;/span&gt;
+&lt;span class="cp"&gt;#endif&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;So in our case &lt;tt class="docutils literal"&gt;ASystemFontIterator_open&lt;/tt&gt; is flagged either with
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;__attribute__((__availability__(android,introduced=29))&lt;/span&gt;&lt;/tt&gt; or
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;__attribute__((__availability__(android,strict,introduced=29))&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;Let's write a simple C code containing only the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;cat&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;a.c&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;lt;&amp;lt; EOF&lt;/span&gt;
+&lt;span class="s"&gt;void foo(void) __attribute__((__availability__(android,introduced=29)));&lt;/span&gt;
+&lt;span class="s"&gt;void bar(void) __attribute__((__availability__(android,strict,introduced=29)));&lt;/span&gt;
+&lt;span class="s"&gt;void foobar(void) {&lt;/span&gt;
+&lt;span class="s"&gt;  foo();&lt;/span&gt;
+&lt;span class="s"&gt;  bar();&lt;/span&gt;
+&lt;span class="s"&gt;}&lt;/span&gt;
+&lt;span class="s"&gt;EOF&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Compile and inspect it:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;--target&lt;span class="o"&gt;=&lt;/span&gt;x86_64-linux-android21&lt;span class="w"&gt; &lt;/span&gt;-c&lt;span class="w"&gt; &lt;/span&gt;a.c
+a.c:5:3:&lt;span class="w"&gt; &lt;/span&gt;error:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;bar&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;is&lt;span class="w"&gt; &lt;/span&gt;unavailable:&lt;span class="w"&gt; &lt;/span&gt;introduced&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Android&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;android
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;bar&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;^
+a.c:2:6:&lt;span class="w"&gt; &lt;/span&gt;note:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;bar&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;has&lt;span class="w"&gt; &lt;/span&gt;been&lt;span class="w"&gt; &lt;/span&gt;explicitly&lt;span class="w"&gt; &lt;/span&gt;marked&lt;span class="w"&gt; &lt;/span&gt;unavailable&lt;span class="w"&gt; &lt;/span&gt;here
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;void&lt;span class="w"&gt; &lt;/span&gt;bar&lt;span class="o"&gt;(&lt;/span&gt;void&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;__attribute__&lt;span class="o"&gt;((&lt;/span&gt;__availability__&lt;span class="o"&gt;(&lt;/span&gt;android,strict,introduced&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="o"&gt;)))&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;      &lt;/span&gt;^
+&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;error&lt;span class="w"&gt; &lt;/span&gt;generated.
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;ok, so the &lt;tt class="docutils literal"&gt;strict&lt;/tt&gt; keyword implies a compilation error if we reference that
+symbol while targeting a lower version. Good. Let's remove it:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;cat&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;b.c&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;lt;&amp;lt; EOF&lt;/span&gt;
+&lt;span class="s"&gt;void foo(void) __attribute__((__availability__(android,introduced=29)));&lt;/span&gt;
+&lt;span class="s"&gt;void foobar(void) {&lt;/span&gt;
+&lt;span class="s"&gt;  foo();&lt;/span&gt;
+&lt;span class="s"&gt;}&lt;/span&gt;
+&lt;span class="s"&gt;EOF&lt;/span&gt;
+$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;--target&lt;span class="o"&gt;=&lt;/span&gt;x86_64-linux-android21&lt;span class="w"&gt; &lt;/span&gt;-c&lt;span class="w"&gt; &lt;/span&gt;b.c
+$&lt;span class="w"&gt; &lt;/span&gt;nm&lt;span class="w"&gt; &lt;/span&gt;b.o
+&lt;span class="w"&gt;                 &lt;/span&gt;w&lt;span class="w"&gt; &lt;/span&gt;foo
+&lt;span class="m"&gt;0000000000000000&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;T&lt;span class="w"&gt; &lt;/span&gt;foobar
+$&lt;span class="w"&gt; &lt;/span&gt;readelf&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;b.o
+
+Symbol&lt;span class="w"&gt; &lt;/span&gt;table&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;.symtab&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;contains&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;5&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;entries:
+&lt;span class="w"&gt;   &lt;/span&gt;Num:&lt;span class="w"&gt;    &lt;/span&gt;Value&lt;span class="w"&gt;          &lt;/span&gt;Size&lt;span class="w"&gt; &lt;/span&gt;Type&lt;span class="w"&gt;    &lt;/span&gt;Bind&lt;span class="w"&gt;   &lt;/span&gt;Vis&lt;span class="w"&gt;      &lt;/span&gt;Ndx&lt;span class="w"&gt; &lt;/span&gt;Name
+&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0000000000000000&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;NOTYPE&lt;span class="w"&gt;  &lt;/span&gt;LOCAL&lt;span class="w"&gt;  &lt;/span&gt;DEFAULT&lt;span class="w"&gt;  &lt;/span&gt;UND
+&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0000000000000000&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;FILE&lt;span class="w"&gt;    &lt;/span&gt;LOCAL&lt;span class="w"&gt;  &lt;/span&gt;DEFAULT&lt;span class="w"&gt;  &lt;/span&gt;ABS&lt;span class="w"&gt; &lt;/span&gt;b.c
+&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0000000000000000&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;SECTION&lt;span class="w"&gt; &lt;/span&gt;LOCAL&lt;span class="w"&gt;  &lt;/span&gt;DEFAULT&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;.text
+&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0000000000000000&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;11&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;FUNC&lt;span class="w"&gt;    &lt;/span&gt;GLOBAL&lt;span class="w"&gt; &lt;/span&gt;DEFAULT&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;foobar
+&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0000000000000000&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;NOTYPE&lt;span class="w"&gt;  &lt;/span&gt;WEAK&lt;span class="w"&gt;   &lt;/span&gt;DEFAULT&lt;span class="w"&gt;  &lt;/span&gt;UND&lt;span class="w"&gt; &lt;/span&gt;foo
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;No compilation error, even though the symbol &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; is marked as available only
+for more recent API. Instead we end up with a symbol &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; marked as &lt;tt class="docutils literal"&gt;WEAK&lt;/tt&gt;
+(&lt;tt class="docutils literal"&gt;w&lt;/tt&gt;) and &lt;tt class="docutils literal"&gt;UND&lt;/tt&gt; (for undefined). Calling this symbol is equivalent to
+dereferencing a &lt;tt class="docutils literal"&gt;nullptr&lt;/tt&gt; and ends up with a segfault. Not super safe!&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="werror-unguarded-availability"&gt;
+&lt;h3&gt;&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Werror=unguarded-availability&lt;/span&gt;&lt;/tt&gt;&lt;/h3&gt;
+&lt;p&gt;Fortunately, Clang provides a dedicated warning &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Wungarded-availability&lt;/span&gt;&lt;/tt&gt;,
+turned into an error through &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-Werror=unguarded-availability&lt;/span&gt;&lt;/tt&gt;. This flag
+enables static checking for calls that would resolve into calling undefined weak
+reference because of an &lt;tt class="docutils literal"&gt;__availability__&lt;/tt&gt; mismatch.&lt;/p&gt;
+&lt;p&gt;Indeed in our case:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;--target&lt;span class="o"&gt;=&lt;/span&gt;x86_64-linux-android21&lt;span class="w"&gt; &lt;/span&gt;-c&lt;span class="w"&gt; &lt;/span&gt;b.c&lt;span class="w"&gt; &lt;/span&gt;-Werror&lt;span class="o"&gt;=&lt;/span&gt;unguarded-availability
+b.c:3:3:&lt;span class="w"&gt; &lt;/span&gt;error:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;foo&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;is&lt;span class="w"&gt; &lt;/span&gt;only&lt;span class="w"&gt; &lt;/span&gt;available&lt;span class="w"&gt; &lt;/span&gt;on&lt;span class="w"&gt; &lt;/span&gt;Android&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;or&lt;span class="w"&gt; &lt;/span&gt;newer&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;-Werror,-Wunguarded-availability&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;foo&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;^~~
+b.c:1:6:&lt;span class="w"&gt; &lt;/span&gt;note:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;foo&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;has&lt;span class="w"&gt; &lt;/span&gt;been&lt;span class="w"&gt; &lt;/span&gt;marked&lt;span class="w"&gt; &lt;/span&gt;as&lt;span class="w"&gt; &lt;/span&gt;being&lt;span class="w"&gt; &lt;/span&gt;introduced&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Android&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;here,&lt;span class="w"&gt; &lt;/span&gt;but&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;deployment&lt;span class="w"&gt; &lt;/span&gt;target&lt;span class="w"&gt; &lt;/span&gt;is&lt;span class="w"&gt; &lt;/span&gt;Android&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;21&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;void&lt;span class="w"&gt; &lt;/span&gt;foo&lt;span class="o"&gt;(&lt;/span&gt;void&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;__attribute__&lt;span class="o"&gt;((&lt;/span&gt;__availability__&lt;span class="o"&gt;(&lt;/span&gt;android,introduced&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;&lt;span class="o"&gt;)))&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;      &lt;/span&gt;^
+b.c:3:3:&lt;span class="w"&gt; &lt;/span&gt;note:&lt;span class="w"&gt; &lt;/span&gt;enclose&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;foo&amp;#39;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;a&lt;span class="w"&gt; &lt;/span&gt;__builtin_available&lt;span class="w"&gt; &lt;/span&gt;check&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;silence&lt;span class="w"&gt; &lt;/span&gt;this&lt;span class="w"&gt; &lt;/span&gt;warning
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;foo&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;^~~
+&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;error&lt;span class="w"&gt; &lt;/span&gt;generated.
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Let's follow the compiler hint and guard our execution:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;cat&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;c.c&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;lt;&amp;lt; EOF&lt;/span&gt;
+&lt;span class="s"&gt;void foo(void) __attribute__((__availability__(android,introduced=29)));&lt;/span&gt;
+&lt;span class="s"&gt;void foobar(void) {&lt;/span&gt;
+&lt;span class="s"&gt;  if (__builtin_available(android 29, *))&lt;/span&gt;
+&lt;span class="s"&gt;    foo();&lt;/span&gt;
+&lt;span class="s"&gt;}&lt;/span&gt;
+&lt;span class="s"&gt;EOF&lt;/span&gt;
+$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;--target&lt;span class="o"&gt;=&lt;/span&gt;x86_64-linux-android21&lt;span class="w"&gt; &lt;/span&gt;-c&lt;span class="w"&gt; &lt;/span&gt;c.c&lt;span class="w"&gt; &lt;/span&gt;-Werror&lt;span class="o"&gt;=&lt;/span&gt;unguarded-availability
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;No error, and indeed a guard is generated, as shown by the intermediate compiler
+representation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;--target&lt;span class="o"&gt;=&lt;/span&gt;x86_64-linux-android21&lt;span class="w"&gt; &lt;/span&gt;-S&lt;span class="w"&gt; &lt;/span&gt;-emit-llvm&lt;span class="w"&gt; &lt;/span&gt;c.c&lt;span class="w"&gt; &lt;/span&gt;-Werror&lt;span class="o"&gt;=&lt;/span&gt;unguarded-availability
+...
+define&lt;span class="w"&gt; &lt;/span&gt;dso_local&lt;span class="w"&gt; &lt;/span&gt;void&lt;span class="w"&gt; &lt;/span&gt;@foobar&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;#0 {&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;%1&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;call&lt;span class="w"&gt; &lt;/span&gt;i32&lt;span class="w"&gt; &lt;/span&gt;@__isOSVersionAtLeast&lt;span class="o"&gt;(&lt;/span&gt;i32&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;29&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;i32&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;i32&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;#2&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;%2&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;icmp&lt;span class="w"&gt; &lt;/span&gt;ne&lt;span class="w"&gt; &lt;/span&gt;i32&lt;span class="w"&gt; &lt;/span&gt;%1,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;br&lt;span class="w"&gt; &lt;/span&gt;i1&lt;span class="w"&gt; &lt;/span&gt;%2,&lt;span class="w"&gt; &lt;/span&gt;label&lt;span class="w"&gt; &lt;/span&gt;%3,&lt;span class="w"&gt; &lt;/span&gt;label&lt;span class="w"&gt; &lt;/span&gt;%4
+
+&lt;span class="m"&gt;3&lt;/span&gt;:&lt;span class="w"&gt;                                                &lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;preds&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;%0
+&lt;span class="w"&gt;  &lt;/span&gt;call&lt;span class="w"&gt; &lt;/span&gt;void&lt;span class="w"&gt; &lt;/span&gt;@foo&lt;span class="o"&gt;()&lt;/span&gt;
+&lt;span class="w"&gt;  &lt;/span&gt;br&lt;span class="w"&gt; &lt;/span&gt;label&lt;span class="w"&gt; &lt;/span&gt;%4
+
+&lt;span class="m"&gt;4&lt;/span&gt;:&lt;span class="w"&gt;                                                &lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;preds&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;%3,&lt;span class="w"&gt; &lt;/span&gt;%0
+&lt;span class="w"&gt;  &lt;/span&gt;ret&lt;span class="w"&gt; &lt;/span&gt;void
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The function &lt;tt class="docutils literal"&gt;__isOSVersionAtLeast&lt;/tt&gt; is part of the compiler runtime and its
+implementation performs a costly check at first call, memoize the result and
+then just reads the memoized result, which is quite fast.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="the-actual-quest"&gt;
+&lt;h2&gt;The Actual Quest&lt;/h2&gt;
+&lt;p&gt;This was a long detour before we reach our archenemy: the Firefox build system.
+In a situation similar to the one described above, we indeed end up with a weak
+symbol for &lt;tt class="docutils literal"&gt;ASystemFontIterator_open&lt;/tt&gt; in the object file, but when creating a
+shared library, the symbol is just marked as undefined, and on system with
+recent API, the &lt;tt class="docutils literal"&gt;__isOSVersionAtLeast&lt;/tt&gt; check passes but the guarded symbol is
+undefined and everything went kaboom.&lt;/p&gt;
+&lt;p&gt;I'll spare you the detail I took to verify that the &lt;tt class="docutils literal"&gt;libandroid.so&lt;/tt&gt; we use is
+the right one, it has the right symbol which should supersedes the weak definition
+of &lt;tt class="docutils literal"&gt;ASystemFontIterator_open&lt;/tt&gt; if it were marked as weak, but because it's
+marked undefined, it's just not there. Why would that happen?&lt;/p&gt;
+&lt;p&gt;Then I carefully compared the symbols between my object file from the Firefox
+build system, and the one from my minimal reproducer above. And I ended up with
+these two lines:&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+0000000000000000     0 NOTYPE  WEAK   HIDDEN   UND ASystemFontIterator_open
+
+0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND foo
+&lt;/pre&gt;
+&lt;p&gt;They look the same. But, wait, &lt;tt class="docutils literal"&gt;HIDDEN&lt;/tt&gt;? Why would,
+&lt;tt class="docutils literal"&gt;ASystemFontIterator_open&lt;/tt&gt;, a symbol that comes from a system header, be
+marked as &lt;tt class="docutils literal"&gt;HIDDEN&lt;/tt&gt;? I quickly double-checked and there was no
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-fvisibility=hidden&lt;/span&gt;&lt;/tt&gt; on the compiler invocation.&lt;/p&gt;
+&lt;p&gt;But there was something else.&lt;/p&gt;
+&lt;p&gt;A simple flag that looked innocent.&lt;/p&gt;
+&lt;p&gt;&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-include&lt;/span&gt; config/gcc_hidden.h&lt;/tt&gt;&lt;/p&gt;
+&lt;p&gt;And in that very single file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;cat&lt;span class="w"&gt; &lt;/span&gt;config/gcc_hidden.h
+/*&lt;span class="w"&gt; &lt;/span&gt;This&lt;span class="w"&gt; &lt;/span&gt;Source&lt;span class="w"&gt; &lt;/span&gt;Code&lt;span class="w"&gt; &lt;/span&gt;Form&lt;span class="w"&gt; &lt;/span&gt;is&lt;span class="w"&gt; &lt;/span&gt;subject&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;terms&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;Mozilla&lt;span class="w"&gt; &lt;/span&gt;Public
+&lt;span class="w"&gt; &lt;/span&gt;*&lt;span class="w"&gt; &lt;/span&gt;License,&lt;span class="w"&gt; &lt;/span&gt;v.&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;.0.&lt;span class="w"&gt; &lt;/span&gt;If&lt;span class="w"&gt; &lt;/span&gt;a&lt;span class="w"&gt; &lt;/span&gt;copy&lt;span class="w"&gt; &lt;/span&gt;of&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;MPL&lt;span class="w"&gt; &lt;/span&gt;was&lt;span class="w"&gt; &lt;/span&gt;not&lt;span class="w"&gt; &lt;/span&gt;distributed&lt;span class="w"&gt; &lt;/span&gt;with&lt;span class="w"&gt; &lt;/span&gt;this
+&lt;span class="w"&gt; &lt;/span&gt;*&lt;span class="w"&gt; &lt;/span&gt;file,&lt;span class="w"&gt; &lt;/span&gt;You&lt;span class="w"&gt; &lt;/span&gt;can&lt;span class="w"&gt; &lt;/span&gt;obtain&lt;span class="w"&gt; &lt;/span&gt;one&lt;span class="w"&gt; &lt;/span&gt;at&lt;span class="w"&gt; &lt;/span&gt;http://mozilla.org/MPL/2.0/.&lt;span class="w"&gt; &lt;/span&gt;*/
+
+/*&lt;span class="w"&gt; &lt;/span&gt;Begin&lt;span class="w"&gt; &lt;/span&gt;all&lt;span class="w"&gt; &lt;/span&gt;files&lt;span class="w"&gt; &lt;/span&gt;as&lt;span class="w"&gt; &lt;/span&gt;hidden&lt;span class="w"&gt; &lt;/span&gt;visibility&lt;span class="w"&gt; &lt;/span&gt;*/
+&lt;span class="c1"&gt;#pragma GCC visibility push(hidden)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Et voilà&lt;/em&gt;, Firefox defaults to building with hidden visibility, this impacts
+the weak symbols generated as a consequence of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;__attribute__((__availability__(android,introduced=29)))&lt;/span&gt;&lt;/tt&gt; and we can indeed reproduce the issue:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$&lt;span class="w"&gt; &lt;/span&gt;cat&lt;span class="w"&gt; &lt;/span&gt;&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;d.c&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;lt;&amp;lt; EOF&lt;/span&gt;
+&lt;span class="s"&gt;#pragma GCC visibility push(hidden)&lt;/span&gt;
+&lt;span class="s"&gt;void foo(void) __attribute__((__availability__(android,introduced=29)));&lt;/span&gt;
+&lt;span class="s"&gt;void foobar(void) {&lt;/span&gt;
+&lt;span class="s"&gt;  foo();&lt;/span&gt;
+&lt;span class="s"&gt;}&lt;/span&gt;
+&lt;span class="s"&gt;EOF&lt;/span&gt;
+$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;--target&lt;span class="o"&gt;=&lt;/span&gt;x86_64-linux-android21&lt;span class="w"&gt; &lt;/span&gt;-c&lt;span class="w"&gt; &lt;/span&gt;b.c
+$&lt;span class="w"&gt; &lt;/span&gt;readelf&lt;span class="w"&gt; &lt;/span&gt;-s&lt;span class="w"&gt; &lt;/span&gt;b.o&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;-E&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;\&amp;lt;foo\&amp;gt;&amp;#39;&lt;/span&gt;
+&lt;span class="m"&gt;4&lt;/span&gt;:&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0000000000000000&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;NOTYPE&lt;span class="w"&gt;  &lt;/span&gt;WEAK&lt;span class="w"&gt;   &lt;/span&gt;HIDDEN&lt;span class="w"&gt;   &lt;/span&gt;UND&lt;span class="w"&gt; &lt;/span&gt;foo
+$&lt;span class="w"&gt; &lt;/span&gt;clang&lt;span class="w"&gt; &lt;/span&gt;-shared&lt;span class="w"&gt; &lt;/span&gt;b.o&lt;span class="w"&gt; &lt;/span&gt;-o&lt;span class="w"&gt; &lt;/span&gt;libfoo.so
+$&lt;span class="w"&gt; &lt;/span&gt;nm&lt;span class="w"&gt; &lt;/span&gt;libfoo.so&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;-E&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;\&amp;lt;foo\&amp;gt;&amp;#39;&lt;/span&gt;
+$&lt;span class="w"&gt; &lt;/span&gt;objdump&lt;span class="w"&gt; &lt;/span&gt;-S&lt;span class="w"&gt; &lt;/span&gt;libfoo.so
+...
+&lt;span class="m"&gt;0000000000000320&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;lt;foobar&amp;gt;:
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;320&lt;/span&gt;:&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="m"&gt;55&lt;/span&gt;&lt;span class="w"&gt;                      &lt;/span&gt;push&lt;span class="w"&gt;   &lt;/span&gt;%rbp
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;321&lt;/span&gt;:&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="m"&gt;48&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;89&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;e5&lt;span class="w"&gt;                &lt;/span&gt;mov&lt;span class="w"&gt;    &lt;/span&gt;%rsp,%rbp
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;324&lt;/span&gt;:&lt;span class="w"&gt;        &lt;/span&gt;e8&lt;span class="w"&gt; &lt;/span&gt;d7&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;fc&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;ff&lt;span class="w"&gt; &lt;/span&gt;ff&lt;span class="w"&gt;          &lt;/span&gt;call&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&amp;lt;_init-0x224&amp;gt;
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;329&lt;/span&gt;:&lt;span class="w"&gt;        &lt;/span&gt;5d&lt;span class="w"&gt;                      &lt;/span&gt;pop&lt;span class="w"&gt;    &lt;/span&gt;%rbp
+&lt;span class="w"&gt; &lt;/span&gt;32a:&lt;span class="w"&gt;        &lt;/span&gt;c3&lt;span class="w"&gt;                      &lt;/span&gt;ret
+...
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;the call to &lt;tt class="docutils literal"&gt;foo&lt;/tt&gt; got turned into a call to &lt;tt class="docutils literal"&gt;0&lt;/tt&gt;. Even on more recent
+platforms, a &lt;tt class="docutils literal"&gt;0&lt;/tt&gt; stays a &lt;tt class="docutils literal"&gt;0&lt;/tt&gt;, the weak reference trick no longer works.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="the-fix"&gt;
+&lt;h2&gt;The Fix&lt;/h2&gt;
+&lt;p&gt;As usual, the fix is very small, compared to the amount of work required to find
+it. In our case we can temporarly change the default visibility when including
+android system headers, as in:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#pragma GCC visibility push(default)&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;android/system_fonts.h&amp;gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#pragma GCC visibility pop&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As it's often the case, the journey is the real reward. But getting &lt;a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1966309"&gt;Bug 1966309&lt;/a&gt;
+fixed is also not bad ;-)&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="acknowledgments"&gt;
+&lt;h2&gt;Acknowledgments&lt;/h2&gt;
+&lt;p&gt;Thanks goes to Olivia Hall for providing initial help with Android platform
+details.&lt;/p&gt;
+&lt;/div&gt;
+</content><category term="mozilla"></category></entry><entry><title>Trivial Auto Var Init Experiments</title><link href="http://serge-sans-paille.github.io/pythran-stories/trivial-auto-var-init-experiments.html" rel="alternate"></link><published>2023-12-19T00:00:00+01:00</published><updated>2023-12-19T00:00:00+01:00</updated><author><name>serge-sans-paille</name></author><id>tag:serge-sans-paille.github.io,2023-12-19:/pythran-stories/trivial-auto-var-init-experiments.html</id><summary type="html">&lt;p class="first last"&gt;exploring the impact of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init&lt;/span&gt;&lt;/tt&gt; on Firefox codebase&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-ftrivial-auto-var-init=[pattern|zero|uninitialized]&lt;/span&gt;&lt;/tt&gt; is a compiler flag that controls how the stack is initialized before any value is initialized to it. The default is &lt;tt class="docutils literal"&gt;uninitialized&lt;/tt&gt;: no initialisation is done, reading from an uninitialized location of the stack yields whatever value lies there at that point. This is Undefined Behavior in both C and C++. It makes stack allocation a &lt;span class="formula"&gt;&lt;span class="scriptfont"&gt;O&lt;/span&gt;(1)&lt;/span&gt; operation, which is nice, but it also is (a) a common source of programming errors (b) a potential security issue.&lt;/p&gt;
 &lt;p&gt;As a countermeasure, the modes &lt;tt class="docutils literal"&gt;pattern&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;zero&lt;/tt&gt; have been introduced.
 The former sets stack slots to hard-coded patterns, depending on the type

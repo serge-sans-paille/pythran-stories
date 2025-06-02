@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - A Hidden Weakness</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/cython.html"> cython </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a                         class="active" href="./category/mozilla.html"> mozilla </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>A Hidden Weakness</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2025-05-29 00:00:00+02:00">May 29, 2025</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/mozilla.html"><em>mozilla</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p>This is the story of a bug hunt that lasted much longer than expected, but ended
+with the dearest of all treasures: <em>knowledge</em>.</p>
+<p>Let's draw some context: the Android platform defines different API levels.
+Unsurprisingly, some symbols are only defined starting with a given API version.
+For instance, <tt class="docutils literal">ASystemFontIterator_open</tt> is only available starting at API 29.</p>
+<p>Unconditionally trying to use <tt class="docutils literal">ASystemFontIterator_open</tt> while targeting an
+API older than 29 leads to a linker error (an undefined reference), which makes
+sense because the symbol, well, does not exist at that API level.</p>
+<p>So a native application that wants to use this symbol can either refuse to run on
+older API, or use a combination of <tt class="docutils literal">dlopen</tt> and <tt class="docutils literal">dlsym</tt> to dynamically
+lookup for the symbol and provide a fallback if it does not exist. The latter
+approach is used on Fenix, the Android version of Firefox.</p>
+<div class="section" id="introducing-android-unavailable-symbols-are-weak">
+<h2>Introducing <tt class="docutils literal">__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__</tt></h2>
+<p>As an alternative to the features from <tt class="docutils literal">&lt;dlfcn.h&gt;</tt>, Android build system makes
+it possible to define <tt class="docutils literal"><span class="pre">-D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__</span></tt>, combine it
+with a compiler check through <tt class="docutils literal"><span class="pre">-Werror=unguarded-availability</span></tt> and a runtime
+check through <tt class="docutils literal">__builtin_available</tt>. Here is an example:</p>
+<div class="highlight"><pre><span></span><span class="c1">// The header that defines ASystemFontIterator_open.</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;android/system_fonts.h&gt;</span>
+
+<span class="p">...</span>
+
+<span class="c1">// Runtime check for API level</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">__builtin_available</span><span class="p">(</span><span class="n">android</span><span class="w"> </span><span class="mi">29</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Reference to the actual symbol. Does not fail at link time because an</span>
+<span class="cm">       alternative weak definition is always provided by &lt;android/system_fonts.h&gt;*/</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="o">*</span><span class="n">iterator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ASystemFontIterator_open</span><span class="p">();</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+<p>There's a lot happening there, so let's dive in the wilderness of compiler
+extensions.</p>
+<div class="section" id="android-system-fonts-h">
+<h3><tt class="docutils literal">&lt;android/system_fonts.h&gt;</tt></h3>
+<p><tt class="docutils literal">ASystemFontIterator_open</tt> is defined in <tt class="docutils literal">&lt;android/system_fonts.h&gt;</tt> as:</p>
+<div class="highlight"><pre><span></span><span class="n">ASystemFontIterator</span><span class="o">*</span><span class="w"> </span><span class="n">_Nullable</span><span class="w"> </span><span class="n">ASystemFontIterator_open</span><span class="p">()</span><span class="w"> </span><span class="n">__INTRODUCED_IN</span><span class="p">(</span><span class="mi">29</span><span class="p">);</span>
+</pre></div>
+<p>The <tt class="docutils literal">_Nullable</tt> attribute is an interesting topic, but it's a side quest we're
+not going to explore today. The macro function <tt class="docutils literal"><span class="pre">__INTRODUCED_IN(...)</span></tt> is
+defined in <tt class="docutils literal">&lt;android/versioning.h&gt;</tt> as:</p>
+<div class="highlight"><pre><span></span><span class="cp">#define __INTRODUCED_IN(api_level) __BIONIC_AVAILABILITY(introduced=api_level)</span>
+</pre></div>
+<p>And <tt class="docutils literal">__BIONIC_AVAILABILITY</tt> is conditionally defined in the same header as:</p>
+<div class="highlight"><pre><span></span><span class="cp">#if defined(__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)</span>
+<span class="w">  </span><span class="cp">#define __BIONIC_AVAILABILITY(__what, ...) __attribute__((__availability__(android,__what __VA_OPT__(,) __VA_ARGS__)))</span>
+<span class="cp">#else</span>
+<span class="w">  </span><span class="cp">#define __BIONIC_AVAILABILITY(__what, ...) __attribute__((__availability__(android,strict,__what __VA_OPT__(,) __VA_ARGS__)))</span>
+<span class="cp">#endif</span>
+</pre></div>
+<p>So in our case <tt class="docutils literal">ASystemFontIterator_open</tt> is flagged either with
+<tt class="docutils literal"><span class="pre">__attribute__((__availability__(android,introduced=29))</span></tt> or
+<tt class="docutils literal"><span class="pre">__attribute__((__availability__(android,strict,introduced=29))</span></tt>.</p>
+<p>Let's write a simple C code containing only the following:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>a.c<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">void foo(void) __attribute__((__availability__(android,introduced=29)));</span>
+<span class="s">void bar(void) __attribute__((__availability__(android,strict,introduced=29)));</span>
+<span class="s">void foobar(void) {</span>
+<span class="s">  foo();</span>
+<span class="s">  bar();</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</pre></div>
+<p>Compile and inspect it:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang<span class="w"> </span>--target<span class="o">=</span>x86_64-linux-android21<span class="w"> </span>-c<span class="w"> </span>a.c
+a.c:5:3:<span class="w"> </span>error:<span class="w"> </span><span class="s1">&#39;bar&#39;</span><span class="w"> </span>is<span class="w"> </span>unavailable:<span class="w"> </span>introduced<span class="w"> </span><span class="k">in</span><span class="w"> </span>Android<span class="w"> </span><span class="m">29</span><span class="w"> </span>android
+<span class="w">    </span><span class="m">5</span><span class="w"> </span><span class="p">|</span><span class="w">   </span>bar<span class="o">()</span><span class="p">;</span>
+<span class="w">      </span><span class="p">|</span><span class="w">   </span>^
+a.c:2:6:<span class="w"> </span>note:<span class="w"> </span><span class="s1">&#39;bar&#39;</span><span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>explicitly<span class="w"> </span>marked<span class="w"> </span>unavailable<span class="w"> </span>here
+<span class="w">    </span><span class="m">2</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>void<span class="w"> </span>bar<span class="o">(</span>void<span class="o">)</span><span class="w"> </span>__attribute__<span class="o">((</span>__availability__<span class="o">(</span>android,strict,introduced<span class="o">=</span><span class="m">29</span><span class="o">)))</span><span class="p">;</span>
+<span class="w">      </span><span class="p">|</span><span class="w">      </span>^
+<span class="m">1</span><span class="w"> </span>error<span class="w"> </span>generated.
+</pre></div>
+<p>ok, so the <tt class="docutils literal">strict</tt> keyword implies a compilation error if we reference that
+symbol while targeting a lower version. Good. Let's remove it:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>b.c<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">void foo(void) __attribute__((__availability__(android,introduced=29)));</span>
+<span class="s">void foobar(void) {</span>
+<span class="s">  foo();</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+$<span class="w"> </span>clang<span class="w"> </span>--target<span class="o">=</span>x86_64-linux-android21<span class="w"> </span>-c<span class="w"> </span>b.c
+$<span class="w"> </span>nm<span class="w"> </span>b.o
+<span class="w">                 </span>w<span class="w"> </span>foo
+<span class="m">0000000000000000</span><span class="w"> </span>T<span class="w"> </span>foobar
+$<span class="w"> </span>readelf<span class="w"> </span>-s<span class="w"> </span>b.o
+
+Symbol<span class="w"> </span>table<span class="w"> </span><span class="s1">&#39;.symtab&#39;</span><span class="w"> </span>contains<span class="w"> </span><span class="m">5</span><span class="w"> </span>entries:
+<span class="w">   </span>Num:<span class="w">    </span>Value<span class="w">          </span>Size<span class="w"> </span>Type<span class="w">    </span>Bind<span class="w">   </span>Vis<span class="w">      </span>Ndx<span class="w"> </span>Name
+<span class="w">     </span><span class="m">0</span>:<span class="w"> </span><span class="m">0000000000000000</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>NOTYPE<span class="w">  </span>LOCAL<span class="w">  </span>DEFAULT<span class="w">  </span>UND
+<span class="w">     </span><span class="m">1</span>:<span class="w"> </span><span class="m">0000000000000000</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>FILE<span class="w">    </span>LOCAL<span class="w">  </span>DEFAULT<span class="w">  </span>ABS<span class="w"> </span>b.c
+<span class="w">     </span><span class="m">2</span>:<span class="w"> </span><span class="m">0000000000000000</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>SECTION<span class="w"> </span>LOCAL<span class="w">  </span>DEFAULT<span class="w">    </span><span class="m">2</span><span class="w"> </span>.text
+<span class="w">     </span><span class="m">3</span>:<span class="w"> </span><span class="m">0000000000000000</span><span class="w">    </span><span class="m">11</span><span class="w"> </span>FUNC<span class="w">    </span>GLOBAL<span class="w"> </span>DEFAULT<span class="w">    </span><span class="m">2</span><span class="w"> </span>foobar
+<span class="w">     </span><span class="m">4</span>:<span class="w"> </span><span class="m">0000000000000000</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>NOTYPE<span class="w">  </span>WEAK<span class="w">   </span>DEFAULT<span class="w">  </span>UND<span class="w"> </span>foo
+</pre></div>
+<p>No compilation error, even though the symbol <tt class="docutils literal">foo</tt> is marked as available only
+for more recent API. Instead we end up with a symbol <tt class="docutils literal">foo</tt> marked as <tt class="docutils literal">WEAK</tt>
+(<tt class="docutils literal">w</tt>) and <tt class="docutils literal">UND</tt> (for undefined). Calling this symbol is equivalent to
+dereferencing a <tt class="docutils literal">nullptr</tt> and ends up with a segfault. Not super safe!</p>
+</div>
+<div class="section" id="werror-unguarded-availability">
+<h3><tt class="docutils literal"><span class="pre">-Werror=unguarded-availability</span></tt></h3>
+<p>Fortunately, Clang provides a dedicated warning <tt class="docutils literal"><span class="pre">-Wungarded-availability</span></tt>,
+turned into an error through <tt class="docutils literal"><span class="pre">-Werror=unguarded-availability</span></tt>. This flag
+enables static checking for calls that would resolve into calling undefined weak
+reference because of an <tt class="docutils literal">__availability__</tt> mismatch.</p>
+<p>Indeed in our case:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang<span class="w"> </span>--target<span class="o">=</span>x86_64-linux-android21<span class="w"> </span>-c<span class="w"> </span>b.c<span class="w"> </span>-Werror<span class="o">=</span>unguarded-availability
+b.c:3:3:<span class="w"> </span>error:<span class="w"> </span><span class="s1">&#39;foo&#39;</span><span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>available<span class="w"> </span>on<span class="w"> </span>Android<span class="w"> </span><span class="m">29</span><span class="w"> </span>or<span class="w"> </span>newer<span class="w"> </span><span class="o">[</span>-Werror,-Wunguarded-availability<span class="o">]</span>
+<span class="w">    </span><span class="m">3</span><span class="w"> </span><span class="p">|</span><span class="w">   </span>foo<span class="o">()</span><span class="p">;</span>
+<span class="w">      </span><span class="p">|</span><span class="w">   </span>^~~
+b.c:1:6:<span class="w"> </span>note:<span class="w"> </span><span class="s1">&#39;foo&#39;</span><span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>marked<span class="w"> </span>as<span class="w"> </span>being<span class="w"> </span>introduced<span class="w"> </span><span class="k">in</span><span class="w"> </span>Android<span class="w"> </span><span class="m">29</span><span class="w"> </span>here,<span class="w"> </span>but<span class="w"> </span>the<span class="w"> </span>deployment<span class="w"> </span>target<span class="w"> </span>is<span class="w"> </span>Android<span class="w"> </span><span class="m">21</span>
+<span class="w">    </span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>void<span class="w"> </span>foo<span class="o">(</span>void<span class="o">)</span><span class="w"> </span>__attribute__<span class="o">((</span>__availability__<span class="o">(</span>android,introduced<span class="o">=</span><span class="m">29</span><span class="o">)))</span><span class="p">;</span>
+<span class="w">      </span><span class="p">|</span><span class="w">      </span>^
+b.c:3:3:<span class="w"> </span>note:<span class="w"> </span>enclose<span class="w"> </span><span class="s1">&#39;foo&#39;</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>a<span class="w"> </span>__builtin_available<span class="w"> </span>check<span class="w"> </span>to<span class="w"> </span>silence<span class="w"> </span>this<span class="w"> </span>warning
+<span class="w">    </span><span class="m">3</span><span class="w"> </span><span class="p">|</span><span class="w">   </span>foo<span class="o">()</span><span class="p">;</span>
+<span class="w">      </span><span class="p">|</span><span class="w">   </span>^~~
+<span class="m">1</span><span class="w"> </span>error<span class="w"> </span>generated.
+</pre></div>
+<p>Let's follow the compiler hint and guard our execution:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>c.c<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">void foo(void) __attribute__((__availability__(android,introduced=29)));</span>
+<span class="s">void foobar(void) {</span>
+<span class="s">  if (__builtin_available(android 29, *))</span>
+<span class="s">    foo();</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+$<span class="w"> </span>clang<span class="w"> </span>--target<span class="o">=</span>x86_64-linux-android21<span class="w"> </span>-c<span class="w"> </span>c.c<span class="w"> </span>-Werror<span class="o">=</span>unguarded-availability
+</pre></div>
+<p>No error, and indeed a guard is generated, as shown by the intermediate compiler
+representation:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>clang<span class="w"> </span>--target<span class="o">=</span>x86_64-linux-android21<span class="w"> </span>-S<span class="w"> </span>-emit-llvm<span class="w"> </span>c.c<span class="w"> </span>-Werror<span class="o">=</span>unguarded-availability
+...
+define<span class="w"> </span>dso_local<span class="w"> </span>void<span class="w"> </span>@foobar<span class="o">()</span><span class="w"> </span><span class="c1">#0 {</span>
+<span class="w">  </span>%1<span class="w"> </span><span class="o">=</span><span class="w"> </span>call<span class="w"> </span>i32<span class="w"> </span>@__isOSVersionAtLeast<span class="o">(</span>i32<span class="w"> </span><span class="m">29</span>,<span class="w"> </span>i32<span class="w"> </span><span class="m">0</span>,<span class="w"> </span>i32<span class="w"> </span><span class="m">0</span><span class="o">)</span><span class="w"> </span><span class="c1">#2</span>
+<span class="w">  </span>%2<span class="w"> </span><span class="o">=</span><span class="w"> </span>icmp<span class="w"> </span>ne<span class="w"> </span>i32<span class="w"> </span>%1,<span class="w"> </span><span class="m">0</span>
+<span class="w">  </span>br<span class="w"> </span>i1<span class="w"> </span>%2,<span class="w"> </span>label<span class="w"> </span>%3,<span class="w"> </span>label<span class="w"> </span>%4
+
+<span class="m">3</span>:<span class="w">                                                </span><span class="p">;</span><span class="w"> </span><span class="nv">preds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>%0
+<span class="w">  </span>call<span class="w"> </span>void<span class="w"> </span>@foo<span class="o">()</span>
+<span class="w">  </span>br<span class="w"> </span>label<span class="w"> </span>%4
+
+<span class="m">4</span>:<span class="w">                                                </span><span class="p">;</span><span class="w"> </span><span class="nv">preds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>%3,<span class="w"> </span>%0
+<span class="w">  </span>ret<span class="w"> </span>void
+<span class="o">}</span>
+</pre></div>
+<p>The function <tt class="docutils literal">__isOSVersionAtLeast</tt> is part of the compiler runtime and its
+implementation performs a costly check at first call, memoize the result and
+then just reads the memoized result, which is quite fast.</p>
+</div>
+</div>
+<div class="section" id="the-actual-quest">
+<h2>The Actual Quest</h2>
+<p>This was a long detour before we reach our archenemy: the Firefox build system.
+In a situation similar to the one described above, we indeed end up with a weak
+symbol for <tt class="docutils literal">ASystemFontIterator_open</tt> in the object file, but when creating a
+shared library, the symbol is just marked as undefined, and on system with
+recent API, the <tt class="docutils literal">__isOSVersionAtLeast</tt> check passes but the guarded symbol is
+undefined and everything went kaboom.</p>
+<p>I'll spare you the detail I took to verify that the <tt class="docutils literal">libandroid.so</tt> we use is
+the right one, it has the right symbol which should supersedes the weak definition
+of <tt class="docutils literal">ASystemFontIterator_open</tt> if it were marked as weak, but because it's
+marked undefined, it's just not there. Why would that happen?</p>
+<p>Then I carefully compared the symbols between my object file from the Firefox
+build system, and the one from my minimal reproducer above. And I ended up with
+these two lines:</p>
+<pre class="code literal-block">
+0000000000000000     0 NOTYPE  WEAK   HIDDEN   UND ASystemFontIterator_open
+
+0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND foo
+</pre>
+<p>They look the same. But, wait, <tt class="docutils literal">HIDDEN</tt>? Why would,
+<tt class="docutils literal">ASystemFontIterator_open</tt>, a symbol that comes from a system header, be
+marked as <tt class="docutils literal">HIDDEN</tt>? I quickly double-checked and there was no
+<tt class="docutils literal"><span class="pre">-fvisibility=hidden</span></tt> on the compiler invocation.</p>
+<p>But there was something else.</p>
+<p>A simple flag that looked innocent.</p>
+<p><tt class="docutils literal"><span class="pre">-include</span> config/gcc_hidden.h</tt></p>
+<p>And in that very single file:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span>config/gcc_hidden.h
+/*<span class="w"> </span>This<span class="w"> </span>Source<span class="w"> </span>Code<span class="w"> </span>Form<span class="w"> </span>is<span class="w"> </span>subject<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>terms<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>Mozilla<span class="w"> </span>Public
+<span class="w"> </span>*<span class="w"> </span>License,<span class="w"> </span>v.<span class="w"> </span><span class="m">2</span>.0.<span class="w"> </span>If<span class="w"> </span>a<span class="w"> </span>copy<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>MPL<span class="w"> </span>was<span class="w"> </span>not<span class="w"> </span>distributed<span class="w"> </span>with<span class="w"> </span>this
+<span class="w"> </span>*<span class="w"> </span>file,<span class="w"> </span>You<span class="w"> </span>can<span class="w"> </span>obtain<span class="w"> </span>one<span class="w"> </span>at<span class="w"> </span>http://mozilla.org/MPL/2.0/.<span class="w"> </span>*/
+
+/*<span class="w"> </span>Begin<span class="w"> </span>all<span class="w"> </span>files<span class="w"> </span>as<span class="w"> </span>hidden<span class="w"> </span>visibility<span class="w"> </span>*/
+<span class="c1">#pragma GCC visibility push(hidden)</span>
+</pre></div>
+<p><em>Et voilà</em>, Firefox defaults to building with hidden visibility, this impacts
+the weak symbols generated as a consequence of <tt class="docutils literal"><span class="pre">__attribute__((__availability__(android,introduced=29)))</span></tt> and we can indeed reproduce the issue:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>d.c<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">#pragma GCC visibility push(hidden)</span>
+<span class="s">void foo(void) __attribute__((__availability__(android,introduced=29)));</span>
+<span class="s">void foobar(void) {</span>
+<span class="s">  foo();</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+$<span class="w"> </span>clang<span class="w"> </span>--target<span class="o">=</span>x86_64-linux-android21<span class="w"> </span>-c<span class="w"> </span>b.c
+$<span class="w"> </span>readelf<span class="w"> </span>-s<span class="w"> </span>b.o<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;\&lt;foo\&gt;&#39;</span>
+<span class="m">4</span>:<span class="w"> </span><span class="m">0000000000000000</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>NOTYPE<span class="w">  </span>WEAK<span class="w">   </span>HIDDEN<span class="w">   </span>UND<span class="w"> </span>foo
+$<span class="w"> </span>clang<span class="w"> </span>-shared<span class="w"> </span>b.o<span class="w"> </span>-o<span class="w"> </span>libfoo.so
+$<span class="w"> </span>nm<span class="w"> </span>libfoo.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;\&lt;foo\&gt;&#39;</span>
+$<span class="w"> </span>objdump<span class="w"> </span>-S<span class="w"> </span>libfoo.so
+...
+<span class="m">0000000000000320</span><span class="w"> </span>&lt;foobar&gt;:
+<span class="w"> </span><span class="m">320</span>:<span class="w">        </span><span class="m">55</span><span class="w">                      </span>push<span class="w">   </span>%rbp
+<span class="w"> </span><span class="m">321</span>:<span class="w">        </span><span class="m">48</span><span class="w"> </span><span class="m">89</span><span class="w"> </span>e5<span class="w">                </span>mov<span class="w">    </span>%rsp,%rbp
+<span class="w"> </span><span class="m">324</span>:<span class="w">        </span>e8<span class="w"> </span>d7<span class="w"> </span><span class="nb">fc</span><span class="w"> </span>ff<span class="w"> </span>ff<span class="w">          </span>call<span class="w">   </span><span class="m">0</span><span class="w"> </span>&lt;_init-0x224&gt;
+<span class="w"> </span><span class="m">329</span>:<span class="w">        </span>5d<span class="w">                      </span>pop<span class="w">    </span>%rbp
+<span class="w"> </span>32a:<span class="w">        </span>c3<span class="w">                      </span>ret
+...
+</pre></div>
+<p>the call to <tt class="docutils literal">foo</tt> got turned into a call to <tt class="docutils literal">0</tt>. Even on more recent
+platforms, a <tt class="docutils literal">0</tt> stays a <tt class="docutils literal">0</tt>, the weak reference trick no longer works.</p>
+</div>
+<div class="section" id="the-fix">
+<h2>The Fix</h2>
+<p>As usual, the fix is very small, compared to the amount of work required to find
+it. In our case we can temporarly change the default visibility when including
+android system headers, as in:</p>
+<div class="highlight"><pre><span></span><span class="cp">#pragma GCC visibility push(default)</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;android/system_fonts.h&gt;</span>
+<span class="cp">#pragma GCC visibility pop</span>
+</pre></div>
+<p>As it's often the case, the journey is the real reward. But getting <a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1966309">Bug 1966309</a>
+fixed is also not bad ;-)</p>
+</div>
+<div class="section" id="acknowledgments">
+<h2>Acknowledgments</h2>
+<p>Thanks goes to Olivia Hall for providing initial help with Android platform
+details.</p>
+</div>
+
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>
