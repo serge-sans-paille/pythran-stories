@@ -217,7 +217,7 @@ platforms, a &lt;tt class="docutils literal"&gt;0&lt;/tt&gt; stays a &lt;tt clas
 &lt;div class="section" id="the-fix"&gt;
 &lt;h2&gt;The Fix&lt;/h2&gt;
 &lt;p&gt;As usual, the fix is very small, compared to the amount of work required to find
-it. In our case we can temporarly change the default visibility when including
+it. In our case we can temporarily change the default visibility when including
 android system headers, as in:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#pragma GCC visibility push(default)&lt;/span&gt;
 &lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;android/system_fonts.h&amp;gt;&lt;/span&gt;

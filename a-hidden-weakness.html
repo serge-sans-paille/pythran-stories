@@ -294,7 +294,7 @@ platforms, a <tt class="docutils literal">0</tt> stays a <tt class="docutils lit
 <div class="section" id="the-fix">
 <h2>The Fix</h2>
 <p>As usual, the fix is very small, compared to the amount of work required to find
-it. In our case we can temporarly change the default visibility when including
+it. In our case we can temporarily change the default visibility when including
 android system headers, as in:</p>
 <div class="highlight"><pre><span></span><span class="cp">#pragma GCC visibility push(default)</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;android/system_fonts.h&gt;</span>
