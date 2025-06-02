@@ -258,8 +258,8 @@ the weak symbols generated as a consequence of ``__attribute__((__availability__
      foo();
    }
    EOF
-   $ clang --target=x86_64-linux-android21 -c b.c
-   $ readelf -s b.o | grep -E '\<foo\>'
+   $ clang --target=x86_64-linux-android21 -c d.c
+   $ readelf -s d.o | grep -E '\<foo\>'
    4: 0000000000000000     0 NOTYPE  WEAK   HIDDEN   UND foo
    $ clang -shared b.o -o libfoo.so
    $ nm libfoo.so | grep -E '\<foo\>'
