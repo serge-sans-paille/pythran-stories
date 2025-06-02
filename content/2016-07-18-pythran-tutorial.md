@@ -454,14 +454,14 @@ Using the package API, or simply ``pythran scrabble.py``
 >>> !python -m pythran.run -v scrabble.py
 ```
 
-    [39mrunning build_ext[0m
-    [39mrunning build_src[0m
-    [39mbuild_src[0m
-    [39mbuilding extension "scrabble" sources[0m
-    [39mbuild_src: building npy-pkg config files[0m
-    [36mnew_compiler returns distutils.unixccompiler.UnixCCompiler[0m
-    [32mINFO    [0m [34mcustomize UnixCCompiler[0m
-    [39mcustomize UnixCCompiler using build_ext[0m
+    [39mrunning build_ext[0m
+    [39mrunning build_src[0m
+    [39mbuild_src[0m
+    [39mbuilding extension "scrabble" sources[0m
+    [39mbuild_src: building npy-pkg config files[0m
+    [36mnew_compiler returns distutils.unixccompiler.UnixCCompiler[0m
+    [32mINFO    [0m [34mcustomize UnixCCompiler[0m
+    [39mcustomize UnixCCompiler using build_ext[0m
     ********************************************************************************
     distutils.unixccompiler.UnixCCompiler
     linker_exe    = ['x86_64-linux-gnu-gcc', '-pthread']
@@ -476,9 +476,9 @@ Using the package API, or simply ``pythran scrabble.py``
     library_dirs  = []
     include_dirs  = ['/usr/include/python2.7']
     ********************************************************************************
-    [36mnew_compiler returns distutils.unixccompiler.UnixCCompiler[0m
-    [32mINFO    [0m [34mcustomize UnixCCompiler[0m
-    [39mcustomize UnixCCompiler using build_ext[0m
+    [36mnew_compiler returns distutils.unixccompiler.UnixCCompiler[0m
+    [32mINFO    [0m [34mcustomize UnixCCompiler[0m
+    [39mcustomize UnixCCompiler using build_ext[0m
     ********************************************************************************
     distutils.unixccompiler.UnixCCompiler
     linker_exe    = ['x86_64-linux-gnu-gcc', '-pthread']
@@ -493,31 +493,31 @@ Using the package API, or simply ``pythran scrabble.py``
     library_dirs  = []
     include_dirs  = ['/usr/include/python2.7']
     ********************************************************************************
-    [39mbuilding 'scrabble' extension[0m
-    [39mcompiling C++ sources[0m
-    [39mC compiler: c++ -pthread -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC
-    [0m
-    [39mcreating /tmp/tmpiXxCc3/tmp[0m
-    [39mcompile options: '-DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c'
-    extra options: '-std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden'[0m
-    [39mc++: /tmp/tmpRIF8Kz.cpp[0m
-    [36mexec_command(['c++', '-pthread', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-fno-strict-aliasing', '-g', '-O2', '-fPIC', '-DUSE_GMP', '-DENABLE_PYTHON_MODULE', '-I/home/sguelton/sources/pythran/pythran', '-I/home/sguelton/sources/pythran/pythran/pythonic/patch', '-I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include', '-I/usr/include/python2.7', '-c', '/tmp/tmpRIF8Kz.cpp', '-o', '/tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o', '-std=c++11', '-fno-math-errno', '-w', '-fwhole-program', '-fvisibility=hidden'],)[0m
-    [36mRetaining cwd: /home/sguelton/sources/pythran/notebooks[0m
-    [36m_preserve_environment([])[0m
-    [36m_update_environment(...)[0m
-    [36m_exec_command_posix(...)[0m
-    [36mRunning os.system('( c++ -pthread -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpRIF8Kz.cpp -o /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden ; echo $? > /tmp/tmpkJNNfR/XwPT61 ) 2>&1 | tee /tmp/tmpkJNNfR/xJbGUl ')[0m
-    [36m_update_environment(...)[0m
-    [39mc++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -lgmp -lgmpxx -lcblas -lblas -o /tmp/tmpsa8TH1/scrabble.so -fvisibility=hidden -Wl,-strip-all[0m
-    [36mexec_command(['c++', '-pthread', '-shared', '-Wl,-O1', '-Wl,-Bsymbolic-functions', '-Wl,-z,relro', '-fno-strict-aliasing', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-Wdate-time', '-D_FORTIFY_SOURCE=2', '-g', '-fstack-protector-strong', '-Wformat', '-Werror=format-security', '-Wl,-z,relro', '-g', '-O2', '/tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o', '-lgmp', '-lgmpxx', '-lcblas', '-lblas', '-o', '/tmp/tmpsa8TH1/scrabble.so', '-fvisibility=hidden', '-Wl,-strip-all'],)[0m
-    [36mRetaining cwd: /home/sguelton/sources/pythran/notebooks[0m
-    [36m_preserve_environment([])[0m
-    [36m_update_environment(...)[0m
-    [36m_exec_command_posix(...)[0m
-    [36mRunning os.system('( c++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -lgmp -lgmpxx -lcblas -lblas -o /tmp/tmpsa8TH1/scrabble.so -fvisibility=hidden -Wl,-strip-all ; echo $? > /tmp/tmpkJNNfR/KjbDFo ) 2>&1 | tee /tmp/tmpkJNNfR/LHI7ms ')[0m
-    [36m_update_environment(...)[0m
-    [32mINFO    [0m [34mGenerated module: scrabble[0m
-    [32mINFO    [0m [34mOutput: /home/sguelton/sources/pythran/notebooks/scrabble.so[0m
+    [39mbuilding 'scrabble' extension[0m
+    [39mcompiling C++ sources[0m
+    [39mC compiler: c++ -pthread -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC
+    [0m
+    [39mcreating /tmp/tmpiXxCc3/tmp[0m
+    [39mcompile options: '-DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c'
+    extra options: '-std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden'[0m
+    [39mc++: /tmp/tmpRIF8Kz.cpp[0m
+    [36mexec_command(['c++', '-pthread', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-fno-strict-aliasing', '-g', '-O2', '-fPIC', '-DUSE_GMP', '-DENABLE_PYTHON_MODULE', '-I/home/sguelton/sources/pythran/pythran', '-I/home/sguelton/sources/pythran/pythran/pythonic/patch', '-I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include', '-I/usr/include/python2.7', '-c', '/tmp/tmpRIF8Kz.cpp', '-o', '/tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o', '-std=c++11', '-fno-math-errno', '-w', '-fwhole-program', '-fvisibility=hidden'],)[0m
+    [36mRetaining cwd: /home/sguelton/sources/pythran/notebooks[0m
+    [36m_preserve_environment([])[0m
+    [36m_update_environment(...)[0m
+    [36m_exec_command_posix(...)[0m
+    [36mRunning os.system('( c++ -pthread -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -g -O2 -fPIC -DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/home/sguelton/.venvs/pythran-demo/local/lib/python2.7/site-packages/numpy/core/include -I/usr/include/python2.7 -c /tmp/tmpRIF8Kz.cpp -o /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden ; echo $? > /tmp/tmpkJNNfR/XwPT61 ) 2>&1 | tee /tmp/tmpkJNNfR/xJbGUl ')[0m
+    [36m_update_environment(...)[0m
+    [39mc++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -lgmp -lgmpxx -lcblas -lblas -o /tmp/tmpsa8TH1/scrabble.so -fvisibility=hidden -Wl,-strip-all[0m
+    [36mexec_command(['c++', '-pthread', '-shared', '-Wl,-O1', '-Wl,-Bsymbolic-functions', '-Wl,-z,relro', '-fno-strict-aliasing', '-DNDEBUG', '-g', '-fwrapv', '-O2', '-Wall', '-Wstrict-prototypes', '-Wdate-time', '-D_FORTIFY_SOURCE=2', '-g', '-fstack-protector-strong', '-Wformat', '-Werror=format-security', '-Wl,-z,relro', '-g', '-O2', '/tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o', '-lgmp', '-lgmpxx', '-lcblas', '-lblas', '-o', '/tmp/tmpsa8TH1/scrabble.so', '-fvisibility=hidden', '-Wl,-strip-all'],)[0m
+    [36mRetaining cwd: /home/sguelton/sources/pythran/notebooks[0m
+    [36m_preserve_environment([])[0m
+    [36m_update_environment(...)[0m
+    [36m_exec_command_posix(...)[0m
+    [36mRunning os.system('( c++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 /tmp/tmpiXxCc3/tmp/tmpRIF8Kz.o -lgmp -lgmpxx -lcblas -lblas -o /tmp/tmpsa8TH1/scrabble.so -fvisibility=hidden -Wl,-strip-all ; echo $? > /tmp/tmpkJNNfR/KjbDFo ) 2>&1 | tee /tmp/tmpkJNNfR/LHI7ms ')[0m
+    [36m_update_environment(...)[0m
+    [32mINFO    [0m [34mGenerated module: scrabble[0m
+    [32mINFO    [0m [34mOutput: /home/sguelton/sources/pythran/notebooks/scrabble.so[0m
 
 
 
@@ -579,19 +579,19 @@ Pythran provides some facilities for distutils integration, in the form of a ``P
 >>> !python setup.py build -v
 ```
 
-    [39mrunning build[0m
-    [39mrunning build_ext[0m
-    [39mbuilding 'demo' extension[0m
-    [39mC compiler: x86_64-linux-gnu-gcc -pthread -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -fno-strict-aliasing -g -O2 -fPIC
-    [0m
-    [39mcreating build[0m
-    [39mcreating build/temp.linux-x86_64-2.7[0m
-    [39mcompile options: '-DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/usr/include/python2.7 -c'
-    extra options: '-std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden'[0m
-    [39mx86_64-linux-gnu-gcc: scrabble.cpp[0m
+    [39mrunning build[0m
+    [39mrunning build_ext[0m
+    [39mbuilding 'demo' extension[0m
+    [39mC compiler: x86_64-linux-gnu-gcc -pthread -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -fno-strict-aliasing -g -O2 -fPIC
+    [0m
+    [39mcreating build[0m
+    [39mcreating build/temp.linux-x86_64-2.7[0m
+    [39mcompile options: '-DUSE_GMP -DENABLE_PYTHON_MODULE -I/home/sguelton/sources/pythran/pythran -I/home/sguelton/sources/pythran/pythran/pythonic/patch -I/usr/include/python2.7 -c'
+    extra options: '-std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden'[0m
+    [39mx86_64-linux-gnu-gcc: scrabble.cpp[0m
     cc1plus: warning: command line option ‘-Wstrict-prototypes’ is valid for C/ObjC but not for C++
-    [39mcreating build/lib.linux-x86_64-2.7[0m
-    [39mc++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 build/temp.linux-x86_64-2.7/scrabble.o -lgmp -lgmpxx -lcblas -lblas -o build/lib.linux-x86_64-2.7/demo.so -fvisibility=hidden -Wl,-strip-all[0m
+    [39mcreating build/lib.linux-x86_64-2.7[0m
+    [39mc++ -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wl,-z,relro -g -O2 build/temp.linux-x86_64-2.7/scrabble.o -lgmp -lgmpxx -lcblas -lblas -o build/lib.linux-x86_64-2.7/demo.so -fvisibility=hidden -Wl,-strip-all[0m
 
 
 
@@ -599,33 +599,33 @@ Pythran provides some facilities for distutils integration, in the form of a ``P
 >>> !python setup.py sdist
 ```
 
-    [39mrunning sdist[0m
-    [39mrunning egg_info[0m
-    [39mwriting demo.egg-info/PKG-INFO[0m
-    [39mwriting top-level names to demo.egg-info/top_level.txt[0m
-    [39mwriting dependency_links to demo.egg-info/dependency_links.txt[0m
-    [39mreading manifest file 'demo.egg-info/SOURCES.txt'[0m
-    [39mwriting manifest file 'demo.egg-info/SOURCES.txt'[0m
-    [31mwarning: sdist: standard file not found: should have one of README, README.rst, README.txt
-    [0m
-    [39mrunning check[0m
-    [31mwarning: check: missing required meta-data: url
-    [0m
-    [31mwarning: check: missing meta-data: either (author and author_email) or (maintainer and maintainer_email) must be supplied
-    [0m
-    [39mcreating demo-1.0[0m
-    [39mcreating demo-1.0/demo.egg-info[0m
-    [39mmaking hard links in demo-1.0...[0m
-    [39mhard linking scrabble.cpp -> demo-1.0[0m
-    [39mhard linking setup.py -> demo-1.0[0m
-    [39mhard linking demo.egg-info/PKG-INFO -> demo-1.0/demo.egg-info[0m
-    [39mhard linking demo.egg-info/SOURCES.txt -> demo-1.0/demo.egg-info[0m
-    [39mhard linking demo.egg-info/dependency_links.txt -> demo-1.0/demo.egg-info[0m
-    [39mhard linking demo.egg-info/top_level.txt -> demo-1.0/demo.egg-info[0m
-    [39mWriting demo-1.0/setup.cfg[0m
-    [39mcreating dist[0m
-    [39mCreating tar archive[0m
-    [39mremoving 'demo-1.0' (and everything under it)[0m
+    [39mrunning sdist[0m
+    [39mrunning egg_info[0m
+    [39mwriting demo.egg-info/PKG-INFO[0m
+    [39mwriting top-level names to demo.egg-info/top_level.txt[0m
+    [39mwriting dependency_links to demo.egg-info/dependency_links.txt[0m
+    [39mreading manifest file 'demo.egg-info/SOURCES.txt'[0m
+    [39mwriting manifest file 'demo.egg-info/SOURCES.txt'[0m
+    [31mwarning: sdist: standard file not found: should have one of README, README.rst, README.txt
+    [0m
+    [39mrunning check[0m
+    [31mwarning: check: missing required meta-data: url
+    [0m
+    [31mwarning: check: missing meta-data: either (author and author_email) or (maintainer and maintainer_email) must be supplied
+    [0m
+    [39mcreating demo-1.0[0m
+    [39mcreating demo-1.0/demo.egg-info[0m
+    [39mmaking hard links in demo-1.0...[0m
+    [39mhard linking scrabble.cpp -> demo-1.0[0m
+    [39mhard linking setup.py -> demo-1.0[0m
+    [39mhard linking demo.egg-info/PKG-INFO -> demo-1.0/demo.egg-info[0m
+    [39mhard linking demo.egg-info/SOURCES.txt -> demo-1.0/demo.egg-info[0m
+    [39mhard linking demo.egg-info/dependency_links.txt -> demo-1.0/demo.egg-info[0m
+    [39mhard linking demo.egg-info/top_level.txt -> demo-1.0/demo.egg-info[0m
+    [39mWriting demo-1.0/setup.cfg[0m
+    [39mcreating dist[0m
+    [39mCreating tar archive[0m
+    [39mremoving 'demo-1.0' (and everything under it)[0m
 
 
 
