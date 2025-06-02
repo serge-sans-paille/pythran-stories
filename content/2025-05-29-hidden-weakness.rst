@@ -280,7 +280,7 @@ The Fix
 =======
 
 As usual, the fix is very small, compared to the amount of work required to find
-it. In our case we can temporarly change the default visibility when including
+it. In our case we can temporarily change the default visibility when including
 android system headers, as in:
 
 .. code-block:: c
