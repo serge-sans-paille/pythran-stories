@@ -276,7 +276,7 @@ the weak symbols generated as a consequence of <tt class="docutils literal"><spa
 $<span class="w"> </span>clang<span class="w"> </span>--target<span class="o">=</span>x86_64-linux-android21<span class="w"> </span>-c<span class="w"> </span>d.c
 $<span class="w"> </span>readelf<span class="w"> </span>-s<span class="w"> </span>d.o<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;\&lt;foo\&gt;&#39;</span>
 <span class="m">4</span>:<span class="w"> </span><span class="m">0000000000000000</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>NOTYPE<span class="w">  </span>WEAK<span class="w">   </span>HIDDEN<span class="w">   </span>UND<span class="w"> </span>foo
-$<span class="w"> </span>clang<span class="w"> </span>-shared<span class="w"> </span>b.o<span class="w"> </span>-o<span class="w"> </span>libfoo.so
+$<span class="w"> </span>clang<span class="w"> </span>-shared<span class="w"> </span>d.o<span class="w"> </span>-o<span class="w"> </span>libfoo.so
 $<span class="w"> </span>nm<span class="w"> </span>libfoo.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;\&lt;foo\&gt;&#39;</span>
 $<span class="w"> </span>objdump<span class="w"> </span>-S<span class="w"> </span>libfoo.so
 ...
