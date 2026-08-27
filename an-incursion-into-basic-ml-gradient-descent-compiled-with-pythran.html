@@ -81,16 +81,16 @@ feeds/all.atom.xml"
 <p>Thanks to w1gz and Apo for their review!</p>
 <p>In https://realpython.com/numpy-tensorflow-performance/, the author compares the performance of different approaches of a basic ML kernel, gradient descent. </p>
 <p>Let's try to join the party :-) </p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pythran</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">pythran</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">load_ext</span> <span class="n">pythran</span><span class="o">.</span><span class="n">magic</span>
 </code></pre></div>
 
 <h1>Original Setup</h1>
 <p>The original Numpy code is the following:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">it</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">np_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">np_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 <span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="o">...</span>     <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">N</span>
@@ -109,7 +109,7 @@ feeds/all.atom.xml"
 </code></pre></div>
 
 <p>And the experimental setup is the following: </p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">444</span><span class="p">)</span>
 <span class="o">...</span> 
@@ -138,11 +138,11 @@ feeds/all.atom.xml"
 <li>remove the <code>out</code> parameter for <code>np.subtract</code> because it's not supported yet by pythran (but it could in the future)</li>
 </ol>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">it</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_descent(float64[], float64[,], float, int)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pythran_descent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;pythran does not support squeeze&quot;</span>
 <span class="o">...</span>     <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -172,11 +172,11 @@ feeds/all.atom.xml"
 <h2>SIMD Instructions to the rescue</h2>
 <p>Pythran supports generation of SIMD instructions, through the great Boost.SIMD library. Let's update compile flags and try again. The <code>-march=native</code> tells the underlying compiler (here, GCC 7.3.0) to generate code specific to my processor's architecture, thus enabling AVX instructions \o/</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">DUSE_BOOST_SIMD</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">it</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_descent_simd(float64[], float64[,], float, int)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_descent_simd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pythran_descent_simd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">N_epochs</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;pythran does not support squeeze&quot;</span>
 <span class="o">...</span>     <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -214,14 +214,14 @@ feeds/all.atom.xml"
 </ol>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">DUSE_BOOST_SIMD</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export dottest0(float[], float[])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">dottest0</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="o">...</span>     <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">dottest0</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="o">...</span>     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">array</span>
 <span class="o">...</span>     <span class="n">tmp</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">@</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">tmp</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export dottest1(float[], float[])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">dottest1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="o">...</span>     <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">dottest1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="o">...</span>     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">array</span>
 <span class="o">...</span>     <span class="n">tmp</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">x</span> <span class="o">@</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">x</span>
 </code></pre></div>

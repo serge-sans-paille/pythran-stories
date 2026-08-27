@@ -99,16 +99,16 @@ Time-Scale  Modification  of  Audio&quot; IEEE  TRANSACTIONS  ON SPEECH  AND  AU
 <div class="section" id="python-numpy-code">
 <h3>Python/Numpy code</h3>
 <p>The code is shown below. Refer to the paper if you're interested in the &quot;theoretical&quot; explanation for what's being done. As you can see, the Numpy implementation is simple but not trivial, requiring several steps. Note that the algorithm uses both real and complex numbers: the output of the rfft routine is a complex array, and the rotations are complex numbers. Copy the code below into a <tt class="docutils literal">time_scaling.py</tt> file.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
-<span class="k">def</span> <span class="nf">hanning</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hanning</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">M</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
     <span class="k">if</span> <span class="n">M</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
     <span class="k">return</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">n</span><span class="o">/</span><span class="p">(</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 
-<span class="k">def</span> <span class="nf">computeRotation</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">rotations</span><span class="p">,</span><span class="n">fftSize</span><span class="p">,</span><span class="n">inputHop</span><span class="p">,</span><span class="n">outputHop</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">computeRotation</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">rotations</span><span class="p">,</span><span class="n">fftSize</span><span class="p">,</span><span class="n">inputHop</span><span class="p">,</span><span class="n">outputHop</span><span class="p">):</span>
     <span class="c1"># Compute the appropriate rotations based on input and output hop.</span>
     <span class="n">AX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
     <span class="c1"># Find peaks in AX: values that are larger than their two neighbors on the left and on the right</span>
@@ -126,7 +126,7 @@ Time-Scale  Modification  of  Audio&quot; IEEE  TRANSACTIONS  ON SPEECH  AND  AU
         <span class="n">rotations</span><span class="p">[</span><span class="n">left</span><span class="p">:</span><span class="n">right</span><span class="p">]</span><span class="o">=</span><span class="n">rotations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">rotations</span>
 
-<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span><span class="n">sRate</span><span class="p">,</span><span class="n">factor</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span><span class="n">sRate</span><span class="p">,</span><span class="n">factor</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">):</span>
     <span class="c1"># Process parameters.</span>
     <span class="n">windowLengthS</span> <span class="o">=</span> <span class="mf">0.060</span>
     <span class="n">windowHopS</span> <span class="o">=</span> <span class="mf">0.030</span>
@@ -170,9 +170,9 @@ Time-Scale  Modification  of  Audio&quot; IEEE  TRANSACTIONS  ON SPEECH  AND  AU
 </pre></div>
 <p>Now we can run the process function on an audio file. For simplicity I'm using a <tt class="docutils literal">.wav</tt> file: Scipy has a very simple interface for reading or writing a <tt class="docutils literal">.wav</tt> file.
 Note that our process function expects a 1D input array. If you open a stereo <tt class="docutils literal">.wav</tt> file, the array returned by wavfile.read will be 2D. In case this happens I'm only keeping the left channel. You can copy paste the following code into a <tt class="docutils literal">main.py</tt> file:</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time_scaling</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">wavfile</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time_scaling</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">wavfile</span>
 
 <span class="n">sRate</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/Users/jlaroche/temp/MessageInABottleMono.wav&#39;</span><span class="p">)</span>
 <span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">data</span>

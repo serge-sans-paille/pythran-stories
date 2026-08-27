@@ -88,8 +88,8 @@ a <a class="reference external" href="http://stackoverflow.com/questions/1381571
 
 <span class="c1">#pythran export create_grid(float [])</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="k">def</span> <span class="nf">create_grid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_grid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
     <span class="n">z</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
@@ -140,7 +140,7 @@ methods and attributes make sense in the current context. And that's exactly
 what we need to get closer to Python typing!</p>
 <p>This all is very nice, except in the case of a bad typing. Consider this trivial
 Python code:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">twice</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">twice</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="mi">2</span>
 </pre></div>
 <p>integer, for instance <tt class="docutils literal">str</tt>, <tt class="docutils literal">list</tt>, <tt class="docutils literal">int</tt>. The C++ equivalent would
@@ -220,7 +220,7 @@ what got introduced is the concept of <tt class="docutils literal">MultiType</tt
 object that can hold several types at the same time. So that's not exactly a
 <tt class="docutils literal">UnionType</tt> which is the type of an object that can be of one type among
 many. The difference exists because of the situation described by the following code:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="k">pass</span>
 
 <span class="n">foo</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -234,7 +234,7 @@ many. The difference exists because of the situation described by the following 
 <tt class="docutils literal">MultiType</tt> that is just a list of possible types.</p>
 <p>Abusing from <tt class="docutils literal">Multiype</tt> can quickly make the combinatorics of the type
 possibilities go wild, so we had to make a decision. Consider the following code:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span>
 </pre></div>
 <p>The <tt class="docutils literal">in</tt> operator could be implemented as a <tt class="docutils literal">MultiType</tt>, enumerating the
@@ -271,7 +271,7 @@ over-approximation defined above, is a <tt class="docutils literal">(Any, Any, A
 <div class="section" id="handling-option-types">
 <h3>Handling Option Types</h3>
 <p>When HM runs on the following Python code:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
@@ -300,12 +300,12 @@ the <tt class="docutils literal">int</tt> type in the <tt class="docutils litera
 only a few patterns as the condition expression, there is something more
 generic to be done there.</p>
 <p>This even led to improvement in our test base, as the following code was no longer correct:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span>
 </pre></div>
 <p>Type inference computes that v is of type <tt class="docutils literal">Optional[T0]</tt>, which is not compatible with <tt class="docutils literal">v + 1</tt> and a <tt class="docutils literal">PythranTypeError</tt> is raised. A compatible way to write this would be:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>  <span class="c1"># or do stuff</span>
@@ -391,7 +391,7 @@ various places. So instead of a formal proof, here is some testing results :-).<
 <p>First, the whole test suite passes without much modifications. It helped
 to spot a few <em>errors</em> in the tests, mostly code that was incorrect with
 respect to option types. We also updated the way we specify tests input type to rely on PEP484. A typical Pythran unit-test now looks like:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_shadow_import2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_shadow_import2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;def shadow_import2(s):</span>
 <span class="sd">               for set in s : set.add(1)&#39;&#39;&#39;</span><span class="p">,</span>
@@ -403,7 +403,7 @@ respect to option types. We also updated the way we specify tests input type to 
 must be instantiated.</p>
 <p>The following code sample is adapted from the <a class="reference external" href="http://www.mypy-lang.org/examples.html">MyPy example page</a>. It requires a type comment to be
 correctly typed, while Pythran correctly type checks it without annotation.</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">wc</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">wc</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
@@ -428,14 +428,14 @@ E:<span class="w"> </span>Invalid<span class="w"> </span>operand<span class="w">
 <p>Considering Numpy functions, we don't model all of them in tog, but we can
 still detect several interesting errors. For instance on a gaussian kernel
 (<a class="reference external" href="http://stats.stackexchange.com/questions/15798/how-to-calculate-a-gaussian-kernel-effectively-in-numpy">error-safe version from stackexchange</a>):</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="k">def</span> <span class="nf">vectorized_RBF_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">vectorized_RBF_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
     <span class="n">X2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># sum colums of the matrix</span>
     <span class="n">K0</span> <span class="o">=</span> <span class="n">X2</span> <span class="o">+</span> <span class="n">X2</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">X</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span>
     <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">K0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">K</span>
 
-<span class="k">def</span> <span class="nf">badcall</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">badcall</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">vectorized_RBF_kernel</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
 </pre></div>
 <p>Pythran correctly catches the error on <tt class="docutils literal">vectorized_RBF_kernel</tt> call:</p>

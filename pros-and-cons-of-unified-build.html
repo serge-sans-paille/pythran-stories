@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pythran stories - Pros and Cons of Unified Build</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
+        <link rel="stylesheet" type="text/css" href="./theme/css/main.css"/>
+            <link href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                  type="application/atom+xml" rel="alternate" title="Pythran stories Atom Feed"/>
+
+</head>
+<body>
+<style>.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}</style><div id="container">
+    <header>
+        <h1><a href="./">Pythran stories</a></h1>
+            <ul class="social-media">
+                    <li><a href="https://github.com/serge-sans-paille/pythran"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+                    <li><a href="http://serge-sans-paille.github.io/pythran-stories/
+feeds/all.atom.xml"
+                           type="application/atom+xml" rel="alternate"><i class="fa fa-rss fa-lg"
+                                                                          aria-hidden="true"></i></a></li>
+            </ul>
+        <p><em></em></p>
+    </header>
+    <nav>
+        <ul>
+                    <li><a href="./category/benchmark.html"> benchmark </a></li>
+                    <li><a href="./category/compilation.html"> compilation </a></li>
+                    <li><a href="./category/cython.html"> cython </a></li>
+                    <li><a href="./category/engineering.html"> engineering </a></li>
+                    <li><a href="./category/examples.html"> examples </a></li>
+                    <li><a                         class="active" href="./category/mozilla.html"> mozilla </a></li>
+                    <li><a href="./category/optimisation.html"> optimisation </a></li>
+                    <li><a href="./category/release.html"> release </a></li>
+        </ul>
+    </nav>
+<main>
+    <article>
+        <h1>Pros and Cons of Unified Build</h1>
+        
+        <aside>
+            <ul>
+                <li>
+                    <time datetime="2026-08-27 00:00:00+02:00">Aug 27, 2026</time>
+                </li>
+                <li>
+                    Categories:
+                    <a href="./category/mozilla.html"><em>mozilla</em></a>
+                </li>
+                </li>
+            </ul>
+        </aside>
+        <p>Unified builds (also know as <em>Jumbo Builds</em>) is a build techniques that aims at
+improving build time through the concatenation of several sources as a single
+<em>unified</em> source before compilation.</p>
+<p>The goal is obtained through implicit caching of header instantiation, although it
+implies a trade-off with parallelism.</p>
+<p>Let's illustrate this behavior through a simple example, two codes that implement variation of the same approach:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* algo0.cpp */</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">)(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="p">));</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">w_out</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">w_in</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">)(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;[log] through transform</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">w_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w_in</span><span class="p">;</span>
+<span class="w">    </span><span class="n">translate</span><span class="p">(</span><span class="n">w_out</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/* algo1.cpp */</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;algorithm&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">)(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;[log] through for_each</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">w</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="n">t</span><span class="p">](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+<p>Compiling individual files take the following times:</p>
+<div class="highlight"><pre><span></span>%<span class="w"> </span>hyperfine<span class="w"> </span>--warmup<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;/usr/bin/clang++ -O2 algo0.cpp -c&quot;</span>
+Benchmark<span class="w"> </span><span class="m">1</span>:<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-O2<span class="w"> </span>algo0.cpp<span class="w"> </span>-c
+<span class="w">  </span>Time<span class="w"> </span><span class="o">(</span>mean<span class="w"> </span>±<span class="w"> </span>σ<span class="o">)</span>:<span class="w">     </span><span class="m">267</span>.7<span class="w"> </span>ms<span class="w"> </span>±<span class="w">   </span><span class="m">7</span>.4<span class="w"> </span>ms<span class="w">    </span><span class="o">[</span>User:<span class="w"> </span><span class="m">234</span>.6<span class="w"> </span>ms,<span class="w"> </span>System:<span class="w"> </span><span class="m">30</span>.4<span class="w"> </span>ms<span class="o">]</span>
+<span class="w">  </span>Range<span class="w"> </span><span class="o">(</span>min<span class="w"> </span>…<span class="w"> </span>max<span class="o">)</span>:<span class="w">   </span><span class="m">259</span>.7<span class="w"> </span>ms<span class="w"> </span>…<span class="w"> </span><span class="m">277</span>.3<span class="w"> </span>ms<span class="w">    </span><span class="m">11</span><span class="w"> </span>runs
+
+%<span class="w"> </span>hyperfine<span class="w"> </span>--warmup<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;/usr/bin/clang++ -O2 algo1.cpp -c&quot;</span>
+Benchmark<span class="w"> </span><span class="m">1</span>:<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-O2<span class="w"> </span>algo1.cpp<span class="w"> </span>-c
+<span class="w">  </span>Time<span class="w"> </span><span class="o">(</span>mean<span class="w"> </span>±<span class="w"> </span>σ<span class="o">)</span>:<span class="w">     </span><span class="m">173</span>.6<span class="w"> </span>ms<span class="w"> </span>±<span class="w">  </span><span class="m">46</span>.3<span class="w"> </span>ms<span class="w">    </span><span class="o">[</span>User:<span class="w"> </span><span class="m">149</span>.6<span class="w"> </span>ms,<span class="w"> </span>System:<span class="w"> </span><span class="m">22</span>.1<span class="w"> </span>ms<span class="o">]</span>
+<span class="w">  </span>Range<span class="w"> </span><span class="o">(</span>min<span class="w"> </span>…<span class="w"> </span>max<span class="o">)</span>:<span class="w">   </span><span class="m">130</span>.4<span class="w"> </span>ms<span class="w"> </span>…<span class="w"> </span><span class="m">231</span>.6<span class="w"> </span>ms<span class="w">    </span><span class="m">13</span><span class="w"> </span>runs
+</pre></div>
+<p>Creation of the unified file is just a matter of invoking <tt class="docutils literal">cat</tt>, let's
+benchmark the compilation of the unified source:</p>
+<div class="highlight"><pre><span></span>%<span class="w"> </span>cat<span class="w"> </span>algo<span class="o">{</span><span class="m">0</span>,1<span class="o">}</span>.cpp<span class="w"> </span>&gt;<span class="w"> </span>unified_algo.cpp
+%<span class="w"> </span>hyperfine<span class="w"> </span>--warmup<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;/usr/bin/clang++ -O2 unified_algo.cpp -c&quot;</span>
+Benchmark<span class="w"> </span><span class="m">1</span>:<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-O2<span class="w"> </span>unified_algo.cpp<span class="w"> </span>-c
+<span class="w">  </span>Time<span class="w"> </span><span class="o">(</span>mean<span class="w"> </span>±<span class="w"> </span>σ<span class="o">)</span>:<span class="w">     </span><span class="m">223</span>.8<span class="w"> </span>ms<span class="w"> </span>±<span class="w">  </span><span class="m">64</span>.5<span class="w"> </span>ms<span class="w">    </span><span class="o">[</span>User:<span class="w"> </span><span class="m">193</span>.0<span class="w"> </span>ms,<span class="w"> </span>System:<span class="w"> </span><span class="m">28</span>.4<span class="w"> </span>ms<span class="o">]</span>
+<span class="w">  </span>Range<span class="w"> </span><span class="o">(</span>min<span class="w"> </span>…<span class="w"> </span>max<span class="o">)</span>:<span class="w">   </span><span class="m">160</span>.8<span class="w"> </span>ms<span class="w"> </span>…<span class="w"> </span><span class="m">301</span>.8<span class="w"> </span>ms<span class="w">    </span><span class="m">10</span><span class="w"> </span>runs
+</pre></div>
+<p>In that simple case, the weight of headers with respect to actual user code is such that
+compilation of the unified file takes almost the same time as the max compilation time among each individual file. That's roughly a 1.97x speedup on compilation time.</p>
+<p>That's the promise given by unified builds. And it's a promise held.</p>
+<p>Now let's have a look at the consequences of that deal.</p>
+<p>Beforehand, we still need to introduce another parameter tied to unified builds: the
+<em>unification parameter</em>, say <tt class="docutils literal">P</tt>. That parameter bounds the number of files
+that are unified together. Let's imagine we have a hundred of individual source
+files compiled with exactly the same compilation flags. Setting <tt class="docutils literal">P</tt> to <tt class="docutils literal">5</tt>
+leads to the generation of <tt class="docutils literal">20</tt> unified sources compiled independently.</p>
+<p>Remember the parameter <tt class="docutils literal">P</tt>.</p>
+<div class="section" id="quality-of-the-generated-code">
+<h2>Quality of the Generated Code</h2>
+<p>Let's create a shared object from <tt class="docutils literal"><span class="pre">algo{0,1}.o</span></tt> (this implies a recompilation with <tt class="docutils literal"><span class="pre">-fPIC</span></tt> of the sources):</p>
+<div class="highlight"><pre><span></span>%<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-O2<span class="w"> </span>algo0.cpp<span class="w"> </span>-c<span class="w"> </span>-fPIC
+%<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-O2<span class="w"> </span>algo1.cpp<span class="w"> </span>-c<span class="w"> </span>-fPIC
+%<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-shared<span class="w"> </span>algo<span class="o">{</span><span class="m">0</span>,1<span class="o">}</span>.o<span class="w"> </span>-fPIC<span class="w"> </span>-o<span class="w"> </span>algo.so
+</pre></div>
+<p>And do the same from <tt class="docutils literal">unified_algo.o</tt>:</p>
+<div class="highlight"><pre><span></span>%<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-O2<span class="w"> </span>unified_algo.cpp<span class="w"> </span>-c<span class="w"> </span>-fPIC
+%<span class="w"> </span>/usr/bin/clang++<span class="w"> </span>-shared<span class="w"> </span>unified_algo.o<span class="w"> </span>-fPIC<span class="w"> </span>-o<span class="w"> </span>unified_algo.so
+</pre></div>
+<p>After stripping, comparing the size of the binaries yield a difference of a few bytes. After disassembling, it turns out the compiler decides to inline the call to <tt class="docutils literal">void <span class="pre">translate(std::vector&lt;std::string&gt;&amp;</span> w, void <span class="pre">(&amp;t)(std::string&amp;))</span></tt> from <tt class="docutils literal">algo0.cpp</tt> when compiling the unified source, something the compiler cannot do when doing split compilation, as it does <em>not</em> know anything about the implementation of that function.</p>
+<p>Interestingly, compiling with <tt class="docutils literal"><span class="pre">-flto=thin</span></tt> still lead the compiler instantiation through different optimization path.</p>
+<p>Falling back to <tt class="docutils literal"><span class="pre">-flto=full</span></tt> finally yields to the same shared object, which makes sense because Full LTO is very close to performing source unification at the bytecode level <em>and</em> our sources are very simple. It's not a given though because the actual optimisation pipeline is still different in the two scenario.</p>
+<p>Why does it matter? Depending on the value of <tt class="docutils literal">P</tt>, the compiler will see
+different sets of files per unified file, which will result in different binary
+code. It's actually even worse: depending on the way we fill those unification
+sets, event with the same parameter <tt class="docutils literal">P</tt>, we end up with different binaries.
+Let's call that the <em>reunifying problem</em>.</p>
+<p>Even if we have an algorithm that seems to guarantee reproducibility, for
+instance working on a sorted list of files with a fixed <tt class="docutils literal">P</tt>, variation can
+arise: the introduction of a new source file can lead to changes in every
+unified file (e.g. if the split is done by chunks and the new file ends up at
+the beginning of the file list).</p>
+<p>So <strong>unified builds tend to improve performance, but they do not interact in a gentle way with performance reproducibility</strong>.</p>
+</div>
+<div class="section" id="recompilation-times">
+<h2>Recompilation Times</h2>
+<p>Let's denote <tt class="docutils literal">S</tt> as the number of sources and <tt class="docutils literal">C</tt> as the number of CPUs.</p>
+<p>Intuitively, setting <tt class="docutils literal">P=1</tt> yields to the faster recompilation time when a
+single file is touched---a usual scenario when developing a new feature.</p>
+<p>On the opposite, setting <tt class="docutils literal">P=S</tt> yields to the slower recompilation time (if <tt class="docutils literal">S &gt;&gt;
+C</tt>!) under the same scenario as all sources are recompiled under that
+scenario.</p>
+<p>The form of the curve between those two extreme varies depending on the nature
+of the files, and the amount of header sharing between individual sources.</p>
+<p>Caching tools like <tt class="docutils literal">sccache</tt> is impacted by the same mechanism: as <tt class="docutils literal">P</tt> gets
+greater, more cache misses are hit and more recompilation are done.</p>
+<p>Marginally, introducing a new source also pollutes the cache or triggers
+recompilation for the unified source it gets added to, and eventually for all
+the unified sources derived from the associated file list. The <em>reunifying problem</em> strikes again.</p>
+<p>So <strong>unified build make compilation faster, but recompilation slower</strong>. Setting
+<tt class="docutils literal">P</tt> to an acceptable value is important depending on the usage scenario.</p>
+<div class="section" id="correctness">
+<h3>Correctness</h3>
+<p>Unified build changing the compilation unit frontier, which in turns <em>modifies
+the semantic of the program</em>. This change can be straight-forward or complex to
+debug, and even remain silent. I've listed a few instances of the two first
+categories below, and a crafted one for the latter category.</p>
+<div class="section" id="macro-symbol-redefinition">
+<h4>Macro / Symbol Redefinition</h4>
+<p>This one is trivial to spot (a preprocessor-warning is issued for the macro,
+and a compiler error is issued for the symbol redefinition):</p>
+<div class="highlight"><pre><span></span><span class="cm">/* pi0.cpp */</span>
+<span class="cp">#define PI 3.141593</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">pi</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">3.141593</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="cm">/* pi1.cpp */</span>
+<span class="cp">#define PI 3.14159265</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">pi</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">3.14159265</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+<p>The solution usually lies in moving the definition in a shared header, moving the declaration in a shared header and the definition in a single file, or renaming identifiers to avoid the name conflict. Note that depending on the solution we may change the visibility of the symbols, or impact code readability (assuming the identifier name was perfectly chosen in the first place).</p>
+</div>
+<div class="section" id="overload-conflicts">
+<h4>Overload Conflicts</h4>
+<p>This one is also trivial to spot and may hint toward debatable design. But it exists and may be more complex to understand than the above:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* overload0.cpp */</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="nf">doit</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">f</span><span class="p">;}</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="cm">/* overload1.cpp */</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">doit</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">d</span><span class="p">;}</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+<p>The fix is generally to provide a perfect match for the overload, change the call site to avoid the ambiguity, or rename the functions/change their namespace to make the call site explicit.</p>
+</div>
+<div class="section" id="using-namespace-confusion">
+<h4>Using Namespace Confusion</h4>
+<p>This one tends to creep a lot in codebase where <tt class="docutils literal">using namespace</tt> is used. It generates ambiguity among potential symbols.</p>
+<p>A caricatured situation is exhibited with the following situation:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* using.h */</span>
+<span class="cp">#pragma once</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">a</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">namespace</span><span class="w"> </span><span class="nn">a</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="cm">/* using0.cpp */</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;using.h&quot;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">a</span><span class="p">;</span>
+
+<span class="cm">/* using1.cpp */</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;using.h&quot;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">a</span><span class="p">;</span>
+</pre></div>
+<p>Once <tt class="docutils literal"><span class="pre">using{0,1}.cpp</span></tt> unified, the second <tt class="docutils literal">using namespace a;</tt> directive is ambiguous.</p>
+<p>A more realistic (but similar in spirit) situation arises when the same symbol is defined in different namespaces:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* namespace0.cpp */</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">a0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">var</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">a0</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="p">;</span>
+
+<span class="cm">/* namespace1.cpp */</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">a1</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">var</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">a1</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="p">;</span>
+</pre></div>
+<p>The problem with that category is that the fix is quite unsatisfying: there is no way to limit the scope of a <tt class="docutils literal">using</tt> directive, removing <tt class="docutils literal">using</tt> directive can lead to very verbose codebase, renaming symbols to avoid conflicts goes against the very purpose of namespaces...</p>
+</div>
+<div class="section" id="delicatessen">
+<h4>Delicatessen</h4>
+<p>I spent a lot of time nailing that one down, so I wrote a small reproducer to illustrate the problem.</p>
+<div class="highlight"><pre><span></span>%<span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span>+1<span class="w"> </span>*.h<span class="w"> </span>*.cpp
+<span class="o">==</span>&gt;<span class="w"> </span>header0.h<span class="w"> </span>&lt;<span class="o">==</span>
+<span class="c1">#ifndef H0</span>
+<span class="c1">#define H0</span>
+namespace<span class="w"> </span>mozilla::dom<span class="w"> </span><span class="o">{</span>
+
+class<span class="w"> </span>Lock<span class="w"> </span>final<span class="w"> </span><span class="o">{}</span><span class="p">;</span>
+
+<span class="o">}</span>
+<span class="c1">#endif</span>
+
+<span class="o">==</span>&gt;<span class="w"> </span>header1.h<span class="w"> </span>&lt;<span class="o">==</span>
+<span class="c1">#ifndef H1</span>
+<span class="c1">#define H1</span>
+
+<span class="c1">#include &quot;header0.h&quot;</span>
+
+class<span class="w"> </span>Lock<span class="w"> </span><span class="o">{}</span><span class="p">;</span>
+
+class<span class="w"> </span>AutoUnlock<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>Lock<span class="w"> </span>*lock_<span class="p">;</span>
+<span class="o">}</span><span class="p">;</span>
+<span class="c1">#endif</span>
+
+<span class="o">==</span>&gt;<span class="w"> </span>src0.cpp<span class="w"> </span>&lt;<span class="o">==</span>
+<span class="c1">#include &quot;header1.h&quot;</span>
+
+<span class="o">==</span>&gt;<span class="w"> </span>src1.cpp<span class="w"> </span>&lt;<span class="o">==</span>
+<span class="c1">#include &quot;header0.h&quot;</span>
+
+<span class="o">==</span>&gt;<span class="w"> </span>src2.cpp<span class="w"> </span>&lt;<span class="o">==</span>
+namespace<span class="w"> </span>mozilla::dom<span class="w"> </span><span class="o">{}</span><span class="p">;</span>
+using<span class="w"> </span>namespace<span class="w"> </span>mozilla::dom<span class="p">;</span>
+using<span class="w"> </span>namespace<span class="w"> </span>mozilla<span class="p">;</span>
+
+
+<span class="o">==</span>&gt;<span class="w"> </span>src3.cpp<span class="w"> </span>&lt;<span class="o">==</span>
+<span class="c1">#include &quot;header1.h&quot;</span>
+</pre></div>
+<p>Let me comment that layout a bit: We basically have two different classes named <tt class="docutils literal">Lock</tt>: one lives in the <tt class="docutils literal"><span class="pre">mozilla::dom</span></tt> namespace, and one lives at top-level. In <tt class="docutils literal">header1.h</tt>, although we include the definition of <tt class="docutils literal"><span class="pre">mozilla::dom::Lock</span></tt>, we also get the definition of <tt class="docutils literal">::Lock</tt>, so a straight reference to <tt class="docutils literal">Lock</tt> is not ambiguous.</p>
+<p>Concerning source files, <tt class="docutils literal">src0.cpp</tt>, <tt class="docutils literal">src1.cpp</tt> and <tt class="docutils literal">src3.cpp</tt> just include headers while <tt class="docutils literal">src2.cpp</tt> contains the infamous <tt class="docutils literal">using namespace <span class="pre">modilla::dom;</span></tt> statement.</p>
+<p>Let's now consider various partition of the file list <tt class="docutils literal">src0.cpp, src1.cpp, src2.cpp, src3.cpp</tt>:</p>
+<div class="highlight"><pre><span></span>%<span class="w"> </span><span class="k">for</span><span class="w"> </span>perm<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">0</span>,1<span class="w"> </span><span class="m">2</span>,3<span class="w"> </span><span class="m">0</span>,1,2<span class="w"> </span><span class="m">1</span>,2,3<span class="w"> </span><span class="m">0</span>,1,2,3<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot;unifying </span><span class="nv">$perm</span><span class="s2">... &quot;</span><span class="w"> </span><span class="p">;</span><span class="w"> </span>cat<span class="w"> </span><span class="sb">`</span><span class="nb">eval</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>src<span class="o">{</span><span class="nv">$perm</span><span class="o">}</span>.cpp<span class="sb">`</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>clang++<span class="w"> </span>-xc++<span class="w"> </span>-<span class="w"> </span>-fsyntax-only<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ok<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>ko<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+unifying<span class="w"> </span><span class="m">0</span>,1...<span class="w"> </span>ok
+unifying<span class="w"> </span><span class="m">2</span>,3...<span class="w"> </span>ko
+unifying<span class="w"> </span><span class="m">0</span>,1,2...<span class="w"> </span>ok
+unifying<span class="w"> </span><span class="m">1</span>,2,3...<span class="w"> </span>ko
+unifying<span class="w"> </span><span class="m">0</span>,1,2,3...<span class="w"> </span>ok
+</pre></div>
+<p>Isn't that amazing? Some intermediate unification, namely <tt class="docutils literal">0,1;2,3</tt> and <tt class="docutils literal">0;1,2,3</tt> fail, but other unifications, namely <tt class="docutils literal">0,1,2,3</tt> and <tt class="docutils literal">0;1,2,3</tt> fail. Did you notice that both non-unified and full unified build succeeds, while some intermediate unification fail? What a disaster. This basically mean that given a set of sources, and without putting restriction on the language (like banning <tt class="docutils literal">using</tt> statement), the only way to be sure that a unified build always succeeds whatever the chosen partition is to test every partition. Not very satisfying.</p>
+<p>As a side effect, we can also deduce that adding a new source file to a set of files to be unified can break compilation in files that used to compile fine. That's another instance of the <em>reunifying problem</em>.</p>
+</div>
+<div class="section" id="changing-semantic">
+<h4>Changing Semantic</h4>
+<p>It is quite easy to derive from the above an example whose semantic change once unified. Let's slightly change the overload conflict example from above:</p>
+<div class="highlight"><pre><span></span><span class="cm">/* silent0.cpp */</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">doit</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">putchar</span><span class="p">(</span><span class="sc">&#39;0&#39;</span><span class="p">);</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">f</span><span class="p">;}</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="cm">/* silent1.cpp */</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">doit</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">putchar</span><span class="p">(</span><span class="sc">&#39;1&#39;</span><span class="p">);</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">d</span><span class="p">;}</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+<p>When compiled independently, this results in a binary that prints a <tt class="docutils literal">0</tt> and a <tt class="docutils literal">1</tt> on the screen. But when compiled as a unified source, we only get a pair of <tt class="docutils literal">0</tt>.</p>
+</div>
+</div>
+<div class="section" id="concluding-words">
+<h3>Concluding Words</h3>
+<p>Remember that discussion between Luke and Yoda?</p>
+<blockquote>
+<p>LUKE
+Vader. Is the dark side stronger?</p>
+<p>YODA
+No… no… no. Quicker, easier, more seductive.</p>
+</blockquote>
+<p>That's exactly my thoughts on unified builds: they give you quick wins in
+term of cold build speed and give faster builds. That's very good
+properties, and you rip the benefit of them very quickly. Then you realize
+that you're tied to a monster in terms of maintainability and developer
+experience, but you're already addict to the speed it gave you.</p>
+</div>
+</div>
+
+    </article>
+    <section class="post-nav">
+        <div id="left-page">
+            <div id="left-link">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="right-link">
+            </div>
+        </div>
+    </section>
+    <div>
+    </div>
+</main>
+    <footer>
+        <h6>
+            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
+                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
+                &copy &nbsp;&#8209;&nbsp; serge-sans-paille and other pythraners         </h6>
+    </footer>
+</div>
+</body>
+</html>

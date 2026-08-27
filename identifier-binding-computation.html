@@ -139,7 +139,7 @@ identifier share the same property. For instance:</p>
 is likely to evolve, but current (clumsy) typing system in Pythran attaches
 some kind of typing properties to functions. For instance for the following
 function:</p>
-<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 </pre></div>
 <p>Pythran computes a property that states</p>
 <blockquote>
@@ -168,9 +168,9 @@ in the function call, as they share the same value.</p>
 Instead Pythran only keep tracks of values that are bound to an identifier. All
 the others are hidden between the terms of <tt class="docutils literal"><span class="pre">&lt;unbound-value&gt;</span></tt>.</p>
 <p>So let's start to write some simple equations <a class="footnote-reference" href="#footnote-2" id="footnote-reference-2">[1]</a>, with a few test cases demonstrated as Python code which needs some initialization:</p>
-<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ast</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran.analyses.aliases</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran</span> <span class="kn">import</span> <span class="n">passmanager</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pythran.analyses.aliases</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pythran</span><span class="w"> </span><span class="kn">import</span> <span class="n">passmanager</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pm</span> <span class="o">=</span> <span class="n">passmanager</span><span class="o">.</span><span class="n">PassManager</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
 </pre></div>
 <p>Here, we basically inject the <tt class="docutils literal">aliases</tt> namespace into current namespace for
@@ -416,7 +416,7 @@ potentially creating more aliasing:</p>
 <div class="section" id="illustration-typing">
 <h3>Illustration: Typing</h3>
 <p>Thanks to the above analysis, Pythran is capable of computing some rather difficult informations! In the following:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">typing_aliasing_and_variable_subscript_combiner</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">typing_aliasing_and_variable_subscript_combiner</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
     <span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
        <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">y</span><span class="p">])</span>
     <span class="p">]</span>
@@ -426,7 +426,7 @@ potentially creating more aliasing:</p>
 </pre></div>
 <p>Pythran knows that <tt class="docutils literal">b</tt> is a list of elements of the same type as <tt class="docutils literal">i</tt>.</p>
 <p>And in the following:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">typing_and_function_dict</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">typing_and_function_dict</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="n">funcs</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;zero&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
         <span class="s1">&#39;one&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
@@ -453,8 +453,8 @@ effects. Thanks to the binded value analysis, it can also prove that
 <strong>whatever</strong> the index, <tt class="docutils literal">funcs[something]</tt> either points to <tt class="docutils literal">useless0</tt> or
 <tt class="docutils literal">useless1</tt>. And in either cases, the function has no side effect, which means
 we can remove the whole instruction:</p>
-<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran.optimizations</span> <span class="kn">import</span> <span class="n">DeadCodeElimination</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pythran.backend</span> <span class="kn">import</span> <span class="n">Python</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pythran.optimizations</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeadCodeElimination</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pythran.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Python</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">DeadCodeElimination</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">pm</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Python</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>

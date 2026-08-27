@@ -102,8 +102,8 @@ three months, let's have a look at the results.</p>
 maintain.</p>
 <div class="highlight"><pre><span></span><span class="c1">#pythran export arc_distance(float64 [], float64[], float64[], float64[])</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="k">def</span> <span class="nf">arc_distance</span><span class="p">(</span><span class="n">theta_1</span><span class="p">,</span> <span class="n">phi_1</span><span class="p">,</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">arc_distance</span><span class="p">(</span><span class="n">theta_1</span><span class="p">,</span> <span class="n">phi_1</span><span class="p">,</span>
                        <span class="n">theta_2</span><span class="p">,</span> <span class="n">phi_2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the pairwise arc distance between all points in vector a and b.</span>
@@ -146,8 +146,8 @@ representation from array-of-struct to struct-of-array, as we stick to numpy's
 layout. Still that's something new for Pythran as showcased by the following kernel:</p>
 <div class="highlight"><pre><span></span><span class="c1">#pythran export normalize_complex_arr(complex[])</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="k">def</span> <span class="nf">normalize_complex_arr</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_complex_arr</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="n">a_oo</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">a</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">imag</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="c1"># origin offsetted</span>
     <span class="k">return</span> <span class="n">a_oo</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">a_oo</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 </pre></div>
@@ -219,8 +219,8 @@ instance.</p>
 <div class="highlight"><pre><span></span><span class="c1">#pythran export cos_array(float64 [])</span>
 <span class="c1">#setup: import numpy as np ; np.random.seed(0); N = 10000 ; x = np.random.random(N) * 2 * np.pi</span>
 <span class="c1">#run: cos_array(x)</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="k">def</span> <span class="nf">cos_array</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cos_array</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </pre></div>
 <p>The results are obtained through the <tt class="docutils literal">asv compare commit_id0 commit_id1</tt> command.</p>

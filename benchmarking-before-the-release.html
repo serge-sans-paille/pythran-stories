@@ -84,17 +84,17 @@ feeds/all.atom.xml"
 <p>Benchmarking is a difficult task. This notebook does not aim to be a reference comparison between Cython and Pythran. So many factors are involved: the developper proficiency in Cython, Numpy and Pythran, the underlying C compiler, or C++ compiler (we made sure they were using the same gcc version, at least), their respective compilation flags (they are different, but both use  <code>-O2</code> and <strong>not</strong> <code>-ffast-math</code>), the Pythran/Cython version… So take it as it is: a way to make sure the Pythran developpers did not miss an obvious optimization opportunity, or introduced a performance regression. No other conclusions should be made without great care.</p>
 <h1>Setup</h1>
 <p>The happy few:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">load_ext</span> <span class="n">Cython</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">load_ext</span> <span class="n">pythran</span><span class="o">.</span><span class="n">magic</span>
 </code></pre></div>
 
 <p>The benchmarking routine:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">timeit</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pandas</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">timeit</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">run_bench</span><span class="p">(</span><span class="n">functions</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">args_factory</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_bench</span><span class="p">(</span><span class="n">functions</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">args_factory</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">global</span> <span class="n">function</span><span class="p">,</span> <span class="n">args</span>  <span class="c1"># to please timeit</span>
 <span class="o">...</span>     <span class="n">scores</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">functions</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">sizes</span><span class="p">)</span>
 <span class="o">...</span>     <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span><span class="p">:</span>
@@ -109,7 +109,7 @@ feeds/all.atom.xml"
 <h1>cos_norm</h1>
 <p><em>source: <a href="http://stackoverflow.com/questions/32258905/optimization-and-speedup-of-a-mathematical-function-in-python">stackoverflow</a></em></p>
 <p>This kernel tests classical element wise operations <em>à la</em> Numpy.</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">np_cos_norm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">np_cos_norm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">))</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">val</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </code></pre></div>
@@ -119,11 +119,11 @@ feeds/all.atom.xml"
 <span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">cython</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="n">cdef</span> <span class="n">extern</span> <span class="kn">from</span> <span class="s2">&quot;math.h&quot;</span><span class="p">:</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cdef</span> <span class="n">extern</span> <span class="kn">from</span><span class="w"> </span><span class="s2">&quot;math.h&quot;</span><span class="p">:</span>
 <span class="o">...</span>     <span class="n">double</span> <span class="n">cos</span><span class="p">(</span><span class="n">double</span> <span class="n">x</span><span class="p">)</span> <span class="n">nogil</span>
 <span class="o">...</span>     <span class="n">double</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">double</span> <span class="n">x</span><span class="p">)</span> <span class="n">nogil</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">cython_cos_norm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">cython_cos_norm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">cos_norm_impl</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -146,8 +146,8 @@ feeds/all.atom.xml"
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_cos_norm(float[], float[])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_cos_norm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pythran_cos_norm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">))</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">val</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </code></pre></div>
@@ -157,7 +157,7 @@ feeds/all.atom.xml"
 <span class="o">...</span>                          <span class="p">(</span><span class="s1">&#39;cython&#39;</span><span class="p">,</span> <span class="n">cython_cos_norm</span><span class="p">),</span>
 <span class="o">...</span>                          <span class="p">(</span><span class="s1">&#39;pythran&#39;</span><span class="p">,</span> <span class="n">pythran_cos_norm</span><span class="p">)])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">sizes</span> <span class="o">=</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="mf">1e6</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">),</span>
 <span class="o">...</span>             <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">run_bench</span><span class="p">(</span><span class="n">cos_norms</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">args_factory</span><span class="p">)</span>
@@ -174,7 +174,7 @@ feeds/all.atom.xml"
 <h1>Grayscott</h1>
 <p><em>source: <a href="http://stackoverflow.com/questions/26823312/numba-or-cython-acceleration-in-reaction-diffusion-algorithm">stackoverflow</a></em></p>
 <p>This kernel tests complex array interactions: slices, element-wise operations, everything into a regular loop!</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">np_grayscott</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">Du</span><span class="p">,</span> <span class="n">Dv</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">np_grayscott</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">Du</span><span class="p">,</span> <span class="n">Dv</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">n</span> <span class="o">=</span> <span class="mi">300</span>
 <span class="o">...</span>     <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float_</span><span class="p">)</span>
 <span class="o">...</span>     <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float_</span><span class="p">)</span>
@@ -204,7 +204,7 @@ feeds/all.atom.xml"
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">cython</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">cython</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -258,8 +258,8 @@ feeds/all.atom.xml"
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_grayscott(int, float, float, float, float)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_grayscott</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">Du</span><span class="p">,</span> <span class="n">Dv</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pythran_grayscott</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">Du</span><span class="p">,</span> <span class="n">Dv</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">n</span> <span class="o">=</span> <span class="mi">300</span>
 <span class="o">...</span>     <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float_</span><span class="p">)</span>
 <span class="o">...</span>     <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float_</span><span class="p">)</span>
@@ -291,7 +291,7 @@ feeds/all.atom.xml"
 <span class="o">...</span>                           <span class="p">(</span><span class="s1">&#39;cython&#39;</span><span class="p">,</span> <span class="n">cython_grayscott</span><span class="p">),</span>
 <span class="o">...</span>                           <span class="p">(</span><span class="s1">&#39;pythran&#39;</span><span class="p">,</span> <span class="n">pythran_grayscott</span><span class="p">)])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">sizes</span> <span class="o">=</span> <span class="mf">1e1</span><span class="p">,</span> <span class="mf">5e1</span><span class="p">,</span> <span class="mf">1e2</span><span class="p">,</span> <span class="mf">5e2</span><span class="p">,</span> <span class="mf">1e3</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">size</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.06</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">run_bench</span><span class="p">(</span><span class="n">grayscotts</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">args_factory</span><span class="p">)</span>
 </code></pre></div>
@@ -307,17 +307,17 @@ feeds/all.atom.xml"
 <h1>clip</h1>
 <p><em>source: <a href="https://github.com/serge-sans-paille/pythran/issues/433">pythran issue</a></em></p>
 <p>This kernel tests conditionnal assignment (through <code>np.where</code>) and array of complex numbers.</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">np_clip</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">_max</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">np_clip</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">_max</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_max</span><span class="p">,</span> <span class="n">z</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="n">_max</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
 </code></pre></div>
 
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">cython</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">cython</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="n">cdef</span> <span class="n">extern</span> <span class="kn">from</span> <span class="s2">&quot;complex.h&quot;</span><span class="p">:</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">cdef</span> <span class="n">extern</span> <span class="kn">from</span><span class="w"> </span><span class="s2">&quot;complex.h&quot;</span><span class="p">:</span>
 <span class="o">...</span>     <span class="n">double</span> <span class="n">cabs</span><span class="p">(</span><span class="n">double</span> <span class="nb">complex</span> <span class="n">x</span><span class="p">)</span> <span class="n">nogil</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -339,8 +339,8 @@ feeds/all.atom.xml"
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_clip(complex128[], float64)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_clip</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">_max</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pythran_clip</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">_max</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_max</span><span class="p">,</span> <span class="n">z</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="n">_max</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
 </code></pre></div>
 
@@ -349,7 +349,7 @@ feeds/all.atom.xml"
 <span class="o">...</span>                      <span class="p">(</span><span class="s1">&#39;cython&#39;</span><span class="p">,</span> <span class="n">cython_clip</span><span class="p">),</span>
 <span class="o">...</span>                      <span class="p">(</span><span class="s1">&#39;pythran&#39;</span><span class="p">,</span> <span class="n">pythran_clip</span><span class="p">)])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">sizes</span> <span class="o">=</span> <span class="mf">1e2</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="mf">1e6</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="o">*</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">size</span><span class="o">/</span><span class="mi">2</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">run_bench</span><span class="p">(</span><span class="n">clips</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">args_factory</span><span class="p">)</span>
 </code></pre></div>
@@ -366,19 +366,19 @@ feeds/all.atom.xml"
 <p><em>sources: <a href="http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/">jakevdp blog</a> and
 <a href="https://anaconda.org/tonyfast/numbacythonredux/notebook">Anaconda blog</a></em></p>
 <p>This kernel tests Numpy's broadcasting.</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">np_pairwise</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">np_pairwise</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">X</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div>
 
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">cython</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">cimport</span> <span class="n">cython</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">libc.math</span> <span class="n">cimport</span> <span class="n">sqrt</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">libc.math</span> <span class="n">cimport</span> <span class="n">sqrt</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="nd">@cython</span><span class="o">.</span><span class="n">wraparound</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">cython_pairwise</span><span class="p">(</span><span class="n">double</span><span class="p">[:,</span> <span class="p">::</span><span class="mi">1</span><span class="p">]</span> <span class="n">X</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">cython_pairwise</span><span class="p">(</span><span class="n">double</span><span class="p">[:,</span> <span class="p">::</span><span class="mi">1</span><span class="p">]</span> <span class="n">X</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">cdef</span> <span class="nb">int</span> <span class="n">M</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="o">...</span>     <span class="n">cdef</span> <span class="nb">int</span> <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="o">...</span>     <span class="n">cdef</span> <span class="n">double</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">d</span>
@@ -396,8 +396,8 @@ feeds/all.atom.xml"
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_pairwise(float64 [][])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_pairwise</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pythran_pairwise</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">X</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div>
 
@@ -406,7 +406,7 @@ feeds/all.atom.xml"
 <span class="o">...</span>                          <span class="p">(</span><span class="s1">&#39;cython&#39;</span><span class="p">,</span> <span class="n">cython_pairwise</span><span class="p">),</span>
 <span class="o">...</span>                          <span class="p">(</span><span class="s1">&#39;pythran&#39;</span><span class="p">,</span> <span class="n">pythran_pairwise</span><span class="p">)])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">sizes</span> <span class="o">=</span> <span class="mf">0.5e2</span><span class="p">,</span> <span class="mf">1e2</span><span class="p">,</span> <span class="mf">2.5e2</span><span class="p">,</span> <span class="mf">5e2</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">)),</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">run_bench</span><span class="p">(</span><span class="n">pairwises</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">args_factory</span><span class="p">)</span>
 </code></pre></div>
@@ -422,7 +422,7 @@ feeds/all.atom.xml"
 <h1>lu factorization</h1>
 <p><em>source: <a href="https://www.ibm.com/developerworks/community/blogs/jfp/entry/A_Comparison_Of_C_Julia_Python_Numba_Cython_Scipy_and_BLAS_on_LU_Factorization">jfp blog</a></em></p>
 <p>This kernel tests interaction between Numpy arrays, slices and regular loops.</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">np_det_by_lu</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">np_det_by_lu</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
 <span class="o">...</span> 
 <span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -440,7 +440,7 @@ feeds/all.atom.xml"
 
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">cython</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">cython</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">cython</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="nd">@cython</span><span class="o">.</span><span class="n">wraparound</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -462,7 +462,7 @@ feeds/all.atom.xml"
 
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pythran_det_by_lu(float64 [:], float64[:,:])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pythran_det_by_lu</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pythran_det_by_lu</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
 <span class="o">...</span>     <span class="n">N</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="o">...</span>     
@@ -480,7 +480,7 @@ feeds/all.atom.xml"
 <span class="o">...</span>                           <span class="p">(</span><span class="s1">&#39;cython&#39;</span><span class="p">,</span> <span class="n">cython_det_by_lu</span><span class="p">),</span>
 <span class="o">...</span>                           <span class="p">(</span><span class="s1">&#39;pythran&#39;</span><span class="p">,</span> <span class="n">pythran_det_by_lu</span><span class="p">)])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">sizes</span> <span class="o">=</span> <span class="mf">1e2</span><span class="p">,</span> <span class="mf">2.5e2</span><span class="p">,</span> <span class="mf">5e2</span><span class="p">;</span> <span class="mf">7.5e2</span><span class="p">,</span> <span class="mf">1e3</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">args_factory</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">run_bench</span><span class="p">(</span><span class="n">det_by_lus</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">args_factory</span><span class="p">)</span>
 </code></pre></div>

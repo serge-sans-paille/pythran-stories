@@ -88,7 +88,7 @@ file in <a class="reference external" href="https://scikit-image.org/">scikit-im
 written in <a class="reference external" href="https://cython.org/">cython</a>, with a few annotations:</p>
 <div class="highlight"><pre><span></span><span class="c"># cython: wraparound=False</span>
 
-<span class="k">cdef</span> <span class="kr">inline</span> <span class="kt">Py_ssize_t</span> <span class="nf">_clip</span><span class="p">(</span><span class="nb">Py_ssize_t</span> <span class="n">x</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">low</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">high</span><span class="p">)</span> <span class="k">nogil</span><span class="p">:</span>
+<span class="k">cdef</span><span class="w"> </span><span class="kr">inline</span> <span class="kt">Py_ssize_t</span> <span class="nf">_clip</span><span class="p">(</span><span class="nb">Py_ssize_t</span> <span class="n">x</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">low</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">high</span><span class="p">)</span> <span class="k">nogil</span><span class="p">:</span>
     <span class="k">if</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">high</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">high</span>
     <span class="k">if</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">low</span><span class="p">):</span>
@@ -96,7 +96,7 @@ written in <a class="reference external" href="https://cython.org/">cython</a>, 
     <span class="k">return</span> <span class="n">x</span>
 
 
-<span class="k">cdef</span> <span class="kr">inline</span> <span class="kt">cnp</span>.<span class="kt">double_t</span> <span class="nf">_integ</span><span class="p">(</span><span class="n">cnp</span><span class="o">.</span><span class="n">double_t</span><span class="p">[:,</span> <span class="p">::</span><span class="mf">1</span><span class="p">]</span> <span class="n">img</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">r</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">c</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">rl</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">cl</span><span class="p">)</span> <span class="k">nogil</span><span class="p">:</span>
+<span class="k">cdef</span><span class="w"> </span><span class="kr">inline</span> <span class="kt">cnp</span>.<span class="kt">double_t</span> <span class="nf">_integ</span><span class="p">(</span><span class="n">cnp</span><span class="o">.</span><span class="n">double_t</span><span class="p">[:,</span> <span class="p">::</span><span class="mf">1</span><span class="p">]</span> <span class="n">img</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">r</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">c</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">rl</span><span class="p">,</span> <span class="nb">Py_ssize_t</span> <span class="n">cl</span><span class="p">)</span> <span class="k">nogil</span><span class="p">:</span>
 
     <span class="n">r</span> <span class="o">=</span> <span class="n">_clip</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">_clip</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1</span><span class="p">)</span>
@@ -104,7 +104,7 @@ written in <a class="reference external" href="https://cython.org/">cython</a>, 
     <span class="n">r2</span> <span class="o">=</span> <span class="n">_clip</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="n">rl</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1</span><span class="p">)</span>
     <span class="n">c2</span> <span class="o">=</span> <span class="n">_clip</span><span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="n">cl</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1</span><span class="p">)</span>
 
-    <span class="k">cdef</span> <span class="kt">cnp</span>.<span class="kt">double_t</span> <span class="nf">ans</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">+</span> <span class="n">img</span><span class="p">[</span><span class="n">r2</span><span class="p">,</span> <span class="n">c2</span><span class="p">]</span> <span class="o">-</span> <span class="n">img</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c2</span><span class="p">]</span> <span class="o">-</span> <span class="n">img</span><span class="p">[</span><span class="n">r2</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span>
+    <span class="k">cdef</span><span class="w"> </span><span class="kt">cnp</span>.<span class="kt">double_t</span> <span class="nf">ans</span><span class="w"> </span><span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">+</span> <span class="n">img</span><span class="p">[</span><span class="n">r2</span><span class="p">,</span> <span class="n">c2</span><span class="p">]</span> <span class="o">-</span> <span class="n">img</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c2</span><span class="p">]</span> <span class="o">-</span> <span class="n">img</span><span class="p">[</span><span class="n">r2</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">ans</span> <span class="o">&lt;</span> <span class="mf">0</span><span class="p">):</span>
         <span class="k">return</span> <span class="mf">0</span>
@@ -112,8 +112,8 @@ written in <a class="reference external" href="https://cython.org/">cython</a>, 
 </pre></div>
 <p>The translation to python, and thus to pythran, would be:</p>
 <div class="highlight"><pre><span></span><span class="c1">#pythran export _integ(float64[::], int, int, int, int)</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="k">def</span> <span class="nf">_clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">):</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">):</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">low</span> <span class="o">&lt;=</span> <span class="n">high</span>
     <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">high</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">high</span>
@@ -121,7 +121,7 @@ written in <a class="reference external" href="https://cython.org/">cython</a>, 
         <span class="k">return</span> <span class="n">low</span>
     <span class="k">return</span> <span class="n">x</span>
 
-<span class="k">def</span> <span class="nf">_integ</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">rl</span><span class="p">,</span> <span class="n">cl</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_integ</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">rl</span><span class="p">,</span> <span class="n">cl</span><span class="p">):</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">_clip</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">_clip</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
@@ -161,7 +161,7 @@ and the interprocedural analysis is not recursive. It has some built-in knowledg
 about the value range of functions like <tt class="docutils literal">len</tt> and <tt class="docutils literal">range</tt>, which proves to
 be useful for practical cases.</p>
 <p>Let's illustrate that analysis through an example:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="k">assert</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="k">while</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -220,7 +220,7 @@ over-estimation). So we need to visit both the true branch and the false branch
 consumes the equations without modifying them.</p>
 <p>Running this code through <tt class="docutils literal">pythran <span class="pre">-P</span></tt>, which optimizes the code
 then prints the python code back, gives:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="n">a_</span> <span class="o">=</span> <span class="n">a</span>
     <span class="k">assert</span> <span class="p">(</span><span class="n">a_</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">b</span> <span class="o">=</span> <span class="mi">10</span>
@@ -238,7 +238,7 @@ that never hold.</p>
 <h2>Programming Nits</h2>
 <p>Using a naive control-flow based approach has some advantages. For instance, in the
 following code:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
         <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
@@ -253,7 +253,7 @@ when visiting the children of <tt class="docutils literal">if a &gt; 12</tt>, it
 return. Then when visiting the <tt class="docutils literal">else</tt> branch, it records <tt class="docutils literal">b == 2</tt> and also
 ends up with <tt class="docutils literal">b == 2</tt> upon the return.</p>
 <p>In the end, <tt class="docutils literal">pythran <span class="pre">-P</span></tt> on the above snippets yields:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">2</span>
 </pre></div>
 <p>Let's be honest, this algorithm is super greedy, and if we find a sequence of <tt class="docutils literal">if</tt>

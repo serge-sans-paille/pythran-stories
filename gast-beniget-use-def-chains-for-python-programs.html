@@ -135,7 +135,7 @@ DEF(a'') -&gt; USE(a'') # print(a)
 <div class="section" id="detect-unused-imports">
 <h3>Detect Unused Imports</h3>
 <p>This is a very basic usage: look for <tt class="docutils literal">DEF</tt> without any <tt class="docutils literal">USE</tt>, and warn about them, focusing on imported values.</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">beniget</span><span class="o">,</span> <span class="nn">gast</span> <span class="k">as</span> <span class="nn">ast</span>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">beniget</span><span class="o">,</span><span class="w"> </span><span class="nn">gast</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ast</span>
 
 <span class="c1"># parse some simple statements</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;from math import cos, sin; print(cos(3))&quot;</span>
@@ -206,14 +206,14 @@ function.</p>
 <div class="section" id="detecting-nameerror">
 <h3>Detecting <tt class="docutils literal">NameError</tt></h3>
 <p>Any <tt class="docutils literal">USE</tt> without <tt class="docutils literal">DEF</tt> is probably (and no, not <strong>certainly</strong>) an error. But even if there's an associated <tt class="docutils literal">DEF</tt>, it could be an error; Consider the following:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">random</span>
 <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </pre></div>
 <p>There's a chance that <tt class="docutils literal">a</tt> is unbound while executing <tt class="docutils literal">print(a)</tt>. It would be possible to combine <tt class="docutils literal">beniget</tt> with a dummy code transformation to detect this issue by generating dummy top-level definitions and checking if they have any <tt class="docutils literal">USE</tt>:</p>
 <div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># if any of those have a USE, then we have a potential issue</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">random</span>
 <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>

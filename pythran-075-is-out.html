@@ -98,8 +98,8 @@ eventually vectorized and parallelized.</p>
 <p>Following the tradition, each release comes with a code sample. This one
 comes from <a class="reference external" href="http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/">http://jakevdp.github.io/blog/2012/08/24/numba-vs-cython/</a></p>
 <div class="highlight"><pre><span></span><span class="c1">#pythran export pythran_pairwise(float64 [][])</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="k">def</span> <span class="nf">pythran_pairwise</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pythran_pairwise</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">X</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 </pre></div>
 <p>This kernel relies a lot on Numpy's broadcasting, but Pythran can now

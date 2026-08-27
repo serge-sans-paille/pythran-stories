@@ -90,8 +90,8 @@ The following code is going to be compiled as a shared library through <tt class
 <span class="p">}</span>
 </pre></div>
 <p>It is then loaded through <tt class="docutils literal">ctypes</tt> and used as a parameter to <tt class="docutils literal">scipy.integrate</tt></p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">ctypes</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span><span class="p">,</span> <span class="n">LowLevelCallable</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">ctypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">integrate</span><span class="p">,</span> <span class="n">LowLevelCallable</span>
 
 <span class="n">lib</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">&#39;testlib.so&#39;</span><span class="p">))</span>
 <span class="n">lib</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span>
@@ -113,7 +113,7 @@ The following code is going to be compiled as a shared library through <tt class
 using <tt class="docutils literal">$ pythran testlib.py <span class="pre">-O2</span></tt> to produce a shared library <tt class="docutils literal">testlib.so</tt>.</p>
 <div class="highlight"><pre><span></span><span class="c1"># testlib.py</span>
 <span class="c1">#pythran export f(int, float64 [], float64 [])</span>
-<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">cp</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">cp</span><span class="p">):</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">cp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">c</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
@@ -124,12 +124,12 @@ export</tt> lines. And that's definitively a useful thing[0], as it is dead easy
 to change its interface to generate Python-free functions. With a bit of syntactic sugar, it gives the following:</p>
 <div class="highlight"><pre><span></span><span class="c1"># testlib.py</span>
 <span class="c1">#pythran export capsule f(int32, float64*, float64* )</span>
-<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">cp</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">cp</span><span class="p">):</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">cp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">c</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 <p>Only the Pythran comment changes, the Python code is unchanged and the resulting function <tt class="docutils literal">f</tt> is not even, it's actually a capsule:</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testlib</span> <span class="kn">import</span> <span class="n">f</span>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">testlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">f</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">f</span>
 <span class="o">&lt;</span><span class="n">capsule</span> <span class="nb">object</span> <span class="s2">&quot;f(int, float64*, float64*)&quot;</span> <span class="n">at</span> <span class="mh">0x7f554d69f840</span><span class="o">&gt;</span>
 </pre></div>
@@ -163,15 +163,15 @@ API. Let's see how we can achieve the same result with Pythran. The original C r
 <span class="p">}</span>
 </pre></div>
 <p>Using Pythran and Numpy, it is possible to write a portable version like this:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.ctypeslib</span> <span class="kn">import</span> <span class="n">as_array</span>
-<span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">output_coordinates</span><span class="p">,</span> <span class="n">input_coordinates</span><span class="p">,</span> <span class="n">output_rank</span><span class="p">,</span> <span class="n">input_rank</span><span class="p">,</span> <span class="n">user_data</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">numpy.ctypeslib</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_array</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="n">output_coordinates</span><span class="p">,</span> <span class="n">input_coordinates</span><span class="p">,</span> <span class="n">output_rank</span><span class="p">,</span> <span class="n">input_rank</span><span class="p">,</span> <span class="n">user_data</span><span class="p">):</span>
     <span class="n">shift</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">input_data</span> <span class="o">=</span> <span class="n">as_array</span><span class="p">(</span><span class="n">input_coordinates</span><span class="p">,</span> <span class="n">input_rank</span><span class="p">)</span>
     <span class="n">output_data</span> <span class="o">=</span> <span class="n">as_array</span><span class="p">(</span><span class="n">output_coordinates</span><span class="p">,</span> <span class="n">output_rank</span><span class="p">)</span>
     <span class="n">input_data</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">output_data</span> <span class="o">-</span> <span class="n">shift</span>
     <span class="k">return</span> <span class="mi">1</span>
 
-<span class="k">def</span> <span class="nf">transform_basic</span><span class="p">(</span><span class="n">output_coordinates</span><span class="p">,</span> <span class="n">input_coordinates</span><span class="p">,</span> <span class="n">output_rank</span><span class="p">,</span> <span class="n">input_rank</span><span class="p">,</span> <span class="n">user_data</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform_basic</span><span class="p">(</span><span class="n">output_coordinates</span><span class="p">,</span> <span class="n">input_coordinates</span><span class="p">,</span> <span class="n">output_rank</span><span class="p">,</span> <span class="n">input_rank</span><span class="p">,</span> <span class="n">user_data</span><span class="p">):</span>
     <span class="n">shift</span> <span class="o">=</span> <span class="n">user_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">input_rank</span><span class="p">):</span>
         <span class="n">input_coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">shift</span><span class="p">;</span>
@@ -183,11 +183,11 @@ API. Let's see how we can achieve the same result with Pythran. The original C r
 <span class="c1">#pythran export capsule transform_basic(int64*, float64*, int32, int32, float64*)</span>
 </pre></div>
 <p>Once compiled with Pythran, we get a native library that can be imported and used in a Python script:</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ctypes</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span><span class="p">,</span> <span class="n">LowLevelCallable</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span><span class="p">,</span> <span class="n">LowLevelCallable</span>
 
-<span class="kn">from</span> <span class="nn">example</span> <span class="kn">import</span> <span class="n">transform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">example</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform</span>
 
 <span class="n">shift</span> <span class="o">=</span> <span class="mf">0.5</span>
 

@@ -91,7 +91,7 @@ feeds/all.atom.xml"
 <h1>Introduction with Pi computation</h1>
 <p>Computing $\pi$ is quite old fashined, but it's a good start to learn Pythran!</p>
 <p>Here is a Fortran-like version:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pi_approximate</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pi_approximate</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span>
 <span class="o">...</span>     <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>   
 <span class="o">...</span>     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
@@ -107,7 +107,7 @@ feeds/all.atom.xml"
 </code></pre></div>
 
 <p>Turning this code into Pythran code is relatively easy. First we need to import Pythran:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pythran</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">pythran</span>
 </code></pre></div>
 
 <p>And load it's notebook integration mode:</p>
@@ -117,8 +117,8 @@ feeds/all.atom.xml"
 <p>Now we'll just reproduce the code above, with an additionnal line to tell pythran about the argument type. the return type is infered.</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pi_approximate_pythran(int)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pi_approximate_pythran</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pi_approximate_pythran</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span>
 <span class="o">...</span>     <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>   
 <span class="o">...</span>     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
@@ -138,8 +138,8 @@ feeds/all.atom.xml"
 <p>Can we go faster? The astute reader has already noticed that the loop can run in parallel, so let's use OpenMP integration:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">fopenmp</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pi_approximate_pythran_omp(int)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pi_approximate_pythran_omp</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pi_approximate_pythran_omp</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span>
 <span class="o">...</span>     <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="o">...</span>     <span class="c1">#omp parallel for reduction(+:result)</span>
@@ -153,8 +153,8 @@ feeds/all.atom.xml"
 </code></pre></div>
 
 <p>But everything looks very Fortran-ish in this example. Why not trying the following:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pi_numpy_style</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pi_numpy_style</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span>
 <span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">step</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
@@ -170,8 +170,8 @@ feeds/all.atom.xml"
 <p>Good new! Pythran can also handle this version, without much changes:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pi_numpy_style_pythran(int)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pi_numpy_style_pythran</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pi_numpy_style_pythran</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span>
 <span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">step</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
@@ -187,8 +187,8 @@ feeds/all.atom.xml"
 <p>Cherry on the cake: Pythran can take advantage of the vectorized code to generate SIMD code:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">DUSE_BOOST_SIMD</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pi_numpy_style_pythran_simd(int)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pi_numpy_style_pythran_simd</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pi_numpy_style_pythran_simd</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span>
 <span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">step</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
@@ -206,7 +206,7 @@ feeds/all.atom.xml"
 </ul>
 <h1>Type Annotations</h1>
 <p>Consider the following function:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pairwise_distance</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pairwise_distance</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">X</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div>
 
@@ -220,10 +220,10 @@ feeds/all.atom.xml"
 
 <p>Pythran can handle all of this! Note the double export to specify the overloads:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pairwise_distance_pythran(float32[][])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pairwise_distance_pythran(float64[:,:])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pairwise_distance_pythran</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pairwise_distance_pythran</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
 <span class="o">...</span>     <span class="nb">print</span> <span class="n">X</span><span class="o">.</span><span class="n">dtype</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">X</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div>
@@ -241,7 +241,7 @@ feeds/all.atom.xml"
 <p>There's more than arrays and scalars in Pythran types. What about... a tuple of tuple of complex numbers, lists and sets?</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export wtf((int, complex128, (int set, int list, int:str dict)))</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">wtf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">wtf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">x</span>
 </code></pre></div>
 
@@ -263,7 +263,7 @@ feeds/all.atom.xml"
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#                  bool,</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#                  bool,</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#                  bool)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my</span><span class="p">(</span><span class="n">ga</span><span class="p">,</span> <span class="n">bu</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">meu</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">my</span><span class="p">(</span><span class="n">ga</span><span class="p">,</span> <span class="n">bu</span><span class="p">,</span> <span class="n">zo</span><span class="p">,</span> <span class="n">meu</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">pass</span>
 </code></pre></div>
 
@@ -283,8 +283,8 @@ feeds/all.atom.xml"
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pi_numpy_style_pythran_default(int)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export pi_numpy_style_pythran_default()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">pi_numpy_style_pythran_default</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">pi_numpy_style_pythran_default</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span>
 <span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">step</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
@@ -304,8 +304,8 @@ feeds/all.atom.xml"
 
 <h1>Compilation of Numpy Expressions</h1>
 <p>Pythran is well aware of high-level numpy expressions. Consider this function:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">vibr_energy</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">vibr_energy</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">harmonic</span> <span class="o">*</span> <span class="n">i</span> <span class="o">-</span> <span class="n">anharmonic</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">dat0</span><span class="p">,</span> <span class="n">dat1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">1000000</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">1000000</span><span class="p">)</span>
@@ -318,8 +318,8 @@ feeds/all.atom.xml"
 </code></pre></div>
 
 <p>A typical way to optimize it would be to use the <code>numexpr</code> package:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numexpr</span> <span class="k">as</span> <span class="nn">ne</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">vibr_energy_numexpr</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numexpr</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ne</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">vibr_energy_numexpr</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">ne</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s1">&#39;exp(-harmonic * i - anharmonic * (i ** 2))&#39;</span><span class="p">)</span>
 </code></pre></div>
 
@@ -333,10 +333,10 @@ feeds/all.atom.xml"
 <p>Pythran implements (roughly) the same optimizations as <code>numexpr</code> does:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span> <span class="o">-</span><span class="n">DUSE_BOOST_SIMD</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">Ofast</span> <span class="o">-</span><span class="n">fopenmp</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export vibr_energy_pythran(float[], float[], float)</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">vibr_energy_pythran</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">vibr_energy_pythran</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
 <span class="o">...</span>     
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">harmonic</span> <span class="o">*</span> <span class="n">i</span> <span class="o">-</span> <span class="n">anharmonic</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
 </code></pre></div>
@@ -349,10 +349,10 @@ feeds/all.atom.xml"
 
 <p>Remember that Pythran can handle polymorphic code? Then let's try:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export vibr_energy_pythran(float[], float[], float)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export vibr_energy_pythran(float[], float[], float[])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">vibr_energy_pythran</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">vibr_energy_pythran</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">anharmonic</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">harmonic</span> <span class="o">*</span> <span class="n">i</span> <span class="o">-</span> <span class="n">anharmonic</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
 </code></pre></div>
 
@@ -371,7 +371,7 @@ feeds/all.atom.xml"
 </ol>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">file</span> <span class="n">scrabble</span><span class="o">.</span><span class="n">py</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export scrabble_score(str, str:int dict)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">scrabble_score</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">scoretable</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">scrabble_score</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">scoretable</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="o">...</span>     <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
 <span class="o">...</span>         <span class="k">if</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">scoretable</span><span class="p">:</span>
@@ -453,7 +453,7 @@ feeds/all.atom.xml"
 <span class="p">[</span><span class="mi">32</span><span class="nx">mINFO</span><span class="w">    </span><span class="p">[</span><span class="mi">0</span><span class="nx">m</span><span class="w"> </span><span class="p">[</span><span class="mi">34</span><span class="nx">mOutput</span><span class="p">:</span><span class="w"> </span><span class="o">/</span><span class="nx">home</span><span class="o">/</span><span class="nx">sguelton</span><span class="o">/</span><span class="nx">sources</span><span class="o">/</span><span class="nx">pythran</span><span class="o">/</span><span class="nx">notebooks</span><span class="o">/</span><span class="nx">scrabble</span><span class="p">.</span><span class="nx">so</span><span class="p">[</span><span class="mi">0</span><span class="nx">m</span>
 </code></pre></div>
 
-<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">scrabble</span>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">scrabble</span>
 </code></pre></div>
 
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">scrabble</span><span class="o">.</span><span class="vm">__file__</span>
@@ -471,12 +471,12 @@ feeds/all.atom.xml"
 <h1>Using Pythran with distutils</h1>
 <p>Pythran provides some facilities for distutils integration, in the form of a <code>PythranExtension</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">file</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">Extension</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span><span class="p">,</span> <span class="n">dist</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">distutils.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extension</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">setuptools</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup</span><span class="p">,</span> <span class="n">dist</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">dist</span><span class="o">.</span><span class="n">Distribution</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">setup_requires</span><span class="o">=</span><span class="s1">&#39;pythran&#39;</span><span class="p">))</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pythran</span> <span class="kn">import</span> <span class="n">PythranExtension</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pythran</span><span class="w"> </span><span class="kn">import</span> <span class="n">PythranExtension</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">module1</span> <span class="o">=</span> <span class="n">PythranExtension</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">,</span> <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;scrabble.py&#39;</span><span class="p">])</span>
 <span class="o">...</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">setup</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;demo&#39;</span><span class="p">,</span>
@@ -569,7 +569,7 @@ demo-1.0/setup.cfg
 <span class="o">&gt;&gt;&gt;</span> <span class="n">actions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;increase&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
 <span class="o">...</span>            <span class="s2">&quot;decrease&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">modify</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">what</span> <span class="o">=</span> <span class="n">actions</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
 <span class="o">...</span>     <span class="k">return</span> <span class="n">what</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 </code></pre></div>
@@ -585,7 +585,7 @@ demo-1.0/setup.cfg
 <p>Not widely supported, but it works for simple examples.</p>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="o">%%</span><span class="n">pythran</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="c1">#pythran export factorize_naive(long)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">factorize_naive</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span><span class="w"> </span><span class="nf">factorize_naive</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
 <span class="o">...</span>         <span class="k">return</span> <span class="p">[]</span>
 <span class="o">...</span>     
